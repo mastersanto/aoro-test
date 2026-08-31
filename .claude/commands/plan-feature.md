@@ -8,4 +8,6 @@ Execute the SDD plan step for: $ARGUMENTS (if empty, use the active feature name
 3. Fill the feature's `plan.md` from `specs/templates/plan-template.md`: stack, architecture, data flow, external APIs, environment/deployment, risks.
 4. Every decision must trace to a spec requirement or constitution article; complete the plan's "Constitution check" section honestly and flag conflicts instead of hiding them.
 5. Update `.env.example` if the plan adds or removes environment variables.
-6. Present a short summary of key decisions and ask for approval before `/tasks`. Do not write application code.
+6. While researching, record the verified Polymarket API facts (endpoints, auth, request/response shapes) as a skill at `.claude/skills/polymarket-api/SKILL.md` so implementation tasks load them without re-researching.
+7. Launch the `constitution-check` agent on the completed plan.md and include its verdict in your summary.
+8. Present a short summary of key decisions and ask for approval before `/tasks`. Do not write application code.

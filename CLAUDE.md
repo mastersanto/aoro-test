@@ -20,9 +20,10 @@ Per feature, in order:
 4. `specs/NNN-feature-name/tasks.md` — ordered checklist of small, independently verifiable tasks.
 5. Implementation — one task at a time, checking off tasks.md as you go.
 
-Slash commands in `.claude/commands/` drive this: `/spec`, `/plan-feature`, `/tasks`, `/implement`. New feature specs start from `specs/templates/`.
+Slash commands in `.claude/commands/` drive this: `/spec`, `/plan-feature`, `/tasks`, `/implement`. `/sdd-status` reports every feature's gate state and the next action. New feature specs start from `specs/templates/`.
 
 Rules:
+- Gates are mechanical, not just procedural: a PreToolUse hook (`.claude/hooks/sdd-gate.sh`) blocks writes to application code until a `tasks.md` has its approval box checked; each command runs the `constitution-check` agent before its approval gate; `bash scripts/sdd-lint.sh` (also run in CI) validates spec structure and approval ordering.
 - Unresolved questions in a spec are marked `[NEEDS CLARIFICATION: ...]`. Resolve them with the user before writing the plan; never silently pick an answer.
 - Spec, plan, and tasks each need explicit user approval before moving to the next step.
 - If implementation reveals the plan was wrong, update plan.md (and spec.md if scope changed) in the same change — the specs must always describe the system as built.

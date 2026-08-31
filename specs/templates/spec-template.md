@@ -9,7 +9,9 @@
 
 ## What (user stories)
 
-### US-1 — <story name>
+Tag every story `*(core)*`, `*(bonus)*`, or `*(stretch)*`: core stories block release; bonus and stretch do not.
+
+### US-1 *(core)* — <story name>
 As a <role>, I can <capability>, so that <benefit>.
 
 **Acceptance criteria**
