@@ -120,3 +120,32 @@ export async function openConfirmation(page: Page) {
   await page.getByRole("button", { name: /review bet/i }).click();
   return page.getByRole("dialog");
 }
+
+/**
+ * Both elements on screen AT THE SAME TIME, once the first is scrolled to.
+ *
+ * This is what "the disclaimer is visible together with the suggestions" means:
+ * a reader must never be able to read the advice with the qualifier off-screen.
+ * It deliberately does NOT require the pair to sit above the fold on load —
+ * that would be a layout mandate the spec does not make.
+ */
+export async function expectCoVisible(a: Locator, b: Locator, what: string) {
+  await a.scrollIntoViewIfNeeded();
+  await expect(a, `${what}: first element not visible`).toBeVisible();
+  await expect(b, `${what}: second element not visible`).toBeVisible();
+
+  const [boxA, boxB] = [await a.boundingBox(), await b.boundingBox()];
+  expect(boxA, `${what}: first element has no box`).not.toBeNull();
+  expect(boxB, `${what}: second element has no box`).not.toBeNull();
+  expect(boxB!.width, `${what}: second element is token-sized (hidden?)`).toBeGreaterThan(4);
+  expect(boxB!.height, `${what}: second element is token-sized (hidden?)`).toBeGreaterThan(4);
+
+  const view = a.page().viewportSize()!;
+  for (const [box, name] of [[boxA!, "first"], [boxB!, "second"]] as const) {
+    expect(box.y, `${what}: ${name} element above the viewport`).toBeGreaterThanOrEqual(-1);
+    expect(
+      box.y + box.height,
+      `${what}: ${name} element off-screen while the other is read`,
+    ).toBeLessThanOrEqual(view.height + 1);
+  }
+}

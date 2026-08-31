@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { expectGenuinelyVisible, stubApi } from "./support";
+import { expectCoVisible, expectGenuinelyVisible, stubApi } from "./support";
 
 /**
  * VR-3 — the safety signals survive the reskin, and survive it *on screen*.
@@ -30,9 +30,11 @@ test.describe("DEMO signalling", () => {
     await page.getByRole("dialog").getByRole("button", { name: /place bet/i }).click();
 
     await expectGenuinelyVisible(page.getByText(/DEMO bet placed/i), "demo result notice");
-    await expectGenuinelyVisible(
+    // The position row must carry the demo signal wherever it is read.
+    await expectCoVisible(
       page.getByLabel(/demo positions/i),
-      "demo positions panel",
+      page.getByText(/no real money involved/i),
+      "demo position and its DEMO label",
     );
   });
 });
@@ -45,9 +47,14 @@ test.describe("AI disclaimer (Art. V)", () => {
     await page.getByLabel(/what are you interested in/i).fill("tennis");
     await page.getByRole("button", { name: /get suggestions/i }).click();
 
-    await expectGenuinelyVisible(page.getByTestId("suggestion-0"), "first suggestion");
-    // The point of the check: not merely present, but on screen with the advice.
-    await expectGenuinelyVisible(page.getByText(/not financial advice/i), "disclaimer");
+    // The guarantee is co-visibility: the advice can never be read with its
+    // qualifier off-screen. Not "the panel sits above the fold", which would be
+    // a layout mandate the spec does not make.
+    await expectCoVisible(
+      page.getByTestId("suggestion-0"),
+      page.getByText(/not financial advice/i),
+      "suggestion and its disclaimer",
+    );
   });
 });
 

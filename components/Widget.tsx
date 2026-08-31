@@ -10,6 +10,7 @@ import { realBettingAvailability } from "@/lib/betting-availability";
 import { fetchPrice } from "@/lib/polymarket/clob";
 import { AssistPanel } from "@/components/AssistPanel";
 import { BetPanel } from "@/components/BetPanel";
+import { BetSheet, useIsNarrow } from "@/components/BetSheet";
 import { DemoPositions } from "@/components/DemoPositions";
 import { MarketList } from "@/components/MarketList";
 import { formatUsdPrecise } from "@/lib/format";
@@ -22,6 +23,8 @@ export function Widget() {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [geo, setGeo] = useState<GeoDecision | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const narrow = useIsNarrow();
 
   // Ask the server whether real betting may be offered here (US-5). The effect
   // only subscribes; state is set in the async continuation.
@@ -67,6 +70,7 @@ export function Widget() {
   function handleUseSuggestion(s: GroundedSuggestion) {
     setMarket(s.market);
     setPreselected(s.outcome);
+    setSheetOpen(true);
     setNotice(null);
     setError(null);
   }
@@ -96,6 +100,21 @@ export function Widget() {
       setError(e instanceof Error ? e.message : "That demo bet could not be placed.");
     }
   }
+
+  // Built once and placed in exactly one of two containers, so there is never a
+  // second bet-entry surface (Art. II).
+  const betPanel = (
+    <BetPanel
+      key={preselected?.tokenId ?? market?.id ?? "none"}
+      market={market}
+      initialOutcome={preselected}
+      mode={mode}
+      onPlace={handlePlace}
+      bettingDisabled={mode === "real" && !availability.allowed}
+      disabledReason={mode === "real" ? availability.reason : undefined}
+      balanceUsd={mode === "demo" ? demo.balanceUsd : undefined}
+    />
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -149,25 +168,21 @@ export function Widget() {
           onSelect={(m) => {
             setMarket(m);
             setPreselected(null);
+            setSheetOpen(true);
           }}
         />
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
           <AssistPanel onUseSuggestion={handleUseSuggestion} />
 
-          <BetPanel
-            key={preselected?.tokenId ?? market?.id ?? "none"}
-            market={market}
-            initialOutcome={preselected}
-            mode={mode}
-            onPlace={handlePlace}
-            bettingDisabled={mode === "real" && !availability.allowed}
-            disabledReason={mode === "real" ? availability.reason : undefined}
-            balanceUsd={mode === "demo" ? demo.balanceUsd : undefined}
-          />
+          {!narrow && betPanel}
           <DemoPositions positions={demo.positions} />
         </div>
       </div>
+
+      <BetSheet open={narrow && sheetOpen && market !== null} onDismiss={() => setSheetOpen(false)}>
+        {betPanel}
+      </BetSheet>
     </div>
   );
 }
