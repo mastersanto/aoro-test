@@ -153,7 +153,12 @@ export async function openConfirmation(page: Page) {
  * that would be a layout mandate the spec does not make.
  */
 export async function expectCoVisible(a: Locator, b: Locator, what: string) {
+  // Scroll so the PAIR is in view, not just the first element. Scrolling only
+  // the first leaves a second element just below the fold undetected when the
+  // first happens to already be on screen — which says nothing about whether
+  // they can be read together, the property this asserts.
   await a.scrollIntoViewIfNeeded();
+  await b.scrollIntoViewIfNeeded();
   await expect(a, `${what}: first element not visible`).toBeVisible();
   await expect(b, `${what}: second element not visible`).toBeVisible();
 

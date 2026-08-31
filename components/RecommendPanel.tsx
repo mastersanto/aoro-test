@@ -51,15 +51,13 @@ export function RecommendPanel({
       className="rounded-panel border border-line bg-panel p-4"
     >
       <h2 className="text-sm font-semibold text-ink">What would you favour here?</h2>
-      <p className="mt-1 text-xs text-dim">
-        An opinion about this market, from its current prices. Not a prediction.
-      </p>
+      <p className="mt-0.5 text-xs text-dim">An opinion from current prices. Not a prediction.</p>
 
       <button
         type="button"
         onClick={onRequest}
         disabled={loading}
-        className="mt-3 min-h-11 w-full rounded-control border border-up/40 px-3 text-sm font-medium text-up hover:bg-up/10 disabled:opacity-50"
+        className="mt-2 min-h-11 w-full rounded-control border border-up/40 px-3 text-sm font-medium text-up hover:bg-up/10 disabled:opacity-50"
       >
         {loading ? "Thinking…" : "What would you favour?"}
       </button>
@@ -82,9 +80,9 @@ export function RecommendPanel({
       )}
 
       {recommendation && favoured && !withdrawnReason && (
-        <div data-testid="recommendation" className="mt-3 flex flex-col gap-3">
+        <div data-testid="recommendation" className="mt-3 flex flex-col gap-2">
 
-          <p className="text-xs text-dim">
+          <p className="text-xs leading-snug text-dim">
             About: <span className="text-muted">{market.question}</span>
           </p>
 
@@ -93,31 +91,33 @@ export function RecommendPanel({
             <span className="font-figure tabular-nums text-up">{formatPercent(favoured.price)}</span>
           </p>
 
-          <dl className="flex flex-col gap-2 text-xs">
-            <div>
-              <dt className="text-dim">Resolves on</dt>
-              <dd className="mt-0.5 text-muted">{recommendation.resolvesOn}</dd>
-            </div>
-            <div>
-              <dt className="text-dim">What the price shows</dt>
-              <dd className="mt-0.5 text-muted">{recommendation.priceImplies}</dd>
-            </div>
-            <div>
-              <dt className="text-dim">The case for</dt>
-              <dd data-testid="case-for" className="mt-0.5 text-muted">{recommendation.caseFor}</dd>
-            </div>
-            <div>
-              <dt className="text-dim">What would make it lose</dt>
-              <dd data-testid="case-against" className="mt-0.5 text-muted">
-                {recommendation.caseAgainst}
-              </dd>
-            </div>
-          </dl>
 
           <p className="rounded-control border border-line bg-white/5 px-3 py-2 text-xs text-muted">
             AI assistance is not financial advice. This is an opinion about current prices, not a
             prediction, and you decide every bet.
           </p>
+
+          <dl className="flex flex-col gap-1.5 text-xs leading-snug">
+            <div>
+              <dt className="text-dim">Resolves on</dt>
+              <dd className="text-muted">{recommendation.resolvesOn}</dd>
+            </div>
+            <div>
+              <dt className="text-dim">What the price shows</dt>
+              <dd className="text-muted">{recommendation.priceImplies}</dd>
+            </div>
+            <div>
+              <dt className="text-dim">The case for</dt>
+              <dd data-testid="case-for" className="text-muted">{recommendation.caseFor}</dd>
+            </div>
+            <div>
+              <dt className="text-dim">What would make it lose</dt>
+              <dd data-testid="case-against" className="text-muted">
+                {recommendation.caseAgainst}
+              </dd>
+            </div>
+          </dl>
+
 
           <button
             type="button"

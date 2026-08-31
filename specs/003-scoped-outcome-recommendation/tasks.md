@@ -60,9 +60,9 @@ Sequencing: the pure rules first, since they hold every binding decision and nee
       Verify: `npm test` fails on those assertions.
 - [x] T15. **RED (behaviour)** — the ordering and sheet state machine, in the behaviour suite as spec.md requires: the assistant leads for **each** of the four availability reasons; the sheet does not open over the assistant when the entry is not actionable; it closes if the entry stops being actionable while open; the matrix of selection × mode × region × market-restriction × wallet-readiness.
       Verify: `npm test` fails on those assertions.
-- [ ] T16. **RED (appearance)** — the counter-case co-visible with the case for at the same type size, never collapsed, truncated **or placed behind an interaction**; the disclaimer co-visible with a recommendation at both viewports; a withdrawal notice genuinely visible.
+- [x] T16. **RED (appearance)** — the counter-case co-visible with the case for at the same type size, never collapsed, truncated **or placed behind an interaction**; the disclaimer co-visible with a recommendation at both viewports; a withdrawal notice genuinely visible.
       Verify: `npm run test:visual` fails on each, and each is proven able to fail by a **named** break — collapse the counter-case behind a details element; shrink its type size; push the disclaimer below the fold at 390; suppress the withdrawal notice — with only the corresponding check going red.
-- [ ] T17. **GREEN** — implement `RecommendPanel` and the ordering until T13–T16 pass.
+- [x] T17. **GREEN** — implement `RecommendPanel` and the ordering until T13–T16 pass.
       Verify: both suites green; no pre-existing test file modified; the Article II bypass tests untouched.
 
 ## Phase 6 — Close out
