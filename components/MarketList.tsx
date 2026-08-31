@@ -199,12 +199,19 @@ export function MarketList({
           </p>
         )}
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+        <div
+          // 006 / D3 — one scrolling row, not wrapped. Wrapping cost a whole row
+          // of vertical space at 390px and gets worse as categories are added.
+          // Every filter stays in the tab order and reachable by swipe.
+          className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          role="group"
+          aria-label="Filter by category"
+        >
           <button
             type="button"
             onClick={() => setCategoryId(null)}
             aria-pressed={categoryId === null}
-            className={`min-h-11 rounded-full border px-4 text-xs transition ${
+            className={`min-h-11 shrink-0 rounded-full border px-4 text-xs transition ${
               categoryId === null
                 ? "border-ink bg-ink text-ground"
                 : "border-line-strong text-muted hover:border-white/35"
@@ -218,7 +225,7 @@ export function MarketList({
               type="button"
               onClick={() => setCategoryId(c.id === categoryId ? null : c.id)}
               aria-pressed={c.id === categoryId}
-              className={`min-h-11 rounded-full border px-4 text-xs transition ${
+              className={`min-h-11 shrink-0 rounded-full border px-4 text-xs transition ${
                 c.id === categoryId
                   ? "border-ink bg-ink text-ground"
                   : "border-line-strong text-muted hover:border-white/35"

@@ -42,8 +42,12 @@ export function evaluateGeo(country: string | null | undefined): GeoDecision {
     return {
       country: code,
       bettingAllowed: false,
+      // Kept short deliberately (006 / LE-1): this renders above the market
+      // list, and the long enumeration ran to a quarter of a 390px screen. The
+      // substance is unchanged — what is refused, why, and what still works.
+      // The widget's own framing supplies the region, so this does not repeat it.
       reason:
-        "New bets are not available in your region — Polymarket's main exchange is close-only here. You can still browse markets, use AI assistance, and practise in demo mode.",
+        "New bets are not available in your region — Polymarket's main exchange is close-only here. Demo mode still works.",
     };
   }
   return { country: code, bettingAllowed: true };

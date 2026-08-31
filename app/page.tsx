@@ -7,7 +7,7 @@ export default function Home() {
         <h1 className="text-xl font-semibold tracking-tight text-ink">
           Polymarket Widget
         </h1>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-1 text-sm text-muted hidden lg:block">
           Browse live prediction markets, get AI help choosing one, and place a bet.
         </p>
       </header>

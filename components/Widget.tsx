@@ -152,7 +152,7 @@ export function Widget() {
           setGeo({
             country: null,
             bettingAllowed: false,
-            reason: "We could not determine your region, so real betting is turned off. Demo mode is available.",
+            reason: "We could not determine your region, so real betting is off. Demo mode still works.",
           });
         }
       }
@@ -372,9 +372,11 @@ export function Widget() {
           // AR-5 requires this explanation not to move with it (001 US-5,
           // 002 VR-3).
           <p role="status" className="max-w-prose text-xs text-muted">
-            {/* The server's reason already ends "You can still browse markets,
-                use AI assistance, and practise in demo mode" — appending our own
-                version said it twice, and cost two lines of a 390px screen. */}
+            {/* 006 / LE-1 — the REASON is rendered, not summarised away. A first
+                attempt put it in a title attribute, which hides compliance
+                information from every touch user; the length was cut at source
+                instead (lib/geo.ts). Region, refusal and demo alternative all
+                stay on screen (Art. V, 001 US-5, 003 AR-5). */}
             Real betting unavailable{geo?.country ? ` in ${geo.country}` : ""} — {geo?.reason}
           </p>
         )}
