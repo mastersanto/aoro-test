@@ -22,7 +22,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 - [x] T4. **RED** — failing tests for Gamma normalization: `outcomes`, `outcomePrices`, and `clobTokenIds` arrive as JSON-encoded strings and must become real arrays; keyset cursor handling; malformed payload rejected.
       Verify: `npm test` fails on those assertions (not on imports), against a recorded Gamma fixture.
-- [ ] T5. **GREEN** — implement `lib/polymarket/gamma.ts` (keyset endpoints only; no offset endpoints) until T4 passes.
+- [x] T5. **GREEN** — implement `lib/polymarket/gamma.ts` (keyset endpoints only; no offset endpoints) until T4 passes.
       Verify: `npm test` passes; a live call returns open markets ordered by 24h volume.
 - [ ] T6. **RED** — failing tests for `/api/markets` behavior: cache hit within the TTL, graceful degradation on 429, search and tag params passed through.
       Verify: `npm test` fails on those assertions.

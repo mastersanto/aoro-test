@@ -40,6 +40,7 @@ npm start            # serve the production build (run npm run build first)
 npm run lint         # eslint
 npm test             # run the full test suite once
 npm run test:watch   # re-run tests on change
+npm run test:live    # network tests against the real Polymarket APIs (excluded from npm test)
 ```
 
 Run a single test:
@@ -49,7 +50,7 @@ npx vitest run -t "renders a component into a DOM"   # by test name (substring m
 npx vitest run tests/render.test.tsx                 # by file
 ```
 
-Tests live in `tests/`. Vitest runs in jsdom with `@testing-library/react` (config: `vitest.config.mts`, matchers: `vitest.setup.ts`) — constitution Article VII binds component-level invariants, so the suite must be able to render.
+Tests live in `tests/`; network-dependent checks live in `tests/live/` and are excluded from the default run. Vitest runs in jsdom with `@testing-library/react` (config: `vitest.config.mts`, matchers: `vitest.setup.ts`) — constitution Article VII binds component-level invariants, so the suite must be able to render.
 
 Dependencies are pinned to exact versions; `next.config.ts` pins `turbopack.root` because a lockfile above the repo otherwise makes the workspace root ambiguous.
 

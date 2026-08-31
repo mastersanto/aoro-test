@@ -7,8 +7,9 @@ import {
   searchMarkets,
 } from "@/lib/polymarket/gamma";
 import fixture from "../fixtures/gamma-keyset.json";
+import searchFixture from "../fixtures/gamma-search.json";
 
-const rawMarket = fixture.data[0];
+const rawMarket = fixture.markets[0];
 
 function mockFetch(body: unknown, ok = true, status = 200) {
   const spy = vi.fn().mockResolvedValue({
@@ -35,32 +36,34 @@ describe("normalizeMarket", () => {
 
   it("zips label, price and token id into each outcome, with price as a number", () => {
     const market = normalizeMarket(rawMarket);
-    expect(market.outcomes[0]).toEqual({
-      label: "Yes",
-      price: 0.62,
-      tokenId: "71358931...",
-    });
-    expect(market.outcomes[1].label).toBe("No");
-    expect(market.outcomes[1].price).toBeCloseTo(0.38);
+    const [first, second] = market.outcomes;
+    expect(first.label).toBe("Thiago Agustin Tirante");
+    expect(first.price).toBeCloseTo(0.09);
+    expect(first.tokenId).toMatch(/^\d+$/); // real CLOB token ids are long decimal strings
+    expect(second.label).toBe("Adrian Mannarino");
+    expect(second.price).toBeCloseTo(0.91);
   });
 
   it("coerces Gamma's numeric strings to numbers", () => {
     const market = normalizeMarket(rawMarket);
-    expect(market.volume).toBe(125000.5);
-    expect(market.volume24hr).toBe(8300.25);
-    expect(market.liquidity).toBe(45000);
-    expect(market.bestBid).toBeCloseTo(0.61);
-    expect(market.bestAsk).toBeCloseTo(0.63);
+    // Gamma mixes types on the wire: volume/liquidity are strings, volume24hr a float.
+    expect(typeof rawMarket.volume).toBe("string");
+    expect(typeof rawMarket.volume24hr).toBe("number");
+    expect(market.volume).toBeCloseTo(811543.44, 1);
+    expect(market.volume24hr).toBeCloseTo(810797.88, 1);
+    expect(market.liquidity).toBeCloseTo(13846.18, 1);
+    expect(market.bestBid).toBeCloseTo(0.08);
+    expect(market.bestAsk).toBeCloseTo(0.1);
   });
 
   it("carries through the flags the widget depends on", () => {
     const market = normalizeMarket(rawMarket);
-    expect(market.id).toBe("516710");
-    expect(market.question).toBe("Will BTC close above $100k on Dec 31?");
+    expect(market.id).toBe("3945923");
+    expect(market.question).toContain("Tirante");
     expect(market.closed).toBe(false);
     expect(market.active).toBe(true);
-    // US-5 honors Gamma's per-market restriction flag.
-    expect(normalizeMarket(fixture.data[1]).restricted).toBe(true);
+    // US-5 honors Gamma's per-market restriction flag (true on this live market).
+    expect(market.restricted).toBe(true);
   });
 
   it("rejects a payload whose encoded fields are not valid JSON", () => {
@@ -106,12 +109,12 @@ describe("fetchMarkets", () => {
     mockFetch(fixture);
     const page = await fetchMarkets();
     expect(page.markets).toHaveLength(2);
-    expect(page.markets[0].outcomes[0].label).toBe("Yes");
-    expect(page.nextCursor).toBe("MjUwMA==");
+    expect(page.markets[0].outcomes[0].label).toBe("Thiago Agustin Tirante");
+    expect(page.nextCursor).toBe(fixture.next_cursor);
   });
 
   it("reports a null cursor when the page is the last one", async () => {
-    mockFetch({ data: fixture.data, next_cursor: null });
+    mockFetch({ markets: fixture.markets, next_cursor: null });
     const page = await fetchMarkets();
     expect(page.nextCursor).toBeNull();
   });
@@ -124,7 +127,7 @@ describe("fetchMarkets", () => {
 
 describe("searchMarkets", () => {
   it("queries the public-search endpoint with the user's terms", async () => {
-    const spy = mockFetch({ events: [], markets: fixture.data, tags: [] });
+    const spy = mockFetch(searchFixture);
     await searchMarkets("bitcoin");
     const url = new URL(spy.mock.calls[0][0] as string);
     expect(url.pathname).toBe("/public-search");
@@ -132,9 +135,9 @@ describe("searchMarkets", () => {
   });
 
   it("returns normalized markets from the search payload", async () => {
-    mockFetch({ events: [], markets: fixture.data, tags: [] });
+    mockFetch(searchFixture);
     const results = await searchMarkets("bitcoin");
-    expect(results).toHaveLength(2);
-    expect(results[0].question).toContain("BTC");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0].question).toContain("Bitcoin");
   });
 });

@@ -1,0 +1,49 @@
+{
+  "events": [
+    {
+      "title": "What price will Bitcoin hit in August?",
+      "markets": [
+        {
+          "id": "3257332",
+          "question": "Will Bitcoin reach $100,000 in August?",
+          "slug": "will-bitcoin-reach-100k-in-august-2026",
+          "outcomes": "[\"Yes\", \"No\"]",
+          "outcomePrices": "[\"0.0005\", \"0.9995\"]",
+          "clobTokenIds": "[\"18258395755041392118198940898057846234774760894152262988568951221464458542850\", \"114727316628172873125190766157418606846347212023742363393254518987604640648589\"]",
+          "volume": "3049519.4011180005",
+          "volume24hr": 436036.7069999983,
+          "liquidity": "230032.69878",
+          "endDate": "2026-09-01T04:00:00Z",
+          "bestAsk": 0.001,
+          "active": true,
+          "closed": false,
+          "restricted": true
+        }
+      ]
+    },
+    {
+      "title": "Bitcoin above ___ on February 23?",
+      "markets": [
+        {
+          "id": "1385950",
+          "question": "Will the price of Bitcoin be above $58,000 on February 23?",
+          "slug": "bitcoin-above-58k-on-february-23",
+          "outcomes": "[\"Yes\", \"No\"]",
+          "outcomePrices": "[\"1\", \"0\"]",
+          "clobTokenIds": "[\"107798711200050464185077319917394339589496218581432085857614724457907413383463\", \"40201610458203603427204349149898127015785644673807953476950233985953864387817\"]",
+          "volume": "516106.876849",
+          "endDate": "2026-02-23T17:00:00Z",
+          "bestBid": 0.999,
+          "bestAsk": 1,
+          "active": true,
+          "closed": true,
+          "restricted": true
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "hasMore": true,
+    "totalResults": 123112
+  }
+}
