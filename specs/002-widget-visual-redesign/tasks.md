@@ -43,7 +43,7 @@ Sequencing: the gate comes first, because a gate written after the work it judge
       Verify: the assertions fail against a scratch row omitting each; the six existing assertions in `geo-degrade`/`demo-flow` plus the `market-list` suite are enumerated in the commit message.
 - [x] T8. **RED** — failing tests for the outcome bar's geometry: widths proportional to price, summing to the full width; single-outcome and many-outcome markets render sanely; a zero or missing price yields no NaN width.
       Verify: `npm test` fails on those assertions against a stub module.
-- [ ] T9. **GREEN** — implement `lib/outcome-bar.ts` until T8 passes.
+- [x] T9. **GREEN** — implement `lib/outcome-bar.ts` until T8 passes.
       Verify: `npm test` green; the bar's widths for the fixture market match the displayed percentages.
 - [ ] T10. **GREEN** — restructure the list into dense rows with the bar, satisfying T7. If the heading/`role="button"` contract changes, replace each affected assertion with an equivalent in **this** task, never delete one.
       Verify: `npm test` green with no test deleted or skipped and every replacement named in the commit; T7's and T3's list-related checks green; no horizontal scroll at 390.
