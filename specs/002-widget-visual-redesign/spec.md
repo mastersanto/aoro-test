@@ -1,6 +1,6 @@
 # Spec 002 — Widget Visual Redesign
 
-**Status:** Draft — awaiting user approval
+**Status:** Approved 2026-08-31
 **Owner:** jorgeivansandoval@gmail.com
 
 **Viewports.** "Desktop" means 1280px wide; "mobile" means 390px wide. Every visibility criterion below is asserted at both unless it names one.
@@ -123,4 +123,4 @@ None — the direction was settled with the project owner before drafting, and t
 
 ## Approval
 
-- [ ] Spec approved by user (required before `/plan-feature`)
+- [x] Spec approved by user (required before `/plan-feature`) — 2026-08-31
