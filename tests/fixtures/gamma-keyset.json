@@ -1,0 +1,39 @@
+{
+  "data": [
+    {
+      "id": "516710",
+      "question": "Will BTC close above $100k on Dec 31?",
+      "slug": "btc-100k-dec-31",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.62\", \"0.38\"]",
+      "clobTokenIds": "[\"71358931...\", \"21810324...\"]",
+      "volume": "125000.5",
+      "volume24hr": "8300.25",
+      "liquidity": "45000",
+      "endDate": "2026-12-31T23:59:59Z",
+      "bestBid": "0.61",
+      "bestAsk": "0.63",
+      "active": true,
+      "closed": false,
+      "restricted": false
+    },
+    {
+      "id": "516711",
+      "question": "Will the Fed cut rates in September?",
+      "slug": "fed-cut-september",
+      "outcomes": "[\"Yes\", \"No\"]",
+      "outcomePrices": "[\"0.31\", \"0.69\"]",
+      "clobTokenIds": "[\"99911122...\", \"88822233...\"]",
+      "volume": "64000",
+      "volume24hr": "12500",
+      "liquidity": "30000",
+      "endDate": "2026-09-18T18:00:00Z",
+      "bestBid": "0.30",
+      "bestAsk": "0.32",
+      "active": true,
+      "closed": false,
+      "restricted": true
+    }
+  ],
+  "next_cursor": "MjUwMA=="
+}
