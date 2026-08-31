@@ -1,0 +1,16 @@
+{
+  "artboards": [
+    { "file": "Current.dc.html", "x": 0, "y": 0, "w": 1280, "h": 1180, "title": "Today — what's confusing" },
+    { "file": "Main.dc.html", "x": 1400, "y": 0, "w": 1280, "h": 1340, "title": "Recommended — Decision rail" },
+    { "file": "MainMobile.dc.html", "x": 2800, "y": 0, "w": 390, "h": 1620, "title": "Recommended — mobile" },
+    { "file": "OptionB.dc.html", "x": 0, "y": 1800, "w": 1280, "h": 900, "title": "Option B — Guided steps" },
+    { "file": "OptionC.dc.html", "x": 1400, "y": 1800, "w": 1280, "h": 880, "title": "Option C — Order ticket" }
+  ],
+  "annotations": [
+    { "id": "brief", "x": 0, "y": -230, "w": 640, "text": "Your three questions:\n1. Bet on the left?  →  Yes, in the recommended direction.\n2. Bet first on mobile?  →  Yes, as the first ACTION — a one-line 'what you picked' header sits above it for context, and the bottom sheet is dropped so nothing overlays the page.\n3. AI after it?  →  Yes for the market-specific advisor. The generic finder is a different tool and moves up to the list.\n\nThe deeper cause of 'confusing' is on this artboard: the bet panel renders in two different positions depending on state (see the two orders drawn at the bottom left), and the two AI panels are styled identically." },
+    { "id": "pick", "x": 1400, "y": -230, "w": 640, "text": "Recommended: Decision rail.\n\nOne fixed order that never reorders — what you picked, the bet, the advisor, your positions. The market question is stated once as a header instead of twice inside two panels. The advisor drops its border and sits on a quieter surface, marked Optional.\n\nTradeoff: before you select a market the left rail has nothing in it, so the empty state has to earn 380px. That is the thing to push back on." },
+    { "id": "borders", "x": 2800, "y": -230, "w": 380, "text": "Note: every control border here is rgba(255,255,255,0.35), not the shipped 0.14.\n\nThe shipped value composites to 1.50:1 against the panel — WCAG 1.4.11 wants 3:1 for a control's visual boundary, and it is the only thing marking the search field, amount input and unselected outcomes as controls. That is a real defect in the app, not in these mockups." },
+    { "id": "alts", "x": 0, "y": 2760, "w": 940, "text": "Two alternates, each with its tradeoff written on the artboard. B keeps the rail on the right and makes the sequence explicit; C pins the bet as an order ticket. Both fix the equal-cards problem; neither answers your left-side question as directly as the recommended one, and C is drawn at desktop only — its 'works at every width' claim is untested." }
+  ],
+  "launch": { "view": "canvas" }
+}

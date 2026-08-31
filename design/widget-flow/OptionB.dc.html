@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif; }
+    a { color: #3DDC97; } a:hover { color: #E8ECF3; }
+    .fig { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+    .ghost { background: rgba(255,255,255,0.05); border-radius: 4px; }
+  </style>
+</helmet>
+
+<div style="width: 1280px; min-height: 860px; background: #0B0E14; color: #E8ECF3; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+
+  <div style="display: flex; align-items: center; gap: 12px">
+    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #9AA3B2; border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 4px 10px">Option B</span>
+    <span style="font-size: 13px; color: #9AA3B2">Guided steps — the rail becomes a numbered sequence, and stays on the right</span>
+    <span style="font-size: 10px; color: #828B99; border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; padding: 3px 9px">Sample data</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start">
+
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; gap: 8px">
+        <div class="ghost" style="flex-grow: 1; height: 44px"></div>
+        <div class="ghost" style="width: 130px; height: 44px"></div>
+      </div>
+      <div style="display: flex; gap: 8px"><div class="ghost" style="width: 54px; height: 30px; border-radius: 999px"></div><div class="ghost" style="width: 74px; height: 30px; border-radius: 999px"></div><div class="ghost" style="width: 66px; height: 30px; border-radius: 999px"></div></div>
+      <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: #10141C; overflow: hidden">
+        <div style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(61,220,151,0.07); box-shadow: inset 2px 0 0 0 #3DDC97; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 14px; font-weight: 500">Will the Fed decrease interest rates by 25 bps after the September meeting?</div>
+          <div style="display: flex; height: 3px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.08)"><div style="width: 62%; background: #3DDC97"></div><div style="width: 38%; background: #F0616D"></div></div>
+        </div>
+        <div style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px"><div class="ghost" style="height: 14px; width: 62%"></div><div class="ghost" style="height: 3px"></div></div>
+        <div style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px"><div class="ghost" style="height: 14px; width: 48%"></div><div class="ghost" style="height: 3px"></div></div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px"><div class="ghost" style="height: 14px; width: 55%"></div><div class="ghost" style="height: 3px"></div></div>
+      </div>
+    </div>
+
+    <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: #10141C; padding: 18px; display: flex; flex-direction: column; gap: 18px">
+
+      <div style="display: flex; align-items: center; gap: 8px">
+        <div style="font-size: 14px; font-weight: 600; flex-grow: 1">Place your bet</div>
+        <div style="background: rgba(255,197,61,0.15); color: #FFC53D; border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em">DEMO</div>
+      </div>
+
+      <div style="display: flex; gap: 12px">
+        <div style="flex-shrink: 0; width: 24px; height: 24px; border-radius: 999px; background: rgba(61,220,151,0.15); border: 1px solid #3DDC97; color: #3DDC97; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center" class="fig">1</div>
+        <div style="flex-grow: 1; min-width: 0">
+          <div style="font-size: 12px; color: #828B99">Market</div>
+          <div style="margin-top: 3px; font-size: 13px; font-weight: 500; line-height: 1.35">Will the Fed decrease interest rates by 25 bps…</div>
+        </div>
+        <div style="font-size: 11px; color: #3DDC97; flex-shrink: 0">Change</div>
+      </div>
+
+      <div style="height: 1px; background: rgba(255,255,255,0.08)"></div>
+
+      <div style="display: flex; gap: 12px">
+        <div style="flex-shrink: 0; width: 24px; height: 24px; border-radius: 999px; background: rgba(61,220,151,0.15); border: 1px solid #3DDC97; color: #3DDC97; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center" class="fig">2</div>
+        <div style="flex-grow: 1">
+          <div style="font-size: 12px; color: #828B99">Outcome</div>
+          <div style="margin-top: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+            <div style="min-height: 48px; display: flex; flex-direction: column; justify-content: center; padding: 0 12px; border: 1px solid #3DDC97; background: rgba(61,220,151,0.15); border-radius: 8px"><span style="font-size: 12px; color: #3DDC97">Yes</span><span class="fig" style="font-size: 15px; color: #3DDC97">62%</span></div>
+            <div style="min-height: 48px; display: flex; flex-direction: column; justify-content: center; padding: 0 12px; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px"><span style="font-size: 12px; color: #9AA3B2">No</span><span class="fig" style="font-size: 15px; color: #F0616D">38%</span></div>
+          </div>
+          <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px; padding: 9px 11px; border-radius: 8px; background: rgba(255,255,255,0.03)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#828B99" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>
+            <span style="font-size: 11px; color: #9AA3B2; flex-grow: 1">Not sure? See what the AI would favour</span>
+            <span style="font-size: 11px; color: #3DDC97">Open</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: rgba(255,255,255,0.08)"></div>
+
+      <div style="display: flex; gap: 12px">
+        <div class="fig" style="flex-shrink: 0; width: 24px; height: 24px; border-radius: 999px; background: rgba(61,220,151,0.15); border: 1px solid #3DDC97; color: #3DDC97; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center">3</div>
+        <div style="flex-grow: 1">
+          <div style="display: flex; justify-content: space-between"><span style="font-size: 12px; color: #828B99">Amount</span><span class="fig" style="font-size: 11px; color: #828B99">balance $950.00</span></div>
+          <div class="fig" style="margin-top: 8px; min-height: 48px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; background: #0B0E14; padding: 0 12px; font-size: 18px">$50.00</div>
+          <div style="margin-top: 8px; display: flex; justify-content: space-between; padding: 9px 12px; border-radius: 8px; background: rgba(255,255,255,0.03)"><span style="font-size: 12px; color: #9AA3B2">If Yes resolves</span><span class="fig" style="font-size: 13px; font-weight: 600; color: #3DDC97">$80.65</span></div>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: rgba(255,255,255,0.08)"></div>
+
+      <div style="display: flex; gap: 12px; align-items: center">
+        <div class="fig" style="flex-shrink: 0; width: 24px; height: 24px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.35); color: #828B99; font-size: 12px; display: flex; align-items: center; justify-content: center">4</div>
+        <div style="flex-grow: 1; min-height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #3DDC97; color: #06251A; font-size: 14px; font-weight: 600">Review and confirm</div>
+      </div>
+
+      <div style="font-size: 10px; line-height: 1.5; color: #9AA3B2; padding: 9px 11px; border-radius: 8px; background: rgba(255,255,255,0.03)">AI assistance is not financial advice. You will see market, outcome, amount, price and payout before anything is placed.</div>
+
+    </div>
+  </div>
+
+  <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+    <div style="font-size: 11px; line-height: 1.5; color: #9AA3B2"><b style="color: #E8ECF3">Why it works.</b> One card instead of five, and the sequence is stated rather than implied. The AI is folded into the outcome step, which is the only moment it is useful — so the "why are there two AI boxes" question never arises.</div>
+    <div style="font-size: 11px; line-height: 1.5; color: #9AA3B2"><b style="color: #F0616D">The tradeoff.</b> Numbered steps get patronising fast for anyone placing a second bet, and this keeps the bet on the right — so it answers the confusion but not your left-side question. The finder still needs a home.</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

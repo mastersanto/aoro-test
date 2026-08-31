@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif; }
+    a { color: #3DDC97; } a:hover { color: #E8ECF3; }
+    .fig { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+    .ghost { background: rgba(255,255,255,0.05); border-radius: 4px; }
+  </style>
+</helmet>
+
+<div style="width: 1280px; min-height: 820px; background: #0B0E14; color: #E8ECF3; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+
+  <div style="display: flex; align-items: center; gap: 12px">
+    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #9AA3B2; border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 4px 10px">Option C</span>
+    <span style="font-size: 13px; color: #9AA3B2">Order ticket — the bet is pinned to the bottom of the viewport</span>
+    <span style="font-size: 10px; color: #828B99; border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; padding: 3px 9px">Sample data · desktop only, no phone artboard drawn</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start">
+
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; gap: 8px"><div class="ghost" style="flex-grow: 1; height: 44px"></div><div class="ghost" style="width: 130px; height: 44px"></div></div>
+      <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: #10141C; overflow: hidden">
+        <div style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(61,220,151,0.07); box-shadow: inset 2px 0 0 0 #3DDC97; display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 14px; font-weight: 500">Will the Fed decrease interest rates by 25 bps after the September meeting?</div>
+          <div style="display: flex; height: 3px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.08)"><div style="width: 62%; background: #3DDC97"></div><div style="width: 38%; background: #F0616D"></div></div>
+        </div>
+        <div style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px"><div class="ghost" style="height: 14px; width: 62%"></div><div class="ghost" style="height: 3px"></div></div>
+        <div style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px"><div class="ghost" style="height: 14px; width: 48%"></div><div class="ghost" style="height: 3px"></div></div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px"><div class="ghost" style="height: 14px; width: 55%"></div><div class="ghost" style="height: 3px"></div></div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: rgba(255,255,255,0.02); padding: 16px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#828B99" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>
+          <div style="font-size: 13px; font-weight: 600; flex-grow: 1">What would you favour here?</div>
+        </div>
+        <div style="margin-top: 10px; font-size: 10px; color: #9AA3B2; line-height: 1.5; padding: 9px 11px; border-radius: 8px; background: rgba(255,255,255,0.03)">AI assistance is not financial advice.</div>
+        <div style="margin-top: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #828B99">The case for · Yes</div>
+        <div style="margin-top: 4px; font-size: 11px; line-height: 1.5; color: #828B99; font-style: italic">[Sample only — written from the market's resolution criteria, no figures, no likelihood claim.]</div>
+        <div style="margin-top: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #F0616D">What would make it lose</div>
+        <div style="margin-top: 4px; font-size: 11px; line-height: 1.5; color: #828B99; font-style: italic">[Sample only — same weight as the case for.]</div>
+      </div>
+      <div style="border: 1px solid rgba(255,197,61,0.3); border-radius: 10px; background: rgba(255,197,61,0.06); padding: 14px">
+        <div style="font-size: 12px; font-weight: 600; color: #FFC53D">DEMO positions</div>
+        <div style="margin-top: 8px; display: flex; justify-content: space-between"><span style="font-size: 11px; color: #9AA3B2">125 shares of Yes at 40% · Bitcoin above $95,000</span><span class="fig" style="font-size: 11px; color: #3DDC97">+$5.00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1"></div>
+
+  <div style="border: 1px solid rgba(61,220,151,0.3); border-radius: 12px; background: #10141C; box-shadow: 0 -14px 40px rgba(0,0,0,0.55); padding: 14px 18px; display: flex; align-items: center; gap: 18px">
+    <div style="flex-grow: 1; min-width: 0">
+      <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #828B99">Order ticket</div>
+      <div style="margin-top: 3px; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Will the Fed decrease interest rates by 25 bps…</div>
+    </div>
+    <div style="display: flex; gap: 8px; flex-shrink: 0">
+      <div style="min-height: 46px; display: flex; flex-direction: column; justify-content: center; padding: 0 14px; border: 1px solid #3DDC97; background: rgba(61,220,151,0.15); border-radius: 8px"><span style="font-size: 11px; color: #3DDC97">Yes</span><span class="fig" style="font-size: 14px; color: #3DDC97">62%</span></div>
+      <div style="min-height: 46px; display: flex; flex-direction: column; justify-content: center; padding: 0 14px; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px"><span style="font-size: 11px; color: #9AA3B2">No</span><span class="fig" style="font-size: 14px; color: #F0616D">38%</span></div>
+    </div>
+    <div class="fig" style="flex-shrink: 0; min-height: 46px; width: 118px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; background: #0B0E14; padding: 0 12px; font-size: 16px">$50.00</div>
+    <div style="flex-shrink: 0; text-align: right"><div style="font-size: 10px; color: #828B99">If Yes resolves</div><div class="fig" style="font-size: 15px; font-weight: 600; color: #3DDC97">$80.65</div></div>
+    <div style="flex-shrink: 0; min-height: 46px; display: flex; align-items: center; padding: 0 22px; border-radius: 8px; background: #3DDC97; color: #06251A; font-size: 14px; font-weight: 600">Review bet</div>
+    <div class="fig" style="flex-shrink: 0; background: rgba(255,197,61,0.15); color: #FFC53D; border-radius: 4px; padding: 5px 9px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em">DEMO $950.00</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+    <div style="font-size: 11px; line-height: 1.5; color: #9AA3B2"><b style="color: #E8ECF3">Why it works.</b> The bet lives in exactly one place and is always visible, so it can never move and the column above becomes purely informational. It is a familiar pattern from trading interfaces, and it would answer "first on mobile" by being permanently in reach.</div>
+    <div style="font-size: 11px; line-height: 1.5; color: #F0616D"><b>The tradeoff.</b> Untested at phone width — no mobile artboard here, and a bar this dense almost certainly has to become something else at 390px, which weakens the "one place at every width" claim. It also eats vertical space, sits oddly in a widget meant to be embedded, and keeps the confirmation trigger permanently on screen — more pressure than this thing should apply.</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

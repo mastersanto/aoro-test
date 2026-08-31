@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif; }
+    a { color: #3DDC97; } a:hover { color: #E8ECF3; }
+    .fig { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+
+<div style="width: 390px; min-height: 1560px; background: #0B0E14; color: #E8ECF3; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+
+  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+    <div style="display: flex; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; padding: 2px">
+      <div style="min-height: 44px; display: flex; align-items: center; border-radius: 6px; padding: 0 14px; font-size: 12px; font-weight: 500; background: #E8ECF3; color: #0B0E14">Demo</div>
+      <div style="min-height: 44px; display: flex; align-items: center; border-radius: 6px; padding: 0 14px; font-size: 12px; font-weight: 500; color: #9AA3B2">Real money</div>
+    </div>
+    <div class="fig" style="background: rgba(255,197,61,0.15); color: #FFC53D; border-radius: 4px; padding: 4px 8px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em">DEMO $950.00</div>
+  </div>
+
+  <div style="font-size: 11px; color: #9AA3B2; line-height: 1.45">Real betting unavailable in US — Polymarket's main exchange is close-only here.</div>
+
+  <!-- 1. What you picked -->
+  <div style="border: 1px solid rgba(61,220,151,0.35); border-radius: 10px; background: #10141C; padding: 14px; box-shadow: inset 3px 0 0 0 #3DDC97">
+    <div style="display: flex; justify-content: space-between; align-items: baseline">
+      <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #828B99">You're betting on</div>
+      <div style="font-size: 11px; color: #828B99">Change</div>
+    </div>
+    <div style="margin-top: 6px; font-size: 14px; font-weight: 500; line-height: 1.35">Will the Fed decrease interest rates by 25 bps after the September meeting?</div>
+    <div style="margin-top: 10px; display: flex; height: 4px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.08)"><div style="width: 62%; background: #3DDC97"></div><div style="width: 38%; background: #F0616D"></div></div>
+    <div class="fig" style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 10px; color: #828B99"><span>$83M total</span><span>Resolves Sep 16</span></div>
+  </div>
+
+  <!-- 2. The bet, FIRST -->
+  <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: #10141C; padding: 14px">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <div style="font-size: 14px; font-weight: 600; flex-grow: 1">Place your bet</div>
+      <div style="background: rgba(255,197,61,0.15); color: #FFC53D; border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em">DEMO</div>
+    </div>
+
+    <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <div style="min-height: 56px; display: flex; flex-direction: column; justify-content: center; gap: 2px; border: 1px solid #3DDC97; background: rgba(61,220,151,0.15); border-radius: 8px; padding: 0 12px">
+        <span style="font-size: 13px; color: #3DDC97; font-weight: 500">Yes</span>
+        <span class="fig" style="font-size: 17px; color: #3DDC97">62%</span>
+      </div>
+      <div style="min-height: 56px; display: flex; flex-direction: column; justify-content: center; gap: 2px; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; padding: 0 12px">
+        <span style="font-size: 13px; color: #9AA3B2">No</span>
+        <span class="fig" style="font-size: 17px; color: #F0616D">38%</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 11px; color: #9AA3B2">Amount</span><span class="fig" style="font-size: 11px; color: #828B99">balance $950.00</span></div>
+    <div style="margin-top: 6px; display: flex; gap: 8px">
+      <div class="fig" style="flex-grow: 1; min-height: 48px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; background: #0B0E14; padding: 0 12px; font-size: 18px">$50.00</div>
+      <div class="fig" style="min-height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; font-size: 11px; color: #9AA3B2">25</div>
+      <div class="fig" style="min-height: 48px; width: 52px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; font-size: 11px; color: #9AA3B2">Max</div>
+    </div>
+
+    <div style="margin-top: 12px; display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,0.03)">
+      <span style="font-size: 12px; color: #9AA3B2">If Yes resolves</span>
+      <span class="fig" style="font-size: 14px; font-weight: 600; color: #3DDC97">$80.65</span>
+    </div>
+
+    <div style="margin-top: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #3DDC97; color: #06251A; font-size: 15px; font-weight: 600">Review bet</div>
+  </div>
+
+  <!-- 3. The AI, after -->
+  <div style="border-radius: 10px; background: rgba(255,255,255,0.02); padding: 14px">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#828B99" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>
+      <div style="font-size: 13px; font-weight: 600; flex-grow: 1">What would you favour here?</div>
+      <div style="font-size: 10px; color: #828B99">Optional</div>
+    </div>
+    <div style="margin-top: 10px; padding: 9px 11px; border-radius: 8px; background: rgba(255,255,255,0.03); font-size: 10px; line-height: 1.5; color: #9AA3B2">AI assistance is not financial advice. An opinion about current prices, not a prediction.</div>
+    <div style="margin-top: 12px; display: flex; align-items: baseline; gap: 8px">
+      <span style="font-size: 11px; color: #828B99">Leans</span>
+      <span style="font-size: 13px; font-weight: 600; color: #3DDC97">Yes</span>
+      <span class="fig" style="font-size: 11px; color: #828B99">at the 62% it was written from</span>
+    </div>
+    <div style="margin-top: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #828B99">The case for</div>
+    <div style="margin-top: 4px; font-size: 12px; line-height: 1.55; color: #828B99; font-style: italic">[Sample only — written from the market's own resolution criteria, with no figures and no claim about how likely anything is.]</div>
+    <div style="margin-top: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #F0616D">What would make it lose</div>
+    <div style="margin-top: 4px; font-size: 12px; line-height: 1.55; color: #828B99; font-style: italic">[Sample only — shown at the same weight, never collapsed behind a click.]</div>
+    <div style="margin-top: 12px; min-height: 46px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(61,220,151,0.4); color: #3DDC97; border-radius: 8px; font-size: 13px; font-weight: 500">Use this — fills the outcome above</div>
+    <div style="margin-top: 8px; font-size: 10px; color: #828B99; text-align: center">Withdrawn if the price moves 2 points, the market closes, or after 10 minutes.</div>
+  </div>
+
+  <!-- 4. Positions -->
+  <div style="border: 1px solid rgba(255,197,61,0.3); border-radius: 10px; background: rgba(255,197,61,0.06); padding: 14px">
+    <div style="font-size: 12px; font-weight: 600; color: #FFC53D">DEMO positions</div>
+    <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: baseline">
+      <div style="font-size: 11px; color: #9AA3B2; max-width: 200px; line-height: 1.4">125 shares of Yes at 40% · Bitcoin above $95,000…</div>
+      <div style="text-align: right"><div class="fig" style="font-size: 13px">$55.00</div><div class="fig" style="font-size: 11px; color: #3DDC97">+$5.00</div></div>
+    </div>
+  </div>
+
+  <!-- 5. The list, below -->
+  <div style="margin-top: 4px; display: flex; align-items: center; gap: 10px">
+    <div style="height: 1px; flex-grow: 1; background: rgba(255,255,255,0.08)"></div>
+    <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #828B99">Or pick another market</div>
+    <div style="height: 1px; flex-grow: 1; background: rgba(255,255,255,0.08)"></div>
+  </div>
+
+  <div style="min-height: 44px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; background: #10141C; padding: 0 12px">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#828B99" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <span style="font-size: 13px; color: #828B99">Search markets</span>
+  </div>
+
+  <div style="border: 1px dashed rgba(61,220,151,0.35); border-radius: 10px; background: rgba(61,220,151,0.04); padding: 11px 12px; display: flex; align-items: center; gap: 10px">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3DDC97" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>
+    <div style="flex-grow: 1; font-size: 11px; font-weight: 500">Let AI find one for you</div>
+    <div style="font-size: 11px; color: #3DDC97">Ask</div>
+  </div>
+
+  <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: #10141C; overflow: hidden">
+    <div style="padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px">
+      <div style="font-size: 13px; font-weight: 500; line-height: 1.35">US Open ATP: Thiago Agustin Tirante vs Adrian Mannarino</div>
+      <div style="display: flex; height: 3px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.08)"><div style="width: 9%; background: #3DDC97"></div><div style="width: 91%; background: #F0616D"></div></div>
+      <div style="display: flex; justify-content: space-between; font-size: 12px"><span><span style="color: #9AA3B2">Tirante</span> <span class="fig" style="color: #3DDC97">9%</span> &nbsp; <span style="color: #9AA3B2">Mannarino</span> <span class="fig" style="color: #F0616D">91%</span></span></div>
+    </div>
+    <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+      <div style="font-size: 13px; font-weight: 500; line-height: 1.35">Will Bitcoin close above $95,000 on September 30?</div>
+      <div style="display: flex; height: 3px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.08)"><div style="width: 44%; background: #3DDC97"></div><div style="width: 56%; background: #F0616D"></div></div>
+      <div style="display: flex; justify-content: space-between; font-size: 12px"><span><span style="color: #9AA3B2">Yes</span> <span class="fig" style="color: #3DDC97">44%</span> &nbsp; <span style="color: #9AA3B2">No</span> <span class="fig" style="color: #F0616D">56%</span></span></div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
