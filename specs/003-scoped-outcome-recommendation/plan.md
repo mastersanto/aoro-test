@@ -1,6 +1,6 @@
 # Plan 003 — Scoped Outcome Recommendation
 
-**Status:** Draft — awaiting user approval
+**Status:** Approved 2026-08-31
 **Spec:** ./spec.md (approved 2026-08-31, no open `[NEEDS CLARIFICATION]` markers)
 
 ## Stack
@@ -96,4 +96,4 @@ No new environment variables; the route reuses `ANTHROPIC_API_KEY` and the exist
 
 ## Approval
 
-- [ ] Plan approved by user (required before `/tasks`)
+- [x] Plan approved by user (required before `/tasks`) — 2026-08-31
