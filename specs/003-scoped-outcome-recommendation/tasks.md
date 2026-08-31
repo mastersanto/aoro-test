@@ -24,7 +24,7 @@ Sequencing: the pure rules first, since they hold every binding decision and nee
       Verify: `npm test` passes; corpus and held-out sentences both rejected; both named compliant samples accepted.
 - [x] T3. **RED** — failing tests for freshness (`lib/ai/recommendation.ts`): fresh within 2 points and 10 minutes; stale beyond 2 points either direction; expired past 10 minutes; closed when the market says so; the exact boundaries asserted; a missing or unusable current price never reads fresh.
       Verify: `npm test` fails on those assertions against a stub.
-- [ ] T4. **GREEN** — implement freshness until T3 passes.
+- [x] T4. **GREEN** — implement freshness until T3 passes.
       Verify: `npm test` passes; every state reachable in a test, none unreachable.
 
 ## Phase 2 — Current prices

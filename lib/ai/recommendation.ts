@@ -24,6 +24,25 @@ export type FreshnessInput = {
   marketClosed?: boolean;
 };
 
-export function freshness(input: FreshnessInput): Freshness {
-  return undefined as unknown as Freshness;
+export function freshness({
+  arguedAtPrice,
+  currentPrice,
+  createdAt,
+  now,
+  marketClosed = false,
+}: FreshnessInput): Freshness {
+  // Closed first: it is the most final reason, and reporting "stale" for a
+  // market that has resolved would understate what happened.
+  if (marketClosed) return "closed";
+
+  if (now - createdAt > MAX_AGE_MS) return "expired";
+
+  // Without a usable price on both sides there is nothing to compare, and
+  // "fresh" would be an assertion rather than a measurement.
+  if (!Number.isFinite(arguedAtPrice)) return "stale";
+  if (currentPrice === null || currentPrice === undefined || !Number.isFinite(currentPrice)) {
+    return "stale";
+  }
+
+  return Math.abs(currentPrice - arguedAtPrice) > PRICE_TOLERANCE ? "stale" : "fresh";
 }
