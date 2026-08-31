@@ -7,7 +7,7 @@ Each directory holds the **source** of one design canvas:
 
 The seeded `polymarket-*.html` that these are published from is **not tracked**: it
 is ~2.5MB, almost all of it editor code, and it is regenerated from the files above.
-Two of them were committed by accident, which is why this note exists.
+One of them was committed by accident, which is why this note exists.
 
 | Directory | What it explores | Outcome |
 |---|---|---|
