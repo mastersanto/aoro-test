@@ -1,6 +1,6 @@
 # Plan 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Approved 2026-08-31
+**Status:** Approved 2026-08-31 — amended 2026-08-31 (see Amendments below)
 **Spec:** ./spec.md (approved 2026-08-31, no open `[NEEDS CLARIFICATION]` markers)
 
 Polymarket API facts referenced below were verified against docs.polymarket.com on 2026-08-31 and recorded in `.claude/skills/polymarket-api/SKILL.md` — load that skill before writing any Polymarket-facing code.
@@ -15,6 +15,7 @@ Polymarket API facts referenced below were verified against docs.polymarket.com 
 | **`@polymarket/client`** (official Polymarket TS SDK) | Order placement + prices (US-2); current SDK per Polymarket docs (the older `@polymarket/clob-client` is legacy) |
 | **wagmi + viem** | Wallet connect and signing (US-2, spec D3); viem signer plugs directly into `@polymarket/client`'s `createSecureClient` |
 | **No database, no server-side user state** | Spec out-of-scope; demo balance is per-session client state (US-3) |
+| **Vitest** (test runner) | Constitution Art. VII (test-first where it binds) requires an executable test suite; Vitest is the standard runner for this stack |
 
 ## Architecture
 
@@ -34,7 +35,7 @@ browser (widget page)
 ## Data flow (per story)
 
 - **US-1 Search/browse:** page loads markets from `/api/markets` (top by 24h volume, keyset pagination); keyword search via Gamma `/public-search`, category filter via tags. Poll/refresh without reload. No wallet involved.
-- **US-2 Real bet:** connect wallet (wagmi injected/WalletConnect, Polygon) → `@polymarket/client` `createSecureClient` with the viem signer → L1 EIP-712 auth, derive L2 creds (signatureType EOA=0) → user picks outcome + amount → **confirmation modal showing market, outcome, amount, price, estimated payout (Art. II)** → market-style FOK/FAK buy order signed by the wallet → success shows position, failure shows plain-language reason. Collateral is **pUSD** (Polymarket's USDC-claim wrapper on Polygon); balance/allowance handling is Risk 1 below.
+- **US-2 Real bet:** connect wallet (wagmi injected/WalletConnect, Polygon) → `@polymarket/client` `createSecureClient` with the viem signer → L1 EIP-712 auth, derive L2 creds (signatureType EOA=0) → user picks outcome + amount → **confirmation modal showing market, outcome, amount, price, estimated payout (Art. II)** → market-style FOK/FAK buy order signed by the wallet → success shows position, failure shows plain-language reason. Collateral is **pUSD** (Polymarket's USDC-claim wrapper on Polygon). The widget handles the ERC-20 allowance itself: it detects an insufficient allowance before submitting, offers an approve step, and retries — a first-time funded user must be able to complete a bet without leaving the widget. The exact approval targets are Risk 1 below.
 - **US-3 Demo mode:** toggle switches the bet panel to a simulated per-session balance (starts at $1,000, resets on reload); "orders" fill at the live best ask from CLOB `/price` (no auth); identical confirmation modal; every control and result labeled DEMO. Available regardless of geo (moves no money).
 - **US-4 AI assist:** user describes interest → `POST /api/assist` → route fetches current candidate markets from Gamma and passes them to Claude (`claude-opus-5` via `@anthropic-ai/sdk`, streaming, structured output constrained to the provided market/outcome ids — the model cannot name a market it wasn't given, satisfying "never invented ones") → suggestions render with reasoning + live price and a **"not financial advice" disclaimer (Art. V)** → selecting one only pre-fills the bet form (Art. II).
 - **US-5 Geo degrade:** `/api/geo` maps the request's country (Vercel geo header) against the close-only/blocked tiers (US included — see Risk 2); when restricted, real-bet controls are disabled with an explanation while browse, AI, and demo stay live. Per-market `restricted` flag from Gamma is respected too. Pre-trade, the client also consults Polymarket's own `GET polymarket.com/api/geoblock` as the authoritative signal.
@@ -69,9 +70,17 @@ Endpoint/field details live in `.claude/skills/polymarket-api/SKILL.md`.
 - **Art. III (custody stays with the user):** orders signed in-browser by the user's wallet; server holds no keys, funds, or Polymarket credentials. **Pass.**
 - **Art. IV (secrets server-side):** the only secret is `ANTHROPIC_API_KEY`, used exclusively in `/api/assist`; `.env.example` documents it. **Pass.**
 - **Art. V (compliance is a requirement):** geo handling is a first-class route + UI state (US-5); the disclaimer is an acceptance criterion of US-4 and rendered with every suggestion. **Pass.**
-- **Art. VI (small, verifiable steps):** dependency set is six packages, each justified above; tasks.md will give every task a Verify line. **Pass.**
+- **Art. VI (small, verifiable steps):** dependency set is seven packages, each justified in the Stack table; tasks.md gives every task a Verify line. **Pass.**
+- **Art. VII (test-first where it binds):** business logic and every Art. II/V invariant is split RED/GREEN in tasks.md — grounding, confirmation-bypass, demo state, geo gating, order construction, allowance handling, credential safety, error mapping. Scaffolding, styling, dependency config, documentation, deployment, and the pUSD spike are tagged exempt with reasons. **Pass.**
 
 **Spec correction made in this change (Art. I — docs describe reality):** spec US-2 said the wallet holds "USDC on Polygon"; Polymarket migrated collateral to pUSD (a USDC-claim wrapper). The acceptance criterion now names pUSD. Scope is unchanged.
+
+## Amendments since approval
+
+Both corrections were mandated by the constitution audit of tasks.md on 2026-08-31; neither changes scope:
+
+1. **Vitest added to the stack (Art. VI).** Constitution Article VII was adopted after this plan was approved, so the test runner every RED/GREEN task depends on was untraced. Dependency count is now seven.
+2. **pUSD allowance/approval handled in-widget (Art. I).** No task implemented the ERC-20 approval transaction, so a first-time funded user could not complete US-2 ("Success shows the resulting position"). The US-2 data flow now includes detect → approve → retry, with tasks to match.
 
 ## Approval
 
