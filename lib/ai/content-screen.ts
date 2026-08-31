@@ -65,7 +65,10 @@ const LIKELIHOOD: Rule[] = [
   {
     name: "likelihood:word",
     pattern:
-      /\b(?:likely|unlikely|probable|probably|possibly|certain|certainly|certainty|sure|surely|clearly|obviously|evidently|undoubtedly|inevitable|inevitably|virtually|practically|essentially|overwhelming(?:ly)?|comfortable|comfortably|safe|strong(?:ly)? (?:favou?red|placed)|expected to|on track to|set to)\b/i,
+      // Extended after live output defeated the first list with "remote" and
+      // "plausible" (defeat corpus 6 and 7). Any word that rates how probable
+      // an outcome is belongs to the price, not to the argument.
+      /\b(?:likely|unlikely|probable|probably|possible|possibly|possibility|plausible|plausibly|conceivable|conceivably|remote|slim|narrow chance|reasonable (?:prospect|chance)|prospect|odds-on|favou?rite|certain|certainly|certainty|sure|surely|clearly|obviously|evidently|undoubtedly|inevitable|inevitably|virtually|practically|essentially|overwhelming(?:ly)?|comfortable|comfortably|safe|strong(?:ly)? (?:favou?red|placed)|expected to|on track to|set to)\b/i,
   },
   {
     name: "likelihood:construction",

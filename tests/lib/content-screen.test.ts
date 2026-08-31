@@ -35,6 +35,9 @@ const CORPUS: Array<[string, keyof Parts]> = [
   ["the conditions this outcome needs have held nine times out of ten", "caseFor"],
   ["the current price implies the market has not yet taken account of the most recent steps", "priceImplies"],
   ["little stands in the way of this resolving", "caseFor"],
+  // Found in live production output on the first real run (MC-6).
+  ["Yes priced as a remote branch of the many possible policy paths", "priceImplies"],
+  ["a plausible outcome if the data softens", "caseAgainst"],
 ];
 
 /** Written for this task; deliberately absent from the corpus file. */
@@ -45,6 +48,9 @@ const HELD_OUT: Array<[string, keyof Parts, string]> = [
   ["it would be hard to see this going the other way", "caseFor", "likelihood"],
   ["nothing suggests the process will be interrupted", "caseFor", "likelihood"],
   ["the outcome is close to certain on current form", "caseFor", "likelihood"],
+  ["this remains a remote possibility", "caseFor", "likelihood"],
+  ["a conceivable path exists for the other side", "caseAgainst", "likelihood"],
+  ["it is a reasonable prospect at this stage", "caseFor", "likelihood"],
   ["this has happened in four of the last five comparable cases", "caseFor", "quantity"],
   ["the level sits about twenty points below the threshold", "caseFor", "quantity"],
   ["a 3% move would settle it", "caseFor", "quantity"],
