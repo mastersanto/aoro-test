@@ -71,7 +71,7 @@ Endpoint/field details live in `.claude/skills/polymarket-api/SKILL.md`.
 - **Art. IV (secrets server-side):** the only secret is `ANTHROPIC_API_KEY`, used exclusively in `/api/assist`; `.env.example` documents it. **Pass.**
 - **Art. V (compliance is a requirement):** geo handling is a first-class route + UI state (US-5); the disclaimer is an acceptance criterion of US-4 and rendered with every suggestion. **Pass.**
 - **Art. VI (small, verifiable steps):** every dependency is justified in the Stack table above, test tooling included; tasks.md gives every task a Verify line. **Pass.**
-- **Art. VII (test-first where it binds):** business logic and every Art. II/V invariant is split RED/GREEN in tasks.md — grounding, confirmation-bypass, demo state, geo gating, order construction, allowance handling, credential safety, error mapping. Scaffolding, styling, dependency config, documentation, deployment, and the pUSD spike are tagged exempt with reasons. **Pass.**
+- **Art. VII (test-first where it binds):** business logic and every Art. II/V invariant is split RED/GREEN in tasks.md — grounding, confirmation-bypass, demo state, geo gating, order construction, allowance handling, credential safety, error mapping. Scaffolding, styling, dependency config, deployment, and the pUSD spike are tagged exempt with reasons. Documentation tasks are tagged (not binding): they produce neither business logic nor a safety invariant, so the article's binding scope does not reach them — an interpretation the user ratifies at the tasks.md approval gate. **Pass.**
 
 **Spec correction made in this change (Art. I — docs describe reality):** spec US-2 said the wallet holds "USDC on Polygon"; Polymarket migrated collateral to pUSD (a USDC-claim wrapper). The acceptance criterion now names pUSD. Scope is unchanged.
 
@@ -79,7 +79,7 @@ Endpoint/field details live in `.claude/skills/polymarket-api/SKILL.md`.
 
 Both corrections were mandated by the constitution audit of tasks.md on 2026-08-31; neither changes scope:
 
-1. **Vitest added to the stack (Art. VI).** Constitution Article VII was adopted after this plan was approved, so the test runner every RED/GREEN task depends on was untraced. Dependency count is now seven.
+1. **Vitest added to the stack (Art. VI).** Constitution Article VII was adopted after this plan was approved, so the test runner every RED/GREEN task depends on was untraced.
 2. **DOM test tooling added (Art. VI).** The Article II/V invariants are component-level, so jsdom and `@testing-library/react` join Vitest; a bare runner cannot assert that the confirmation renders five fields.
 3. **pUSD allowance/approval handled in-widget (Art. I).** No task implemented the ERC-20 approval transaction, so a first-time funded user could not complete US-2 ("Success shows the resulting position"). The US-2 data flow now includes detect → approve → retry, with tasks to match.
 
