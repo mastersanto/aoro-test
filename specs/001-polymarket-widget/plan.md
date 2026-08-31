@@ -15,7 +15,7 @@ Polymarket API facts referenced below were verified against docs.polymarket.com 
 | **`@polymarket/client`** (official Polymarket TS SDK) | Order placement + prices (US-2); current SDK per Polymarket docs (the older `@polymarket/clob-client` is legacy) |
 | **wagmi + viem** | Wallet connect and signing (US-2, spec D3); viem signer plugs directly into `@polymarket/client`'s `createSecureClient` |
 | **No database, no server-side user state** | Spec out-of-scope; demo balance is per-session client state (US-3) |
-| **Vitest + jsdom + `@testing-library/react`** (test tooling) | Constitution Art. VII requires an executable test suite, and the Art. II/V invariants (five-field confirmation, disclaimer rendering, DEMO labeling) are component-level — asserting them needs a DOM and a render library, not a bare runner |
+| **Vitest + jsdom + `@testing-library/react`/`dom`/`jest-dom` + `@vitejs/plugin-react`** (test tooling, per Next 16's official Vitest guide) | Constitution Art. VII requires an executable test suite, and the Art. II/V invariants (five-field confirmation, disclaimer rendering, DEMO labeling) are component-level — asserting them needs a DOM and a render library, not a bare runner |
 
 ## Architecture
 

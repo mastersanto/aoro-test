@@ -13,9 +13,9 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 - [x] T1. **(exempt — scaffolding)** Scaffold Next.js (App Router) + TypeScript + Tailwind at the repo root; pin exact versions; preserve the existing `.gitignore`, `README.md`, `CLAUDE.md`, and `.env.example`.
       Verify: `npm run dev` serves localhost:3000; `npm run build` and `npm run lint` exit 0.
-- [ ] T2. **(not binding — documentation)** Replace the "Commands" section of CLAUDE.md with the real dev/build/lint/test commands, including how to run a single test.
+- [x] T2. **(not binding — documentation)** *(executed after T3 — it documents the test commands T3 creates)* Replace the "Commands" section of CLAUDE.md with the real dev/build/lint/test commands, including how to run a single test.
       Verify: every command listed runs successfully from a clean checkout.
-- [ ] T3. **(exempt — dependency configuration)** Add Vitest plus a DOM environment (jsdom) and `@testing-library/react` — the render-dependent RED tasks (T11, T13, T17, T19, T26) assert on rendered components and cannot run without them — with one smoke test and one trivial component render; wire `npm test` and single-test invocation.
+- [x] T3. **(exempt — dependency configuration)** Add Vitest plus a DOM environment (jsdom) and `@testing-library/react` — the render-dependent RED tasks (T11, T13, T17, T19, T26) assert on rendered components and cannot run without them — with one smoke test and one trivial component render; wire `npm test` and single-test invocation.
       Verify: `npm test` passes including the component render; running one test by name passes.
 
 ## Phase 2 — Market discovery (US-1)

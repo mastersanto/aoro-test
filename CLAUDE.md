@@ -31,7 +31,27 @@ Rules:
 
 ## Commands
 
-None yet — the stack is not scaffolded. When the first feature's `plan.md` is approved and the project is scaffolded, replace this section with the real dev/build/lint/test commands (including how to run a single test) in the same change.
+```bash
+npm run dev          # dev server at http://localhost:3000
+npm run build        # production build
+npm start            # serve the production build (run npm run build first)
+npm run lint         # eslint
+npm test             # run the full test suite once
+npm run test:watch   # re-run tests on change
+```
+
+Run a single test:
+
+```bash
+npx vitest run -t "renders a component into a DOM"   # by test name (substring match)
+npx vitest run tests/render.test.tsx                 # by file
+```
+
+Tests live in `tests/`. Vitest runs in jsdom with `@testing-library/react` (config: `vitest.config.mts`, matchers: `vitest.setup.ts`) — constitution Article VII binds component-level invariants, so the suite must be able to render.
+
+Dependencies are pinned to exact versions; `next.config.ts` pins `turbopack.root` because a lockfile above the repo otherwise makes the workspace root ambiguous.
+
+This is Next.js 16 — its App Router conventions differ from older releases. Read the bundled docs in `node_modules/next/dist/docs/01-app/` before writing routes or components.
 
 ## Architecture context (pre-decided; confirm details in plan.md)
 
