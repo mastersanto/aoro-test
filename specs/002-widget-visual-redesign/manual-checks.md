@@ -92,3 +92,34 @@ and 7 with three held-out variants, the rule extended, and re-verified against
 production — the next recommendation contained no digits and no likelihood
 vocabulary. This check stays outstanding permanently: it is re-run whenever the
 model or the screen changes.
+
+## MC-7 — Scroll position holds across "Load more" (004 UX-1)
+
+**Why manual:** neither suite can judge it. jsdom performs no layout, so it has
+no scroll position at all; Playwright can measure `scrollY` but not whether the
+row you were reading is still under your eye — the page grows downward, so a
+numerically unchanged `scrollY` is not the same as "nothing moved".
+
+**Steps:** browse to the bottom of the list, note the last visible market, press
+"Load more". The market you were looking at should still be where it was, with
+new rows appended below it. Repeat after letting a 30-second refresh land, since
+the refresh merges into the loaded list rather than replacing it.
+
+**Result 2026-08-31:** NOT YET PERFORMED.
+
+## MC-8 — The keyboard path reads sensibly (004 UX-3)
+
+**Why manual:** "in a visible focus order" is a judgement about sequence and
+visibility together. The appearance gate checks that a focus ring is visible on
+each new control; it cannot say whether tabbing through the page reaches things
+in an order that makes sense, or whether the confirmation's trap feels like
+containment rather than a dead end.
+
+**Steps:** with a market selected, Tab from the top of the page. Confirm the
+order reads: mode toggle → search → sort → categories → rows → bet panel. Open
+the confirmation and Tab through it — focus should cycle within it. Press
+Escape; focus should land back on "Review bet". At 390px, confirm the bet sheet
+does **not** contain Tab, so the mode toggle stays reachable — this is the
+Article V case that broke during 004's implementation.
+
+**Result 2026-08-31:** NOT YET PERFORMED.

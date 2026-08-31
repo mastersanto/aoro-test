@@ -1,6 +1,14 @@
 # Tasks 004 — Usability and Workflow
 
-**Status:** Approved 2026-08-31 (revised after constitution audit, same day)
+**Status:** Complete 2026-08-31 — 24/24. Revised twice after constitution audits.
+
+**Mutation results (T24), all reverted clean:** removing `appendPage`
+de-duplication reddens 4; mapping Escape to confirm reddens 3; treating an
+unresolved closed market as a loss reddens 6; letting the refresh overwrite an
+advanced cursor reddens 1; restoring the bet sheet's focus trap reddens 2;
+pricing a closed market from the order book reddens 2. The last three are the
+defects that shipped and were caught by audit rather than by tests — each now
+has a test that would have caught it.
 **Plan:** ./plan.md (approved 2026-08-31, revised 2026-08-31)
 
 Rules as in `001`: ordered, small, each with a `Verify:` line. **(exempt)** names an
@@ -149,13 +157,13 @@ gates. Each story lands whole before the next begins.
       caused, which let the visual suite reach the live exchange.
       Verify: `npm run test:visual` passes at both viewports, and the "Load more"
       check fails when the control is removed.
-- [ ] T23. **(not binding — documentation)** Record in
+- [x] T23. **(not binding — documentation)** Record in
       `specs/002-widget-visual-redesign/manual-checks.md` the criteria neither
       suite can judge — that scroll position holds across "Load more" and that the
       focus order reads sensibly. Update `README.md` and confirm `001`/`003`
       describe the system as built.
       Verify: `npm run verify` green; `bash scripts/sdd-lint.sh` passes.
-- [ ] T24. **(not binding — verification)** Prove the new tests can fail: six
+- [x] T24. **(not binding — verification)** Prove the new tests can fail: six
       deliberate mutations, each reddening exactly the expected test — remove the
       `appendPage` de-duplication; map Escape to confirm instead of cancel; treat
       an unresolved closed market as a loss; let the refresh overwrite an advanced

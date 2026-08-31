@@ -4,14 +4,16 @@ A web widget for browsing Polymarket prediction markets, getting AI assistance c
 
 **Live:** https://aoro-test-ten.vercel.app
 
-**Status:** features 002 (visual redesign) and 003 (scoped recommendation) complete; feature 001 blocked at T21. 268 behaviour tests + 60 appearance checks + 8 live tests passing.
+**Status:** features 002 (visual redesign), 003 (scoped recommendation) and 004 (usability and workflow) complete; feature 001 blocked at T21. 413 behaviour tests + 70 appearance checks + live tests passing.
 
 ## What works today
 
-- **Browse and search live markets** — real Polymarket data, prices as implied odds, category filters, refreshing without a page reload.
+- **Browse and search live markets** — real Polymarket data, prices as implied odds, category filters, refreshing without a page reload. Paginated (browsing and search alike) and orderable by 24-hour volume, soonest to end, total volume or liquidity. Only orderings the exchange performs *correctly* are offered: Gamma sorts several numeric columns as strings, so those are excluded in favour of their numeric aliases.
 - **AI-assisted suggestions** — describe what interests you and get up to three real open markets with reasoning grounded in their current odds. The model returns only ids; every question, label and price shown is read back from our own market data, so it cannot invent a market or a price.
 - **A scoped recommendation** — with a market selected, the assistant argues for one outcome and, in the same breath, for what would defeat it. Its output is constrained in shape and screened server-side: no quantities, no claims about how likely anything is, no assertions that the price is wrong. An argument is withdrawn when the price it was made from moves more than two points, when the market closes, or after ten minutes — and it only ever fills the outcome, never the stake.
-- **Demo betting** — a $1,000 practice balance, filled at the live order-book price, labelled DEMO at every step. No wallet, no real money.
+- **Demo betting** — a $1,000 practice balance, filled at the live order-book price, labelled DEMO at every step. No wallet, no real money. Positions are marked to market, so the practice account can rise as well as fall. A position whose price cannot be established reads as *not valued*, and a market that closed without the exchange publishing a winner reads as *unresolved* — never as a loss. The spendable balance stays cash: a paper gain is displayed, never staked.
+
+- **Operable by keyboard** — Escape closes the confirmation and the bet sheet, focus moves in and returns, and the confirmation contains Tab. The bet sheet deliberately does not: it stays open for as long as a market is selected, so trapping it would put the mode toggle and the geo explanation out of reach.
 - **Geo compliance** — restricted regions keep browsing, AI and demo, and lose only real betting, with an explanation.
 
 **Real-money betting is not enabled yet.** It is blocked at task T21, a spike that must place one small real order to confirm Polymarket's pUSD approval flow — the one API detail their docs do not specify. That needs a funded wallet on Polygon in a non-restricted region; the US is close-only on Polymarket's main exchange, so the deployment above reports real betting as unavailable.
@@ -46,8 +48,9 @@ Progress lives in `specs/001-polymarket-widget/tasks.md`.
 | **001** Polymarket widget | 23/31 tasks | Browse, demo betting, AI suggestions and geo gating shipped. **Blocked at T21**: the pUSD approval spike needs a funded wallet on Polygon in a non-restricted region, and the US is close-only on Polymarket's main exchange — including the region this deployment reports. T21 blocks T22–T28. |
 | **002** Visual redesign | 16/16 ✅ | Dark, data-first UI. Introduced the appearance gate, because jsdom performs no layout and cannot tell that a required field is off-screen. |
 | **003** Scoped recommendation | 20/20 ✅ | The assistant argues one side of a selected market, with the counter-case beside it. Its output is shape-constrained and screened server-side; arguments are withdrawn when the price they were made from moves. |
+| **004** Usability and workflow | 24/24 ✅ | Pagination, ordering, keyboard operation, position valuation and visible error recovery. Two constitution audits found nine defects between them, five of which had already shipped — including two sort orderings that returned lexicographically-sorted nonsense, and a refresh that rewound the pagination cursor so "Load more" went quietly dead. |
 
-Verification: `npm run verify` runs lint, build, 268 behaviour tests and 60
+Verification: `npm run verify` runs lint, build, 413 behaviour tests and 70
 appearance checks. `npm run test:live` exercises the real Polymarket and Claude
 APIs. `specs/002-widget-visual-redesign/manual-checks.md` records the six checks
 neither suite can judge — one of which, MC-6, found two real defects on the first
