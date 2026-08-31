@@ -27,22 +27,22 @@ gates. Each story lands whole before the next begins.
 - [x] T4. **GREEN** — implement `lib/market-sort.ts`, extend `fetchMarkets`, and
       pass `sort` through `/api/markets` until T3 passes.
       Verify: `npm test` passes.
-- [ ] T5. **RED** — failing tests for paginated search: `searchMarkets` requests a
+- [x] T5. **RED** — failing tests for paginated search: `searchMarkets` requests a
       page and reports whether more exist, and `/api/markets?q=` returns a
       `nextCursor` that carries the page number rather than the hardcoded `null`
       it returns today. Both paginate; only the route knows which is which.
       Verify: `npm test` fails on those assertions.
-- [ ] T6. **GREEN** — implement search pagination until T5 passes.
+- [x] T6. **GREEN** — implement search pagination until T5 passes.
       Verify: `npm test` passes; `curl 'localhost:3000/api/markets?q=trump'`
       returns a non-null `nextCursor`, and following it returns different markets.
-- [ ] T7. **RED** — failing component tests for the list: "Load more" appends
+- [x] T7. **RED** — failing component tests for the list: "Load more" appends
       without dropping what is shown, while browsing **and** while searching; it
       is absent when nothing more exists; a second press in flight fires one
       request; changing search, category or sort clears the list and sends no
       stale cursor; the 30-second refresh does not truncate later pages; a failed
       load keeps the rows and explains.
       Verify: `npm test` fails on those assertions.
-- [ ] T8. **GREEN** — implement pagination and the sort control in `MarketList`
+- [x] T8. **GREEN** — implement pagination and the sort control in `MarketList`
       until T7 passes, including sorting unavailable during search with a stated
       reason (plan constraint 1).
       Verify: `npm test` passes; in the browser, loading more appends rows and
@@ -50,6 +50,14 @@ gates. Each story lands whole before the next begins.
 
 ## Phase 2 — Keyboard and focus (UX-3)
 
+- [x] T8b. **(discovered at T6 — recorded, not silent)** `searchMarkets` changed
+      shape from `Market[]` to `{markets, hasMore}`. `app/api/assist/route.ts:93`
+      consumed it as an array, so AI suggestions would have silently lost every
+      searched candidate — and the assist tests mock `searchMarkets`, so they
+      stayed green. Fixed, with a test that fails against the array assumption.
+      This is the second exception to D1's "existing tests pass unmodified": four
+      call sites were updated for the new shape. **Done.**
+      Verify: reverting the route fix reddens 8 assist tests.
 - [ ] T9. **RED** — failing tests for `lib/use-dialog.ts`: Escape dismisses; focus
       moves in on open; Tab and Shift+Tab wrap within; focus returns to the opener
       on close; **and with two open, only the topmost handles Escape and traps

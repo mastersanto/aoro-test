@@ -26,7 +26,7 @@ function post(body: unknown) {
 
 beforeEach(() => {
   vi.mocked(fetchMarkets).mockResolvedValue({ markets: candidates, nextCursor: null });
-  vi.mocked(searchMarkets).mockResolvedValue([]);
+  vi.mocked(searchMarkets).mockResolvedValue({ markets: [], hasMore: false });
   parse.mockResolvedValue({
     parsed_output: {
       suggestions: [
@@ -115,5 +115,30 @@ describe("POST /api/assist", () => {
     expect(body).not.toContain("sk-ant");
     expect(body).not.toContain("x-api-key");
     expect(body).toMatch(/unavailable/i);
+  });
+});
+
+describe("assist grounding survives the search page shape (004 / UX-1)", () => {
+  it("uses the markets inside a search page, not the page object", async () => {
+    // 004 changed searchMarkets to return {markets, hasMore}. Treating that as
+    // an array yields zero searched candidates — and every mocked test here
+    // would still pass, which is exactly how this class of bug ships.
+    const searched = { ...marketA, id: "searched-only", question: "Searched only?" };
+    vi.mocked(searchMarkets).mockResolvedValue({ markets: [searched], hasMore: true });
+    vi.mocked(fetchMarkets).mockResolvedValue({ markets: [], nextCursor: null });
+    parse.mockResolvedValue({
+      parsed_output: {
+        suggestions: [
+          { marketId: "searched-only", tokenId: searched.outcomes[0].tokenId, reasoning: "ok" },
+        ],
+      },
+    });
+
+    const body = await (await post({ prompt: "anything" })).json();
+
+    // A search-only market can only be suggested if the route actually read it
+    // out of the page object.
+    expect(body.suggestions).toHaveLength(1);
+    expect(body.suggestions[0].market.id).toBe("searched-only");
   });
 });

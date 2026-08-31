@@ -37,7 +37,7 @@ describe("Gamma (live)", () => {
   }, 30_000);
 
   it("finds markets by keyword", async () => {
-    const results = await searchMarkets("bitcoin", 5);
+    const { markets: results } = await searchMarkets("bitcoin", 5);
     expect(results.length).toBeGreaterThan(0);
   }, 30_000);
 });

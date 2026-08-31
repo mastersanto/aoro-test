@@ -27,6 +27,19 @@ export function resetMarketCache(): void {
   cache.clear();
 }
 
+/**
+ * Search and browse paginate differently upstream — a page number and a keyset
+ * cursor. The client holds one opaque `nextCursor` either way; translating is
+ * this route's job, so the list needs no branch of its own (004 / UX-1).
+ */
+async function searchPage(query: string, limit: number, cursor?: string): Promise<Payload> {
+  const parsed = Number(cursor);
+  const page = Number.isInteger(parsed) && parsed > 1 ? parsed : 1;
+
+  const { markets, hasMore } = await searchMarkets(query, limit, page);
+  return { markets, nextCursor: hasMore ? String(page + 1) : null };
+}
+
 function clampLimit(raw: string | null): number {
   const n = Number(raw);
   if (!Number.isFinite(n)) return 20;
@@ -53,7 +66,7 @@ export async function GET(request: Request) {
 
   try {
     const payload: Payload = query
-      ? { markets: await searchMarkets(query, limit), nextCursor: null }
+      ? await searchPage(query, limit, cursor)
       : await fetchMarkets({
           limit,
           cursor,

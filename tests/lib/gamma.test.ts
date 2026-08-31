@@ -136,7 +136,7 @@ describe("searchMarkets", () => {
 
   it("returns normalized markets from the search payload", async () => {
     mockFetch(searchFixture);
-    const results = await searchMarkets("bitcoin");
+    const { markets: results } = await searchMarkets("bitcoin");
     expect(results.length).toBeGreaterThan(0);
     expect(results[0].question).toContain("Bitcoin");
   });

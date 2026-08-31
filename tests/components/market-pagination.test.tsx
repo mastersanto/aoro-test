@@ -94,7 +94,27 @@ describe("Load more (UX-1)", () => {
     expect(screen.queryByRole("button", { name: /load more/i })).toBeNull();
   });
 
-  it("is absent while searching — /public-search returns no cursor", async () => {
+  it("loads more search results too — search paginates by page number", async () => {
+    // /public-search carries pagination.hasMore and accepts page=N; the route
+    // hands the client the same opaque nextCursor either way (004 / UX-1).
+    mockApi((url) => {
+      if (!url.searchParams.get("q")) return { body: page(["a"], "C1") };
+      return url.searchParams.get("cursor") === "2"
+        ? { body: { markets: page(["s2"], null).markets, nextCursor: null } }
+        : { body: { markets: page(["s1"], null).markets, nextCursor: "2" } };
+    });
+
+    render(<MarketList />);
+    fireEvent.change(screen.getByLabelText(/search markets/i), { target: { value: "fed" } });
+    await waitFor(() => expect(screen.getByText("Market s1?")).toBeInTheDocument());
+
+    fireEvent.click(loadMore());
+
+    await waitFor(() => expect(screen.getByText("Market s2?")).toBeInTheDocument());
+    expect(screen.getByText("Market s1?")).toBeInTheDocument();
+  });
+
+  it("is absent while searching when the exchange reports no more results", async () => {
     mockApi((url) =>
       url.searchParams.get("q")
         ? { body: { markets: page(["s1"], null).markets, nextCursor: null } }
@@ -112,7 +132,7 @@ describe("Load more (UX-1)", () => {
   });
 
   it("does not double-load when pressed twice in flight", async () => {
-    let release: (() => void) | null = null;
+    let release!: () => void;
     const spy = vi.fn(async (raw: string) => {
       const url = new URL(String(raw), "http://localhost");
       if (url.searchParams.get("cursor") === "C1") {
@@ -128,15 +148,21 @@ describe("Load more (UX-1)", () => {
     render(<MarketList />);
     await waitFor(() => expect(screen.getByText("Market a?")).toBeInTheDocument());
 
-    fireEvent.click(loadMore());
-    fireEvent.click(loadMore());
-    fireEvent.click(loadMore());
+    // Hold the element: pressing it relabels it to "Loading…", so re-querying
+    // by name would find nothing and prove nothing.
+    const button = loadMore();
+    fireEvent.click(button);
+    fireEvent.click(button);
+    fireEvent.click(button);
 
     const withCursor = () =>
       spy.mock.calls.filter((c) => String(c[0]).includes("cursor=C1")).length;
     expect(withCursor()).toBe(1);
+    // and it says it is working, so the reader is not left pressing a dead control.
+    expect(button).toBeDisabled();
+    expect(button).toHaveTextContent(/loading/i);
 
-    release?.();
+    release();
     await waitFor(() => expect(screen.getByText("Market c?")).toBeInTheDocument());
     expect(withCursor()).toBe(1);
   });

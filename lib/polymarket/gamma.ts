@@ -26,6 +26,9 @@ export type Market = {
 
 export type MarketPage = { markets: Market[]; nextCursor: string | null };
 
+/** Search paginates by page number, not by cursor (004 / UX-1). */
+export type MarketSearchPage = { markets: Market[]; hasMore: boolean };
+
 /** Raised when Gamma returns a market we cannot trust enough to show or bet on. */
 export class GammaPayloadError extends Error {}
 
@@ -144,10 +147,20 @@ export async function fetchMarkets(opts: {
   };
 }
 
-export async function searchMarkets(query: string, limit = 20): Promise<Market[]> {
+/**
+ * Text search. Paginates by page number — `/public-search` carries
+ * `pagination: {hasMore, totalResults}` and accepts `page=N`, verified live
+ * 2026-08-31. It ignores `order`, so search results cannot be re-ordered.
+ */
+export async function searchMarkets(
+  query: string,
+  limit = 20,
+  page = 1,
+): Promise<MarketSearchPage> {
   const url = new URL(`${GAMMA_BASE}/public-search`);
   url.searchParams.set("q", query);
   url.searchParams.set("limit_per_type", String(limit));
+  if (page > 1) url.searchParams.set("page", String(page));
 
   const body = (await getJson(url)) as Raw;
   // public-search returns { events, pagination } — markets are nested inside each
@@ -156,7 +169,14 @@ export async function searchMarkets(query: string, limit = 20): Promise<Market[]
     ? (body.events as Raw[]).flatMap((e) => (Array.isArray(e.markets) ? e.markets : []))
     : [];
   const direct = Array.isArray(body.markets) ? body.markets : [];
-  return normalizeAll([...fromEvents, ...direct]).filter((m) => !m.closed);
+
+  const pagination = body.pagination as Raw | undefined;
+  return {
+    markets: normalizeAll([...fromEvents, ...direct]).filter((m) => !m.closed),
+    // Absent pagination means "assume nothing more": offering a control that
+    // fetches an empty page is worse than not offering one.
+    hasMore: Boolean(pagination?.hasMore),
+  };
 }
 
 /**

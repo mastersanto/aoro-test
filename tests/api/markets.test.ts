@@ -21,7 +21,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   resetMarketCache();
   vi.mocked(fetchMarkets).mockResolvedValue(page);
-  vi.mocked(searchMarkets).mockResolvedValue(markets);
+  vi.mocked(searchMarkets).mockResolvedValue({ markets, hasMore: false });
 });
 
 afterEach(() => {
@@ -60,7 +60,7 @@ describe("GET /api/markets", () => {
 
   it("routes a q parameter to search", async () => {
     await call("http://localhost/api/markets?q=bitcoin");
-    expect(searchMarkets).toHaveBeenCalledWith("bitcoin", expect.any(Number));
+    expect(searchMarkets).toHaveBeenCalledWith("bitcoin", expect.any(Number), 1);
     expect(fetchMarkets).not.toHaveBeenCalled();
   });
 
@@ -128,5 +128,35 @@ describe("GET /api/markets — sort (004 / UX-2)", () => {
     await call("http://localhost/api/markets?q=fed&sort=ending-soon");
     expect(searchMarkets).toHaveBeenCalled();
     expect(fetchMarkets).not.toHaveBeenCalled();
+  });
+})
+
+describe("GET /api/markets — search pagination (004 / UX-1)", () => {
+  it("returns a cursor for search when more results exist", async () => {
+    vi.mocked(searchMarkets).mockResolvedValue({ markets, hasMore: true });
+    const res = await call("http://localhost/api/markets?q=trump");
+    const body = await res.json();
+    // The client holds one opaque "there is more" token; only the route knows
+    // it is a page number here and a keyset cursor when browsing.
+    expect(body.nextCursor).not.toBeNull();
+  });
+
+  it("returns no cursor for search when the exchange says there are no more", async () => {
+    vi.mocked(searchMarkets).mockResolvedValue({ markets, hasMore: false });
+    const res = await call("http://localhost/api/markets?q=trump");
+    expect((await res.json()).nextCursor).toBeNull();
+  });
+
+  it("follows a search cursor to the next page", async () => {
+    vi.mocked(searchMarkets).mockResolvedValue({ markets, hasMore: true });
+    const first = await (await call("http://localhost/api/markets?q=trump")).json();
+    await call(`http://localhost/api/markets?q=trump&cursor=${encodeURIComponent(first.nextCursor)}`);
+    expect(searchMarkets).toHaveBeenLastCalledWith("trump", expect.any(Number), 2);
+  });
+
+  it("ignores a malformed search cursor rather than passing it upstream", async () => {
+    vi.mocked(searchMarkets).mockResolvedValue({ markets, hasMore: false });
+    await call("http://localhost/api/markets?q=trump&cursor=not-a-page");
+    expect(searchMarkets).toHaveBeenLastCalledWith("trump", expect.any(Number), 1);
   });
 })

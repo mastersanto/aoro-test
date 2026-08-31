@@ -90,7 +90,9 @@ export async function POST(request: Request) {
   try {
     // Ground in markets that are open right now, biased toward what the user asked about.
     const [searched, top] = await Promise.all([
-      searchMarkets(prompt, 20).catch(() => [] as Market[]),
+      searchMarkets(prompt, 20)
+        .then((r) => r.markets)
+        .catch(() => [] as Market[]),
       fetchMarkets({ limit: CANDIDATE_LIMIT }).then((p) => p.markets).catch(() => [] as Market[]),
     ]);
     const seen = new Set<string>();
