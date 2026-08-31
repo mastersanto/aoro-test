@@ -34,6 +34,13 @@ scroll.
 - With nothing selected, **at least two market rows are fully visible** without
   scrolling, at 1280×800 and at 390×844. Two, not one: one row on the fold does not
   read as a list.
+- *(Amended 2026-08-31 by `007 OM-1`, which opens on a market so betting can begin
+  without a click. The above now describes the **no-selection** state, reached by
+  clearing or by a search that matches nothing. With a market selected — the load
+  default — the guarantee becomes that **the bet can be completed without
+  scrolling**: the outcome controls, the amount field and the review control are all
+  visible. At 390px both cannot hold at once, and a bet form you can use beats a list
+  you did not ask for; at 1280px both hold, because the list is a second column.)*
 - This is measured in a real browser, because it is a claim about layout and jsdom
   performs no layout.
 - Nothing required by an earlier feature is removed to achieve it. Specifically:

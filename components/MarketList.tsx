@@ -15,9 +15,16 @@ type Payload = { markets: Market[]; nextCursor: string | null; stale?: boolean; 
 export function MarketList({
   selectedId,
   onSelect,
+  onFirstMarket,
 }: {
   selectedId?: string | null;
   onSelect?: (market: Market) => void;
+  /**
+   * The first row of the first successful load (007 / OM-1). Reported rather
+   * than acted on: the list does not decide what is selected, it only says what
+   * arrived first. The caller decides whether to use it, and only once.
+   */
+  onFirstMarket?: (market: Market) => void;
 } = {}) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -60,6 +67,11 @@ export function MarketList({
   }, [query]);
 
   const requestId = useRef(0);
+  // Held in a ref so a changing callback identity cannot re-run `load`.
+  const reportFirst = useRef(onFirstMarket);
+  useEffect(() => {
+    reportFirst.current = onFirstMarket;
+  });
 
   function url(nextCursor: string | null): string {
     const params = new URLSearchParams({ limit: String(PAGE_SIZE) });
@@ -92,6 +104,7 @@ export function MarketList({
       }
 
       const incoming = body.markets ?? [];
+      if (incoming.length > 0) reportFirst.current?.(incoming[0]);
       // Merge rather than replace: this only ever fetches page 1, so replacing
       // would silently undo "Load more" every 30 seconds. Against a different
       // query there is nothing to merge into, which the key comparison handles.

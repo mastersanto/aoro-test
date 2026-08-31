@@ -14,6 +14,9 @@ test.beforeEach(async ({ page }) => {
 test("the sort control is visible and readable", async ({ page }) => {
   await page.goto("/");
   const sort = page.getByLabel(/sort markets/i);
+  // Since 007 the rail leads at narrow width, so the list's controls are below
+  // the fold on arrival — reached by scrolling, as a reader would.
+  await sort.scrollIntoViewIfNeeded();
   await expectGenuinelyVisible(sort, "sort control");
   // The active ordering must be readable without opening anything (UX-2).
   await expect(sort).toHaveValue("hot");
@@ -108,6 +111,8 @@ test("Escape closes the confirmation and returns focus", async ({ page }) => {
 
 test("the empty rail explains itself on desktop and costs nothing on a phone", async ({ page }, testInfo) => {
   await page.goto("/");
+  // 007 opens on a market, so the empty state is reached by clearing.
+  await page.getByRole("button", { name: /^clear$/i }).click();
   const empty = page.getByRole("region", { name: /selected market/i });
 
   if (testInfo.project.name === "desktop") {

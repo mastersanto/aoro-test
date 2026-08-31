@@ -11,6 +11,8 @@ test("a market row keeps every field the card carried", async ({ page }) => {
   await page.goto("/");
 
   const row = page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first();
+  // The list sits below the rail at narrow width since 007; scroll to it first.
+  await row.scrollIntoViewIfNeeded();
   await expectGenuinelyVisible(row, "market row");
 
   const text = (await row.textContent()) ?? "";
@@ -32,11 +34,21 @@ test("the selected row is distinguishable by more than colour", async ({ page })
   await stubApi(page);
   await page.goto("/");
 
-  const row = page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first();
-  await expect(row).toHaveAttribute("aria-pressed", "false");
-  await row.click();
+  const rows = page.getByRole("region", { name: "Markets" }).getByRole("button");
+
+  // 007 opens on the FIRST row, and that default is itself carried as accessible
+  // state rather than only as a tint.
+  await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
+
+  // The transition is exercised on a row that is not already selected.
+  const other = rows.nth(1);
+  await expect(other).toHaveAttribute("aria-pressed", "false");
+  await other.scrollIntoViewIfNeeded();
+  await other.click();
+
   // An accessible state, not only a border colour (VR-1).
-  await expect(row).toHaveAttribute("aria-pressed", "true");
+  await expect(other).toHaveAttribute("aria-pressed", "true");
+  await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
 });
 
 test("the outcome bar reflects the prices shown", async ({ page }) => {

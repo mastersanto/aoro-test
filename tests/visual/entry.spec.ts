@@ -15,21 +15,49 @@ test.beforeEach(async ({ page }) => {
   await stubApi(page);
 });
 
-test("two market rows are fully visible on entry", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.locator('article[role="button"]').first()).toBeVisible();
-
-  const fullyVisible = await page.evaluate(() => {
+/** Rows whose whole box is inside the viewport. A row overlapping the fold is not one. */
+async function fullyVisibleRows(page: import("@playwright/test").Page) {
+  return page.evaluate(() => {
     const vh = window.innerHeight;
     return Array.from(document.querySelectorAll('article[role="button"]')).filter((el) => {
       const b = el.getBoundingClientRect();
-      // FULLY inside: a row overlapping the fold does not count, which is the
-      // whole difference between this check and the one it replaces.
       return b.top >= 0 && b.bottom <= vh;
     }).length;
   });
+}
 
-  expect(fullyVisible, "market rows fully visible without scrolling").toBeGreaterThanOrEqual(2);
+test("the bet can be completed without scrolling on entry (007 / OM-1)", async ({ page }) => {
+  // 007 opens on a market, so what must be reachable on arrival is the BET, not
+  // the list. At 390px both cannot fit; a usable bet form beats a list nobody
+  // asked for. At 1280px the list is a second column and both hold.
+  await page.goto("/");
+  const outcomes = page.getByRole("group", { name: /choose an outcome/i });
+  await expect(outcomes).toBeVisible();
+
+  for (const [el, what] of [
+    [outcomes, "outcome controls"],
+    [page.getByLabel(/amount/i), "amount field"],
+    [page.getByRole("button", { name: /review bet/i }), "review control"],
+  ] as const) {
+    const box = await el.boundingBox();
+    const vh = page.viewportSize()!.height;
+    expect(box!.y, `${what}: starts below the fold`).toBeLessThan(vh);
+    expect(box!.y + box!.height, `${what}: extends below the fold`).toBeLessThanOrEqual(vh);
+  }
+});
+
+test("two market rows are fully visible with nothing selected", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('article[role="button"]').first()).toBeVisible();
+
+  // Reached by clearing, since 007 opens on a market.
+  await page.getByRole("button", { name: /^clear$/i }).click();
+  await expect(page.getByRole("group", { name: /choose an outcome/i })).toBeHidden();
+
+  expect(
+    await fullyVisibleRows(page),
+    "market rows fully visible without scrolling",
+  ).toBeGreaterThanOrEqual(2);
 });
 
 test("the geo explanation survives the space it gave up (Art. V)", async ({ page }) => {

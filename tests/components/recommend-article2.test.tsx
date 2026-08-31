@@ -138,9 +138,18 @@ describe("what the recommendation must say about itself", () => {
   });
 
   it("is offered only when a market is selected", async () => {
+    // 007 / OM-1 opens on a market, so the no-market state is reached by
+    // clearing rather than by arriving. The requirement is unchanged: no market,
+    // no recommendation.
     render(<Widget />);
     await screen.findByRole("heading", { name: /Tirante/i });
-    expect(screen.queryByRole("button", { name: /what would you favou?r/i })).not.toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /what would you favou?r/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^clear$/i }));
+
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: /what would you favou?r/i })).not.toBeInTheDocument(),
+    );
   });
 
   it("remains available where real betting is disabled (AR-5)", async () => {

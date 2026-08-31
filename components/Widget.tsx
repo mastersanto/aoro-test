@@ -38,6 +38,15 @@ export function Widget() {
   const [recAt, setRecAt] = useState(0);
   const [now, setNow] = useState(0);
   const railRef = useRef<HTMLDivElement>(null);
+  // 007 / OM-1: the widget opens on a market so betting can begin without a
+  // click. Once only — a selection that reasserted itself would fight anyone who
+  // cleared it — and it chooses the MARKET only. Which side to back and how much
+  // are the user's decisions (Art. II), so preselected stays null.
+  const openedOnAMarket = useRef(false);
+  // A ref, not the suggestions state: the callback below can be created in a
+  // render where suggestions were still null and fire after they arrived, so a
+  // state read there is stale by construction. Refs are always current.
+  const userHasActed = useRef(false);
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [marketStale, setMarketStale] = useState(false);
 
@@ -206,7 +215,11 @@ export function Widget() {
    * market it was about (003 / AR-1). Bumping recRequest also strands any
    * response still in flight.
    */
-  function selectMarket(next: Market | null, outcome: Outcome | null = null) {
+  function selectMarket(
+    next: Market | null,
+    outcome: Outcome | null = null,
+    { scroll = true }: { scroll?: boolean } = {},
+  ) {
     recRequest.current += 1;
     setMarketStale(false);
     setRecommendation(null);
@@ -219,7 +232,10 @@ export function Widget() {
     // 005 / DR-2 replaces the bottom sheet. The rail is first in document order,
     // so at narrow width it is above the list the selection came from; bringing
     // it into view is what the sheet used to do by overlaying instead.
-    if (next) {
+    // Scrolling answers a click. The automatic selection on load passes
+    // scroll:false, because moving the page under someone who has not touched it
+    // is not a response to anything they did (007 / OM-1).
+    if (next && scroll) {
       requestAnimationFrame(() => {
         // Optional-called: jsdom implements no layout and so no scrollIntoView.
         railRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
@@ -261,6 +277,7 @@ export function Widget() {
   }
 
   function handleUseSuggestion(s: GroundedSuggestion) {
+    userHasActed.current = true;
     selectMarket(s.market, s.outcome);
     setNotice(null);
     setError(null);
@@ -431,12 +448,29 @@ export function Widget() {
           <AssistPanel
             onUseSuggestion={handleUseSuggestion}
             suggestions={suggestions}
-            onSuggestions={setSuggestions}
+            onSuggestions={(next) => {
+              if (next !== null) userHasActed.current = true;
+              setSuggestions(next);
+            }}
           />
 
           <MarketList
             selectedId={market?.id ?? null}
-            onSelect={(m) => selectMarket(m)}
+            onSelect={(m) => {
+              userHasActed.current = true;
+              selectMarket(m);
+            }}
+            onFirstMarket={(m) => {
+              if (openedOnAMarket.current) return;
+              // selectMarket clears advice, which is right when the USER changes
+              // the market and wrong here: the finder's button is live before the
+              // list has loaded, so someone can already have suggestions on
+              // screen when the first page lands. Opening on a market must not
+              // take away anything they did.
+              if (userHasActed.current) return;
+              openedOnAMarket.current = true;
+              selectMarket(m, null, { scroll: false });
+            }}
           />
         </div>
       </div>
