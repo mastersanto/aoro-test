@@ -16,6 +16,7 @@ export function ConfirmBetDialog({
   pending,
   livePrice,
   marketClosed = false,
+  failureReason = null,
   onConfirm,
   onCancel,
   onReview,
@@ -26,6 +27,8 @@ export function ConfirmBetDialog({
   /** The outcome's price now. May differ from the draft's after a refresh. */
   livePrice?: number | null;
   marketClosed?: boolean;
+  /** A placement that was attempted and rejected. The dialog stays open (004 / UX-5). */
+  failureReason?: string | null;
   onConfirm: () => void;
   onCancel: () => void;
   /** Return to the form so the user re-reviews at the new price. */
@@ -95,6 +98,12 @@ export function ConfirmBetDialog({
           </div>
         </dl>
 
+        {failureReason && (
+          <p role="alert" className="mt-3 rounded-control bg-down/10 px-3 py-2 text-xs text-down">
+            {failureReason} Nothing was placed. Check the details above and confirm
+            again, or cancel.
+          </p>
+        )}
         {marketClosed && (
           <p role="alert" className="mt-3 rounded-control bg-down/10 px-3 py-2 text-xs text-down">
             This market has closed since you opened this. No bet can be placed on it.

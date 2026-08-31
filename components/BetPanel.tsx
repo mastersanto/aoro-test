@@ -33,6 +33,7 @@ export function BetPanel({
   const [amount, setAmount] = useState("");
   const [draft, setDraft] = useState<BetDraft | null>(null);
   const [pending, setPending] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
 
   const amountUsd = Number(amount);
   const amountValid = Number.isFinite(amountUsd) && amountUsd > 0;
@@ -46,6 +47,7 @@ export function BetPanel({
   /** The only place a draft is created. It opens the confirmation; it never places. */
   function review() {
     if (!market || !outcome || !canReview) return;
+    setFailure(null);
     setDraft({ market, outcome, amountUsd });
   }
 
@@ -63,10 +65,22 @@ export function BetPanel({
     const live = market?.outcomes.find((o) => o.tokenId === draft.outcome.tokenId)?.price;
     if (typeof live === "number" && Math.abs(live - draft.outcome.price) > 0.0001) return;
     setPending(true);
+    setFailure(null);
     try {
       await onPlace(draft);
       setDraft(null);
       setAmount("");
+    } catch (e) {
+      // The confirmation STAYS OPEN and the draft is untouched. Recovery from a
+      // rejected placement is this dialog — Article II's five fields are still
+      // on screen — rather than a retry control beside an error message, which
+      // would re-send a bet the user could no longer see (004 / UX-5).
+      //
+      // Catching also stops the rejection escaping as an unhandled promise:
+      // confirm() is called from onClick without await. It is invisible today
+      // only because Widget.handlePlace swallows everything; Phase 6 supplies
+      // an onPlace that rejects.
+      setFailure(e instanceof Error ? e.message : "That bet could not be placed.");
     } finally {
       setPending(false);
     }
@@ -170,8 +184,12 @@ export function BetPanel({
           pending={pending}
           livePrice={market.outcomes.find((o) => o.tokenId === draft.outcome.tokenId)?.price}
           marketClosed={marketClosed}
+          failureReason={failure}
           onConfirm={confirm}
-          onCancel={() => setDraft(null)}
+          onCancel={() => {
+            setFailure(null);
+            setDraft(null);
+          }}
           onReview={() => setDraft(null)}
         />
       )}

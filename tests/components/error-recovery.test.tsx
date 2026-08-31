@@ -319,3 +319,58 @@ describe("surfaces that fail silently (audit round 2)", () => {
     vi.useRealTimers();
   });
 });
+
+describe("a rejected placement is reported, not swallowed (Art. II)", () => {
+  it("tells the user why, with the confirmation still on screen", async () => {
+    const onPlace = vi.fn().mockRejectedValue(new Error("The order was rejected."));
+    const { BetPanel } = await import("@/components/BetPanel");
+
+    render(
+      <BetPanel
+        market={marketA}
+        mode="demo"
+        onPlace={onPlace}
+        balanceUsd={1000}
+        initialOutcome={marketA.outcomes[0]}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: "20" } });
+    fireEvent.click(screen.getByRole("button", { name: /review bet/i }));
+    const dialog = await screen.findByRole("dialog", { name: /confirm your bet/i });
+    await waitFor(() => fireEvent.click(within(dialog).getByRole("button", { name: /place bet/i })));
+
+    const alert = await within(dialog).findByRole("alert");
+    expect(alert).toHaveTextContent(/order was rejected/i);
+    expect(alert).toHaveTextContent(/nothing was placed/i);
+    // Article II's five fields are still there to re-read before confirming again.
+    expect(screen.getByTestId("confirm-payout")).toBeInTheDocument();
+  });
+
+  it("does not leak the rejection as an unhandled promise", async () => {
+    // confirm() is called from onClick without await, so an uncaught rejection
+    // would surface as an unhandled promise rejection in the browser.
+    const unhandled = vi.fn();
+    process.on("unhandledRejection", unhandled);
+
+    const onPlace = vi.fn().mockRejectedValue(new Error("boom"));
+    const { BetPanel } = await import("@/components/BetPanel");
+    render(
+      <BetPanel
+        market={marketA}
+        mode="demo"
+        onPlace={onPlace}
+        balanceUsd={1000}
+        initialOutcome={marketA.outcomes[0]}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: "20" } });
+    fireEvent.click(screen.getByRole("button", { name: /review bet/i }));
+    const dialog = await screen.findByRole("dialog", { name: /confirm your bet/i });
+    await waitFor(() => fireEvent.click(within(dialog).getByRole("button", { name: /place bet/i })));
+    await waitFor(() => expect(onPlace).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 20));
+
+    expect(unhandled).not.toHaveBeenCalled();
+    process.off("unhandledRejection", unhandled);
+  });
+})

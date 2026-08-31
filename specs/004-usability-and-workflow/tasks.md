@@ -173,6 +173,17 @@ gates. Each story lands whole before the next begins.
       Verify: each mutation reddens exactly the expected test; reverting returns
       the suite to green.
 
+- [x] T25. **(discovered at T24 by the test written in T19 — recorded, not silent)**
+      `BetPanel.confirm()` awaited `onPlace` with no `catch`, and is called from
+      `onClick` without `await`, so a rejecting `onPlace` escaped as an unhandled
+      promise rejection. Invisible today only because `Widget.handlePlace`
+      swallows every error; Phase 6 supplies one that rejects. It now catches,
+      keeps the confirmation open with Article II's five fields on screen, and
+      says what happened — which is what UX-5's placement exclusion already
+      required and nothing enforced.
+      Verify: `npm test` reports no unhandled rejection; the new test fails if the
+      `catch` is removed.
+
 ## Approval
 
 - [x] Task list approved by user (required before `/implement`) — 2026-08-31
