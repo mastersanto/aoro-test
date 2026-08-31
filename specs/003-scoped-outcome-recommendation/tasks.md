@@ -47,7 +47,7 @@ Sequencing: the pure rules first, since they hold every binding decision and nee
 
 ## Phase 4 — Context and clearing
 
-- [ ] T11. **RED** — failing tests for the context rules: changing the selected market clears the previous recommendation; deselecting returns to discovery and clears it; the assistant's typed prompt survives while generated advice does not; **the bet amount never survives a market change**; a mode change clears the chosen outcome and typed amount; selecting a market clears discovery suggestions naming other markets; an in-flight response never renders against a market it was not asked about, or against no selection.
+- [x] T11. **RED** — failing tests for the context rules: changing the selected market clears the previous recommendation; deselecting returns to discovery and clears it; the assistant's typed prompt survives while generated advice does not; **the bet amount never survives a market change**; a mode change clears the chosen outcome and typed amount; selecting a market clears discovery suggestions naming other markets; an in-flight response never renders against a market it was not asked about, or against no selection.
       Verify: `npm test` fails on those assertions, including one that resolves a stale request after the selection changed.
 - [ ] T12. **GREEN** — implement until T11 passes, touching `Widget.tsx`, `BetPanel.tsx` and `AssistPanel.tsx`.
       Verify: `npm test` passes; **the Article II bypass tests are untouched** — this task edits `BetPanel.tsx`, where those thirteen assertions bind; any replaced assertion is equivalent and named in the commit.
