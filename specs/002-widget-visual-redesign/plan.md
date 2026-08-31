@@ -1,6 +1,6 @@
 # Plan 002 — Widget Visual Redesign
 
-**Status:** Draft — awaiting user approval
+**Status:** Approved 2026-08-31
 **Spec:** ./spec.md (approved 2026-08-31, no open `[NEEDS CLARIFICATION]` markers)
 
 ## Stack
@@ -97,4 +97,4 @@ Each visual check is written to fail first against the current UI where the guar
 
 ## Approval
 
-- [ ] Plan approved by user (required before `/tasks`)
+- [x] Plan approved by user (required before `/tasks`) — 2026-08-31
