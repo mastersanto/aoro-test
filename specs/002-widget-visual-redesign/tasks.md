@@ -62,9 +62,9 @@ Sequencing: the gate comes first, because a gate written after the work it judge
 
 ## Phase 7 — Close out
 
-- [ ] T14. **(not binding — documentation)** Write `manual-checks.md` listing every guarantee neither suite can judge, with steps — including "no painted device chrome" (VR-4), which no automated check covers. If the list is empty, say so explicitly rather than omitting the file.
+- [x] T14. **(not binding — documentation)** Write `manual-checks.md` listing every guarantee neither suite can judge, with steps — including "no painted device chrome" (VR-4), which no automated check covers. If the list is empty, say so explicitly rather than omitting the file.
       Verify: each listed check is performed once and its result recorded.
-- [ ] T15. **(not binding — documentation)** Add `npm run verify` (both suites), make both CI jobs required, and update README and CLAUDE.md for the two-suite split; confirm spec and plan still describe the system as built.
+- [x] T15. **(not binding — documentation)** Add `npm run verify` (both suites), make both CI jobs required, and update README and CLAUDE.md for the two-suite split; confirm spec and plan still describe the system as built.
       Verify: a clean clone runs `npm run verify` from the README alone and both suites execute; `bash scripts/sdd-lint.sh` passes.
 - [ ] T16. **(exempt — deployment)** Deploy and confirm the redesign in production at both viewports.
       Verify: the deployed URL serves the new UI; `/api/markets`, `/api/geo` and `/api/assist` still answer as before.

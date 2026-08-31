@@ -45,6 +45,8 @@ npm run lint         # eslint
 npm test             # run the full test suite once
 npm run test:watch   # re-run tests on change
 npm run test:live    # network tests against the real Polymarket APIs (excluded from npm test)
+npm run test:visual  # appearance gate: visibility, 44px targets, WCAG contrast (Playwright)
+npm run verify       # lint + build + both test suites — the full gate
 ```
 
 Run a single test:
@@ -54,7 +56,9 @@ npx vitest run -t "renders a component into a DOM"   # by test name (substring m
 npx vitest run tests/render.test.tsx                 # by file
 ```
 
-Tests live in `tests/`; network-dependent checks live in `tests/live/` and are excluded from the default run. Vitest runs in jsdom with `@testing-library/react` (config: `vitest.config.mts`, matchers: `vitest.setup.ts`) — constitution Article VII binds component-level invariants, so the suite must be able to render.
+Tests live in `tests/`; network-dependent checks live in `tests/live/` and are excluded from the default run.
+
+**Two gates, two roles.** `npm test` (jsdom) proves *behavior*; `npm run test:visual` (Playwright, real browser) proves *appearance* — visibility, size and contrast, none of which jsdom can judge, since it performs no layout. Neither suite may be weakened to make a change pass: an assertion that must change is replaced one-for-one with an equivalent, in the same change. Guarantees neither can judge are written down in `specs/002-widget-visual-redesign/manual-checks.md`. Vitest runs in jsdom with `@testing-library/react` (config: `vitest.config.mts`, matchers: `vitest.setup.ts`) — constitution Article VII binds component-level invariants, so the suite must be able to render.
 
 Dependencies are pinned to exact versions; `next.config.ts` pins `turbopack.root` because a lockfile above the repo otherwise makes the workspace root ambiguous.
 

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:live": "vitest run --config vitest.live.config.mts",
-    "test:visual": "playwright test"
+    "test:visual": "playwright test",
+    "verify": "npm run lint && npm run build && npm test && npm run test:visual"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.122.0",

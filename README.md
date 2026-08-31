@@ -26,11 +26,15 @@ npm run dev                    # http://localhost:3000
 Market browsing and demo betting work with no key at all; only the AI panel needs one. Use a **workspace-scoped** Claude API key — an identity-linked key additionally requires `ANTHROPIC_WORKSPACE_ID` (see `.env.example`).
 
 ```bash
-npm test          # 121 unit tests, no network
-npm run test:live # exercises the real Polymarket and Claude APIs (costs a model call)
-npm run build
-npm run lint
+npm run verify     # lint + build + both test suites
+npm test           # behavior: unit and component tests, no network
+npm run test:visual # appearance: real browser — visibility, 44px targets, contrast
+npm run test:live  # exercises the real Polymarket and Claude APIs (costs a model call)
 ```
+
+The appearance suite exists because jsdom performs no layout: it cannot tell that
+a required field is off-screen, a control is too small to tap, or text fails
+contrast. It runs a real browser against a production build.
 
 Progress lives in `specs/001-polymarket-widget/tasks.md`.
 
