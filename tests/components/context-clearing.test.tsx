@@ -133,7 +133,9 @@ describe("a mode change clears what was chosen for the other mode", () => {
   it("clears the chosen outcome and the typed amount", async () => {
     render(<Widget />);
     await select(a);
-    fireEvent.click(await screen.findByRole("button", { name: new RegExp(`${a.outcomes[0].label}.*9%`, "i") }));
+    // Scoped: the market row is also a button carrying the same text.
+    const group = within(await screen.findByRole("group", { name: /choose an outcome/i }));
+    fireEvent.click(group.getByRole("button", { name: new RegExp(`${a.outcomes[0].label}.*9%`, "i") }));
     fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: "150" } });
 
     fireEvent.click(screen.getByRole("button", { name: /real money/i }));

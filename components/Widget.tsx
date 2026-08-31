@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { BetDraft, BetMode } from "@/lib/bet";
 import type { Market, Outcome } from "@/lib/polymarket/gamma";
 import type { GroundedSuggestion } from "@/lib/ai/grounding";
@@ -14,6 +14,7 @@ import { fetchPrice } from "@/lib/polymarket/clob";
 import { AssistPanel } from "@/components/AssistPanel";
 import { BetPanel } from "@/components/BetPanel";
 import { BetSheet, useIsNarrow } from "@/components/BetSheet";
+import { RecommendPanel, type Recommendation } from "@/components/RecommendPanel";
 import { DemoPositions } from "@/components/DemoPositions";
 import { MarketList } from "@/components/MarketList";
 import { formatUsdPrecise } from "@/lib/format";
@@ -27,6 +28,12 @@ export function Widget() {
   const [error, setError] = useState<string | null>(null);
   const [geo, setGeo] = useState<GeoDecision | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState<GroundedSuggestion[] | null>(null);
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [recLoading, setRecLoading] = useState(false);
+  const [recError, setRecError] = useState<string | null>(null);
+  const [withheldReason, setWithheldReason] = useState<string | null>(null);
+  const recRequest = useRef(0);
   const narrow = useIsNarrow();
 
   // Keep the selected market's price current (003 / AR-1). The list is a
@@ -100,10 +107,52 @@ export function Widget() {
    * Article II: using a suggestion only fills in the form. It selects the market
    * and outcome and stops — it opens no confirmation and places nothing.
    */
+  /**
+   * One place where the selection changes, so advice can never outlive the
+   * market it was about (003 / AR-1). Bumping recRequest also strands any
+   * response still in flight.
+   */
+  function selectMarket(next: Market | null, outcome: Outcome | null = null) {
+    recRequest.current += 1;
+    setRecommendation(null);
+    setWithheldReason(null);
+    setRecError(null);
+    setSuggestions(null); // advice about OTHER markets goes too
+    setMarket(next);
+    setPreselected(outcome);
+    setSheetOpen(next !== null);
+  }
+
+  async function requestRecommendation() {
+    if (!market || recLoading) return;
+    const id = ++recRequest.current;
+    const askedAbout = market.id;
+
+    setRecLoading(true);
+    setRecError(null);
+    setWithheldReason(null);
+    try {
+      const res = await fetch("/api/recommend", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ marketId: askedAbout }),
+      });
+      const body = await res.json();
+      // Never render against a market this was not asked about.
+      if (id !== recRequest.current) return;
+
+      if (!res.ok) setRecError(body.error ?? "AI assistance is briefly unavailable.");
+      else if (body.withheld) setWithheldReason(body.reason ?? "No view to offer.");
+      else setRecommendation(body.recommendation ?? null);
+    } catch {
+      if (id === recRequest.current) setRecError("Could not reach the server. Please try again.");
+    } finally {
+      if (id === recRequest.current) setRecLoading(false);
+    }
+  }
+
   function handleUseSuggestion(s: GroundedSuggestion) {
-    setMarket(s.market);
-    setPreselected(s.outcome);
-    setSheetOpen(true);
+    selectMarket(s.market, s.outcome);
     setNotice(null);
     setError(null);
   }
@@ -138,7 +187,9 @@ export function Widget() {
   // second bet-entry surface (Art. II).
   const betPanel = (
     <BetPanel
-      key={preselected?.tokenId ?? market?.id ?? "none"}
+      // mode is part of the identity: a stake chosen against a practice
+      // balance must never carry into real money (003 / AR-1).
+      key={`${mode}:${preselected?.tokenId ?? market?.id ?? "none"}`}
       market={market}
       initialOutcome={preselected}
       mode={mode}
@@ -199,15 +250,37 @@ export function Widget() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <MarketList
           selectedId={market?.id ?? null}
-          onSelect={(m) => {
-            setMarket(m);
-            setPreselected(null);
-            setSheetOpen(true);
-          }}
+          onSelect={(m) => selectMarket(m)}
         />
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
-          <AssistPanel onUseSuggestion={handleUseSuggestion} />
+          {market && (
+            <RecommendPanel
+              market={market}
+              recommendation={recommendation}
+              loading={recLoading}
+              error={recError}
+              withheldReason={withheldReason}
+              onRequest={requestRecommendation}
+              onUse={(outcome) => setPreselected(outcome)}
+            />
+          )}
+
+          {market && (
+            <button
+              type="button"
+              onClick={() => selectMarket(null)}
+              className="min-h-11 rounded-control border border-line-strong px-3 text-xs text-muted hover:bg-white/5"
+            >
+              Clear selection
+            </button>
+          )}
+
+          <AssistPanel
+            onUseSuggestion={handleUseSuggestion}
+            suggestions={suggestions}
+            onSuggestions={setSuggestions}
+          />
 
           {!narrow && betPanel}
           <DemoPositions positions={demo.positions} />

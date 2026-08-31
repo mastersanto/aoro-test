@@ -7,11 +7,28 @@ import { formatPercent } from "@/lib/format";
 export type AssistPanelProps = {
   /** Pre-fills the bet form. Article II: this must never place anything. */
   onUseSuggestion: (suggestion: GroundedSuggestion) => void;
+  /** Optional: when supplied, the parent owns the suggestions so selecting a
+   *  market can clear advice about other markets while the typed prompt
+   *  survives (003 / AR-1). Left out, the panel keeps them itself — which is
+   *  why every existing test of this component still renders unchanged. */
+  suggestions?: GroundedSuggestion[] | null;
+  onSuggestions?: (s: GroundedSuggestion[] | null) => void;
 };
 
-export function AssistPanel({ onUseSuggestion }: AssistPanelProps) {
+export function AssistPanel({
+  onUseSuggestion,
+  suggestions: controlled,
+  onSuggestions,
+}: AssistPanelProps) {
   const [prompt, setPrompt] = useState("");
-  const [suggestions, setSuggestions] = useState<GroundedSuggestion[] | null>(null);
+  const [ownSuggestions, setOwnSuggestions] = useState<GroundedSuggestion[] | null>(null);
+
+  const isControlled = onSuggestions !== undefined;
+  const suggestions = isControlled ? (controlled ?? null) : ownSuggestions;
+  const setSuggestions = (next: GroundedSuggestion[] | null) => {
+    if (onSuggestions) onSuggestions(next);
+    else setOwnSuggestions(next);
+  };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
