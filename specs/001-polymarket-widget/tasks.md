@@ -90,6 +90,11 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 - [x] T30. **(not binding — documentation)** Update README (what it does, how to run locally, demo-mode note, live URL, and the Netlify fallback the plan commits to) and confirm spec/plan still describe the system as built.
       Verify: a clean clone can follow the README to a running dev server; `bash scripts/sdd-lint.sh` passes.
 
+## Phase 8 — follow-up (discovered after Phase 7)
+
+- [x] T31. **(exempt — retroactive coverage of shipped behavior; Art. VII binds new logic, not backfill)** Add component tests for the market list and card: content contract including both volume fields, loading/empty/stale/error states, debounced search, category filter toggle, the stale-response race guard, and selection. Found while drafting feature 002, whose redesign restructures exactly this surface — without these, the "001 tests are the regression gate" claim was false here.
+      Verify: `npm test` passes; each of three deliberate mutations (removing the race guard, dropping the total-volume field, leaking upstream detail into an error message) turns exactly one test red.
+
 ## Approval
 
 - [x] Task list approved by user (required before `/implement`) — 2026-08-31, including the reading that documentation tasks fall outside Article VII's binding scope

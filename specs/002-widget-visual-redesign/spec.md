@@ -67,6 +67,16 @@ As a future contributor, I can add a surface that looks like it belongs without 
 - Text remains legible and the layout stable if a webfont fails to load.
 - Text meets WCAG AA contrast (4.5:1 body, 3:1 large text) against its background.
 
+### VR-6 *(core)* — The redesign's guarantees are actually verified
+As the project owner, I can see that VR-2 through VR-5 are checked by something that can fail, rather than asserted in prose.
+
+**Acceptance criteria**
+- Each VR-2 and VR-3 visibility guarantee has a check that fails when the guarantee is broken — hiding a confirmation field, collapsing it behind a disclosure, pushing the disclaimer off-screen at 390px, or removing a DEMO signal must each turn something red.
+- Presence-in-the-DOM alone does not satisfy any of them: a check that would still pass with the element visually hidden or off-screen does not count.
+- VR-4's 44px minimum and VR-5's contrast ratios are measured, not eyeballed.
+- The checks run in the project's normal test command, so a later change cannot pass review without them.
+- Where a guarantee genuinely cannot be automated, it is listed explicitly as a manual check with the steps to perform — an honest gap, not silence.
+
 ## Out of scope
 
 - Any behavior change: no new endpoints, no changed flows, no content removed or added.
@@ -83,7 +93,7 @@ Article VII exempts "styling and layout". Framing this whole feature as visual w
 - **The market list's state handling.** Restructuring it touches the debounced query, the stale-response race guard, the stale-data flag, and error-message mapping. These are state transitions and error mapping, and they have **no dedicated component tests today** — this feature adds them before restructuring.
 - **The market row's queryable contract.** The list is not untested: six assertions in `tests/components/geo-degrade.test.tsx` and `tests/components/demo-flow.test.tsx` select a market by its heading role and then its enclosing `role="button"`. Turning cards into dense rows may legitimately change those roles. If it does, the replacement must be made **in the same change**, selecting the equivalent element by an equivalent accessible role, and reviewed as a deliberate contract change. Deleting or weakening one of those assertions to make a layout compile is a defect — that is the exact failure this spec exists to prevent.
 - **Any mobile bet-entry sheet.** Open/dismiss/viewport-conditional mounting is a state machine.
-- **The VR-2 and VR-3 visibility guarantees.** Assertions that the five fields, the disclaimer and the DEMO signals are actually visible and unscrolled, since presence-in-DOM does not imply visible.
+- **The VR-2 and VR-3 visibility guarantees**, and VR-6 as a whole. Assertions that the five fields, the disclaimer and the DEMO signals are actually visible and unscrolled, since presence-in-DOM does not imply visible.
 
 Genuinely exempt: type, spacing, radii, iconography, colour *choices*, and pure layout that changes no state.
 
@@ -94,6 +104,7 @@ The plan must also state **how** the VR-2/VR-3 visibility criteria and VR-4's 44
 ## Context (reference facts for planning)
 
 - The approved mockups live in `design/widget-terminal/` (`Main`, `Assist`, `Confirm`, `Mobile`) and on the shared design canvas. They are the visual reference, not a specification: where a mockup and this spec disagree, this spec wins. Specific type, colour and spacing choices are plan-level decisions.
+- The market list's state handling, error mapping and row content are now covered by `tests/components/market-list.test.tsx`, added to feature 001 before this feature was planned precisely so the redesign has a real gate there. Those tests were mutation-checked: removing the race guard, dropping the total-volume field, and leaking upstream detail into an error each turn exactly one of them red.
 - **Feature 001's test suite is a necessary but insufficient gate.** Those tests run in jsdom and assert DOM presence and text content, not visibility, size, contrast or position. A reskin can pass every one of them while hiding a required field. This is why VR-2 and VR-3 state visibility outcomes the plan must find a way to verify.
 - The shipped surfaces this feature restyles: market list and cards; bet panel and confirmation dialog; AI assist panel; demo positions; geo notice; and three surfaces in the widget shell that VR-3 constrains directly — the **money-mode toggle** (Demo / Real money: the single control deciding whether a bet is real), the **DEMO balance banner**, and the **bet-result notice**.
 - One colour currently carries exactly one meaning — demo. Reusing it for anything else would destroy that signal.
