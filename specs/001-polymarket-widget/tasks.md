@@ -11,7 +11,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 ## Phase 1 — Scaffold and test harness
 
-- [ ] T1. **(exempt — scaffolding)** Scaffold Next.js (App Router) + TypeScript + Tailwind at the repo root; pin exact versions; preserve the existing `.gitignore`, `README.md`, `CLAUDE.md`, and `.env.example`.
+- [x] T1. **(exempt — scaffolding)** Scaffold Next.js (App Router) + TypeScript + Tailwind at the repo root; pin exact versions; preserve the existing `.gitignore`, `README.md`, `CLAUDE.md`, and `.env.example`.
       Verify: `npm run dev` serves localhost:3000; `npm run build` and `npm run lint` exit 0.
 - [ ] T2. **(not binding — documentation)** Replace the "Commands" section of CLAUDE.md with the real dev/build/lint/test commands, including how to run a single test.
       Verify: every command listed runs successfully from a clean checkout.
