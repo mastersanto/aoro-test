@@ -4,7 +4,7 @@ A web widget for browsing Polymarket prediction markets, getting AI assistance c
 
 **Live:** https://aoro-test-ten.vercel.app
 
-**Status:** feature 001 under implementation — 22 of 30 tasks done, 121 unit tests + 6 live tests passing.
+**Status:** feature 002 (visual redesign) complete; feature 001 blocked at T21. 154 behavior tests + 50 appearance checks + 6 live tests passing.
 
 ## What works today
 

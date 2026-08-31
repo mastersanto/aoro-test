@@ -1,6 +1,6 @@
 # Tasks 002 — Widget Visual Redesign
 
-**Status:** Approved 2026-08-31 (revised after the constitution audit, then re-approved)
+**Status:** Complete 2026-08-31 — 16/16 tasks; deployed and verified in production
 **Plan:** ./plan.md (approved 2026-08-31)
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first.
@@ -66,7 +66,7 @@ Sequencing: the gate comes first, because a gate written after the work it judge
       Verify: each listed check is performed once and its result recorded.
 - [x] T15. **(not binding — documentation)** Add `npm run verify` (both suites), make both CI jobs required, and update README and CLAUDE.md for the two-suite split; confirm spec and plan still describe the system as built.
       Verify: a clean clone runs `npm run verify` from the README alone and both suites execute; `bash scripts/sdd-lint.sh` passes.
-- [ ] T16. **(exempt — deployment)** Deploy and confirm the redesign in production at both viewports.
+- [x] T16. **(exempt — deployment)** Deploy and confirm the redesign in production at both viewports.
       Verify: the deployed URL serves the new UI; `/api/markets`, `/api/geo` and `/api/assist` still answer as before.
 
 ## Approval

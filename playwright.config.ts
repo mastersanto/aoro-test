@@ -11,6 +11,11 @@ import { defineConfig, devices } from "@playwright/test";
  */
 const PORT = 3210;
 
+// Point the suite at a deployment instead of a local build:
+//   PROD_URL=https://… npm run test:visual
+// Used to confirm a deploy actually serves what the local gate approved (T16).
+const PROD = process.env.PROD_URL;
+
 export default defineConfig({
   testDir: "./tests/visual",
   fullyParallel: true,
@@ -18,17 +23,19 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
   use: {
-    baseURL: `http://127.0.0.1:${PORT}`,
+    baseURL: PROD ?? `http://127.0.0.1:${PORT}`,
     trace: "retain-on-failure",
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },
     { name: "mobile", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 } } },
   ],
-  webServer: {
-    command: `npm run build && npx next start -p ${PORT}`,
-    url: `http://127.0.0.1:${PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
-  },
+  webServer: PROD
+    ? undefined
+    : {
+        command: `npm run build && npx next start -p ${PORT}`,
+        url: `http://127.0.0.1:${PORT}`,
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+      },
 });
