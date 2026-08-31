@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { BetDraft, BetMode } from "@/lib/bet";
 import type { Market, Outcome } from "@/lib/polymarket/gamma";
 import type { GroundedSuggestion } from "@/lib/ai/grounding";
 import { createDemoState, placeDemoBet } from "@/lib/demo";
+import type { GeoDecision } from "@/lib/geo";
 import { fetchPrice } from "@/lib/polymarket/clob";
 import { AssistPanel } from "@/components/AssistPanel";
 import { BetPanel } from "@/components/BetPanel";
@@ -19,11 +20,44 @@ export function Widget() {
   const [demo, setDemo] = useState(createDemoState);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [geo, setGeo] = useState<GeoDecision | null>(null);
 
-  // Real betting arrives in Phase 6 (wallet + CLOB order signing). Until then the
-  // control is visible but explicitly unavailable rather than silently broken.
-  const realUnavailableReason =
-    "Real betting is not enabled in this build yet. Demo mode runs the same flow with a practice balance.";
+  // Ask the server whether real betting may be offered here (US-5). The effect
+  // only subscribes; state is set in the async continuation.
+  useEffect(() => {
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/geo");
+        const decision: GeoDecision = await res.json();
+        if (!cancelled) setGeo(decision);
+      } catch {
+        // Unknown region fails closed, same as the server's own default.
+        if (!cancelled) {
+          setGeo({
+            country: null,
+            bettingAllowed: false,
+            reason: "We could not determine your region, so real betting is turned off. Demo mode is available.",
+          });
+        }
+      }
+    }, 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, []);
+
+  // Real betting is unavailable for two independent reasons, and the user is
+  // told which one applies. Geo comes first: it is the compliance answer, and it
+  // stays true even once Phase 6 ships the wallet.
+  const geoBlocked = geo !== null && !geo.bettingAllowed;
+  const marketRestricted = Boolean(market?.restricted);
+  const realDisabledReason = geoBlocked
+    ? geo?.reason
+    : marketRestricted
+      ? "This market is restricted and cannot be bet on from the widget. Demo mode still works."
+      : "Real betting is not enabled in this build yet. Demo mode runs the same flow with a practice balance.";
 
   /**
    * Article II: using a suggestion only fills in the form. It selects the market
@@ -88,6 +122,13 @@ export function Widget() {
             DEMO — practice balance {formatUsdPrecise(demo.balanceUsd)}
           </p>
         )}
+
+        {geoBlocked && (
+          <p role="status" className="text-xs text-neutral-600 dark:text-neutral-300">
+            Real betting unavailable{geo?.country ? ` in ${geo.country}` : ""} — browsing, AI
+            assistance and demo mode remain available.
+          </p>
+        )}
       </div>
 
       {notice && (
@@ -120,7 +161,7 @@ export function Widget() {
             mode={mode}
             onPlace={handlePlace}
             bettingDisabled={mode === "real"}
-            disabledReason={mode === "real" ? realUnavailableReason : undefined}
+            disabledReason={mode === "real" ? realDisabledReason : undefined}
             balanceUsd={mode === "demo" ? demo.balanceUsd : undefined}
           />
           <DemoPositions positions={demo.positions} />

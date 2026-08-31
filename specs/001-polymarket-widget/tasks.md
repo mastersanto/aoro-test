@@ -61,7 +61,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 - [x] T19. **RED** — failing tests for geo gating (Art. V): a restricted region disables real-bet controls with an explanation while browse, AI, and demo stay available; Gamma's per-market `restricted` flag is honored; an unrestricted region leaves betting enabled.
       Verify: `npm test` fails on those assertions.
-- [ ] T20. **GREEN** — implement `GET /api/geo` plus the client-side pre-trade `polymarket.com/api/geoblock` check and UI gating until T19 passes.
+- [x] T20. **GREEN** — implement `GET /api/geo` plus the client-side pre-trade `polymarket.com/api/geoblock` check and UI gating until T19 passes.
       Verify: `npm test` passes; with a simulated restricted region the browser disables real betting with an explanation and US-1/US-3/US-4 still work.
 
 ## Phase 6 — Real betting (US-2)

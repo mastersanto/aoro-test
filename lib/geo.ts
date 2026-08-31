@@ -21,6 +21,30 @@ export type GeoDecision = {
   reason?: string;
 };
 
-export function evaluateGeo(_country: string | null | undefined): GeoDecision {
-  return undefined as unknown as GeoDecision;
+const UNKNOWN_REASON =
+  "We could not determine your region, so real betting is turned off. Demo mode is available.";
+
+export function evaluateGeo(country: string | null | undefined): GeoDecision {
+  const code = (country ?? "").trim().toUpperCase();
+
+  // Real money: an undeterminable region is not permission.
+  if (!code) {
+    return { country: null, bettingAllowed: false, reason: UNKNOWN_REASON };
+  }
+  if (BLOCKED_COUNTRIES.has(code)) {
+    return {
+      country: code,
+      bettingAllowed: false,
+      reason: "Polymarket is not available in your region.",
+    };
+  }
+  if (CLOSE_ONLY_COUNTRIES.has(code)) {
+    return {
+      country: code,
+      bettingAllowed: false,
+      reason:
+        "New bets are not available in your region — Polymarket's main exchange is close-only here. You can still browse markets, use AI assistance, and practise in demo mode.",
+    };
+  }
+  return { country: code, bettingAllowed: true };
 }
