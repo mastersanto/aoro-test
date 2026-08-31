@@ -17,6 +17,7 @@ import { BetSheet, useIsNarrow } from "@/components/BetSheet";
 import { RecommendPanel, type Recommendation } from "@/components/RecommendPanel";
 import { freshness } from "@/lib/ai/recommendation";
 import { DemoPositions } from "@/components/DemoPositions";
+import { valuePositions, type Quote } from "@/lib/demo-valuation";
 import { MarketList } from "@/components/MarketList";
 import { formatUsdPrecise } from "@/lib/format";
 
@@ -37,6 +38,7 @@ export function Widget() {
   const recRequest = useRef(0);
   const [recAt, setRecAt] = useState(0);
   const [now, setNow] = useState(0);
+  const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const narrow = useIsNarrow();
 
   // Keep the selected market's price current (003 / AR-1). The list is a
@@ -67,6 +69,55 @@ export function Widget() {
       clearInterval(repeat);
     };
   }, [selectedId]);
+
+  // Value the demo positions (004 / UX-4). Neither existing refresh covers
+  // these: 003's is keyed on the SELECTED market and the list's is
+  // query-scoped, so a position in a market the user scrolled past is quoted by
+  // neither. Same 30-second cadence as everything else — not a second clock.
+  const positionKey = demo.positions.map((p) => `${p.marketId}:${p.tokenId}`).join(",");
+  useEffect(() => {
+    if (!positionKey) return;
+    let cancelled = false;
+
+    const refresh = async () => {
+      const pairs = positionKey.split(",").map((s) => s.split(":"));
+      const params = new URLSearchParams({
+        markets: [...new Set(pairs.map((p) => p[0]))].join(","),
+        tokens: [...new Set(pairs.map((p) => p[1]))].join(","),
+      });
+      try {
+        const res = await fetch(`/api/quotes?${params}`);
+        if (!res.ok || cancelled) return;
+        const body = (await res.json()) as { quotes?: Record<string, Quote> };
+        if (!cancelled && body.quotes) {
+          setQuotes(body.quotes);
+          // Stamp the clock with the quotes so freshness is judged against when
+          // they actually arrived, and never read in render (Date.now() there
+          // is impure and re-renders unpredictably).
+          setNow(Date.now());
+        }
+      } catch {
+        // Keep the last quotes; demo-valuation ages them out on its own, so a
+        // frozen number is reported as not valued rather than as current.
+      }
+    };
+
+    const first = setTimeout(refresh, 0);
+    const repeat = setInterval(refresh, MARKET_REFRESH_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(first);
+      clearInterval(repeat);
+    };
+  }, [positionKey]);
+
+  // The clock that ages quotes out. Without it a position whose quote went
+  // stale would keep rendering its last value as "now".
+  useEffect(() => {
+    if (demo.positions.length === 0) return;
+    const t = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(t);
+  }, [demo.positions.length]);
 
   // A recommendation must age out even when nothing else changes on screen, so
   // expiry cannot depend on an incidental re-render.
@@ -211,13 +262,17 @@ export function Widget() {
       // Fill at the live book price, falling back to the listed price if the
       // CLOB is briefly unreachable.
       let fillPrice = draft.outcome.price;
+      let fillSource: "book" | "listed" = "book";
       try {
         fillPrice = await fetchPrice(draft.outcome.tokenId, "buy");
       } catch {
-        /* keep the listed price */
+        // Keep the listed price, but RECORD that we did: a cost basis from one
+        // source valued against another shows a difference that is the sources
+        // disagreeing, not the market moving (004 / UX-4).
+        fillSource = "listed";
       }
 
-      const next = placeDemoBet(demo, { draft, fillPrice });
+      const next = placeDemoBet(demo, { draft, fillPrice, fillSource });
       setDemo(next);
       setNotice(
         `DEMO bet placed: ${formatUsdPrecise(draft.amountUsd)} on "${draft.outcome.label}". No real money moved.`,
@@ -354,7 +409,7 @@ export function Widget() {
 
           {!betEntryActionable && betPanelSection}
 
-          <DemoPositions positions={demo.positions} />
+          <DemoPositions {...valuePositions(demo.positions, quotes, now)} />
         </div>
       </div>
 

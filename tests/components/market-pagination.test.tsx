@@ -357,3 +357,31 @@ describe("sort control (UX-2)", () => {
     expect(screen.getByText(/best matches/i)).toBeInTheDocument();
   });
 });
+
+describe("the refresh must not rewind the cursor (004 / UX-1)", () => {
+  it("keeps Load more working after a refresh lands", async () => {
+    // The refresh only ever fetches page 1, so it carries page 1's cursor. If it
+    // overwrites the advanced cursor, the next press re-fetches a page already
+    // loaded, appendPage dedupes it to nothing, and the control looks dead.
+    const spy = mockApi((url) => {
+      const c = url.searchParams.get("cursor");
+      if (c === "C1") return { body: page(["c", "d"], "C2") };
+      if (c === "C2") return { body: page(["e", "f"], null) };
+      return { body: page(["a", "b"], "C1") };
+    });
+
+    render(<MarketList />);
+    await waitFor(() => expect(screen.getByText("Market a?")).toBeInTheDocument());
+    fireEvent.click(loadMore());
+    await waitFor(() => expect(screen.getByText("Market c?")).toBeInTheDocument());
+
+    await vi.advanceTimersByTimeAsync(31_000);
+
+    spy.mockClear();
+    fireEvent.click(loadMore());
+
+    await waitFor(() => expect(screen.getByText("Market e?")).toBeInTheDocument());
+    // It asked for page 3, not page 2 again.
+    expect(requested(spy).some((u) => u.searchParams.get("cursor") === "C2")).toBe(true);
+  });
+});

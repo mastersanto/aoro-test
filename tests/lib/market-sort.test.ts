@@ -75,3 +75,45 @@ describe("fetchMarkets sends the chosen order (UX-2)", () => {
     expect(calls[0]).toContain("ascending=true");
   });
 });
+
+describe("orders that Gamma actually sorts numerically (004 audit round 2)", () => {
+  it("does not offer `volume` or `liquidity` — Gamma sorts them as strings", async () => {
+    // Verified live 2026-08-31: order=volume returns 99.99, 999.84, 9.99 —
+    // lexicographic. The control would look right and return garbage, which is
+    // the same defect that excluded `startDate`.
+    for (const o of SORT_OPTIONS) {
+      expect(o.order).not.toBe("volume");
+      expect(o.order).not.toBe("liquidity");
+    }
+  });
+
+  it("uses the numeric aliases instead", () => {
+    const total = SORT_OPTIONS.find((o) => o.id === "volume")!;
+    expect(total.order).toBe("volumeNum");
+  });
+});
+
+describe("ending-soonest excludes markets that already ended", () => {
+  const calls: string[] = [];
+  beforeEach(() => {
+    calls.length = 0;
+    vi.stubGlobal("fetch", async (url: string) => {
+      calls.push(String(url));
+      return { ok: true, status: 200, json: async () => ({ markets: [], next_cursor: null }) };
+    });
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("sends an end-date floor when ordering by end date", async () => {
+    // Verified live: closed=false with order=endDate returns markets that ended
+    // in October 2025, still flagged open. "Ending soonest" would be a wall of
+    // dead markets.
+    await fetchMarkets({ order: "endDate", ascending: true, endingAfter: "2026-08-31T00:00:00Z" });
+    expect(calls[0]).toContain("end_date_min=");
+  });
+
+  it("sends no floor for other orderings", async () => {
+    await fetchMarkets({ order: "volume24hr", ascending: false });
+    expect(calls[0]).not.toContain("end_date_min=");
+  });
+});

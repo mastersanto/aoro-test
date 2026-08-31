@@ -128,6 +128,8 @@ export async function fetchMarkets(opts: {
   /** Gamma order field; defaults to the shipped 24h-volume ordering (004 / UX-2). */
   order?: string;
   ascending?: boolean;
+  /** ISO date floor: drop markets that ended before this (004 / UX-2). */
+  endingAfter?: string;
 } = {}): Promise<MarketPage> {
   const url = new URL(`${GAMMA_BASE}/markets/keyset`);
   url.searchParams.set("closed", "false");
@@ -136,6 +138,8 @@ export async function fetchMarkets(opts: {
   url.searchParams.set("limit", String(opts.limit ?? 20));
   if (opts.cursor) url.searchParams.set("after_cursor", opts.cursor);
   if (opts.tagId) url.searchParams.set("tag_id", opts.tagId);
+  // `closed=false` alone still returns long-past markets flagged open.
+  if (opts.endingAfter) url.searchParams.set("end_date_min", opts.endingAfter);
 
   const body = (await getJson(url)) as Raw;
   // Live keyset responses key the array as `markets` (verified 2026-08-31).

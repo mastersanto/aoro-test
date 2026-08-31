@@ -13,6 +13,12 @@
  * one Escape, closing the confirmation and the sheet behind it in a single
  * keypress. Registering on open and de-registering on close makes "topmost
  * wins" a property of the hook rather than something each caller arranges.
+ *
+ * `trap` is opt-out for the same reason. Only a MODAL surface may contain
+ * focus. The bet sheet is open for as long as a market is selected, so
+ * trapping it would put the mode toggle and the geo explanation out of
+ * keyboard reach for the whole session — and the Demo toggle is the one thing
+ * `001 US-5` promises a user in a restricted region (Art. V).
  */
 import { useEffect, useRef, useState } from "react";
 
@@ -38,7 +44,16 @@ function focusable(container: HTMLElement): HTMLElement[] {
   });
 }
 
-export function useDialog({ open, onDismiss }: { open: boolean; onDismiss: () => void }) {
+export function useDialog({
+  open,
+  onDismiss,
+  trap = true,
+}: {
+  open: boolean;
+  onDismiss: () => void;
+  /** Contain Tab. False for a non-modal surface — see the note above. */
+  trap?: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   // Read the handler through a ref so a changing identity cannot re-run the
@@ -77,7 +92,7 @@ export function useDialog({ open, onDismiss }: { open: boolean; onDismiss: () =>
         return;
       }
 
-      if (e.key !== "Tab" || !ref.current) return;
+      if (!trap || e.key !== "Tab" || !ref.current) return;
 
       const items = focusable(ref.current);
       if (items.length === 0) return;
@@ -104,7 +119,7 @@ export function useDialog({ open, onDismiss }: { open: boolean; onDismiss: () =>
       // dead end: dismiss the dialog and you are back where you pressed.
       opener?.focus?.();
     };
-  }, [open, me]);
+  }, [open, me, trap]);
 
   return ref;
 }

@@ -95,11 +95,18 @@ export function MarketList({
       // Merge rather than replace: this only ever fetches page 1, so replacing
       // would silently undo "Load more" every 30 seconds. Against a different
       // query there is nothing to merge into, which the key comparison handles.
-      setLoaded((prev) => ({
-        key,
-        rows: prev.key === key ? mergeRefresh(prev.rows, incoming) : incoming,
-        cursor: body.nextCursor ?? null,
-      }));
+      setLoaded((prev) => {
+        const same = prev.key === key && prev.rows.length > 0;
+        return {
+          key,
+          rows: same ? mergeRefresh(prev.rows, incoming) : incoming,
+          // This only ever fetches page 1, so its cursor points at page 2.
+          // Overwriting an advanced cursor would make the next "Load more"
+          // re-fetch a page already loaded, which appendPage dedupes to nothing
+          // — the control would simply look dead.
+          cursor: same ? prev.cursor : (body.nextCursor ?? null),
+        };
+      });
       setStale(Boolean(body.stale));
       setError(null);
     } catch {

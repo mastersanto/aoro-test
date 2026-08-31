@@ -73,6 +73,9 @@ export async function GET(request: Request) {
           tagId,
           order: sort.order,
           ascending: sort.ascending,
+          endingAfter: sort.requiresFutureEndDate
+            ? new Date(now).toISOString()
+            : undefined,
         });
 
     cache.set(key, { payload, at: now });

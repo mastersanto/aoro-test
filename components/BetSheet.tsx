@@ -19,7 +19,13 @@ export function BetSheet({
   children: React.ReactNode;
 }) {
   // Hook first: it must run on every render, open or not (004 / UX-3).
-  const ref = useDialog({ open, onDismiss });
+  //
+  // No focus trap. This sheet stays open for as long as a market is selected —
+  // it is a panel, not a modal — so containing Tab would put the mode toggle
+  // and the geo explanation beyond keyboard reach for the whole session
+  // (Art. V, 001 US-5). The confirmation that opens above it does trap, and
+  // the dialog stack keeps the two from fighting.
+  const ref = useDialog({ open, onDismiss, trap: false });
 
   if (!open) return null;
 

@@ -17,6 +17,12 @@ export type DemoPosition = {
   shares: number;
   costUsd: number;
   priceAtFill: number;
+  /**
+   * Where `priceAtFill` came from. The widget falls back to the market list's
+   * price when the order book is briefly unreachable, and a cost recorded that
+   * way is not comparable with a value quoted from the book (004 / UX-4).
+   */
+  fillSource: "book" | "listed";
 };
 
 export type DemoState = { balanceUsd: number; positions: DemoPosition[] };
@@ -39,7 +45,11 @@ function positionId(): string {
 
 export function placeDemoBet(
   state: DemoState,
-  { draft, fillPrice }: { draft: BetDraft; fillPrice: number },
+  {
+    draft,
+    fillPrice,
+    fillSource = "book",
+  }: { draft: BetDraft; fillPrice: number; fillSource?: "book" | "listed" },
 ): DemoState {
   // estimatePayout validates both the stake and the price, and is the same
   // helper the real flow uses — so demo cannot drift from real arithmetic.
@@ -63,6 +73,7 @@ export function placeDemoBet(
     shares,
     costUsd: round2(draft.amountUsd),
     priceAtFill: fillPrice,
+    fillSource,
   };
 
   // New objects throughout: callers hold the previous state safely.

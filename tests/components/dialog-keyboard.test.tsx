@@ -197,3 +197,47 @@ describe("003 AR-4 still holds — at most one confirmation (amended form)", () 
     expect(screen.getByTestId("bet-sheet")).toBeInTheDocument();
   });
 });
+
+describe("the sheet must not trap the compliance surface (Art. V, audit round 2)", () => {
+  it("leaves the mode toggle and geo explanation keyboard-reachable", async () => {
+    // The sheet is open for as long as a market is selected — it is a panel,
+    // not a modal. Trapping Tab inside it would make the Demo toggle
+    // unreachable by keyboard, and the Demo toggle is the one thing 001 US-5
+    // promises a user in a restricted region.
+    setViewport(390);
+    render(<Widget />);
+
+    const row = await screen.findByRole("heading", { name: /Tirante/i });
+    fireEvent.click(row.closest('[role="button"]')!);
+    const sheet = await screen.findByTestId("bet-sheet");
+
+    const demoToggle = screen.getByRole("button", { name: /^Demo$/i });
+    expect(sheet.contains(demoToggle)).toBe(false);
+
+    demoToggle.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+
+    // Focus was not yanked back into the sheet.
+    expect(sheet.contains(document.activeElement)).toBe(false);
+  });
+
+  it("still traps Tab inside the confirmation, which IS modal", async () => {
+    setViewport(390);
+    render(<Widget />);
+
+    const row = await screen.findByRole("heading", { name: /Tirante/i });
+    fireEvent.click(row.closest('[role="button"]')!);
+    const sheet = within(await screen.findByTestId("bet-sheet"));
+
+    fireEvent.click(sheet.getByRole("button", { name: /Tirante · 9%/i }));
+    fireEvent.change(sheet.getByLabelText(/amount/i), { target: { value: "20" } });
+    fireEvent.click(sheet.getByRole("button", { name: /review bet/i }));
+
+    const dialog = await screen.findByRole("dialog", { name: /confirm your bet/i });
+    const buttons = within(dialog).getAllByRole("button");
+    buttons[buttons.length - 1].focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+
+    expect(dialog.contains(document.activeElement)).toBe(true);
+  });
+})

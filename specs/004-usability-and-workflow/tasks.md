@@ -82,30 +82,30 @@ gates. Each story lands whole before the next begins.
 
 ## Phase 3 — Demo position value (UX-4)
 
-- [ ] T13. **RED** — failing tests for `lib/demo-valuation.ts` covering **every row
+- [x] T13. **RED** — failing tests for `lib/demo-valuation.ts` covering **every row
       of the plan's table** and the totals. Explicitly: a closed market quoting
       `["0","0"]` is `unresolved`, carries no value and is excluded from the totals
       — **never a loss**; a missing quote, a stale quote and a price outside 0–1
       are each `unvalued`, not zero; a closed market whose held outcome is ≥ 0.99
       is `won`; the totals state how many positions were excluded.
       Verify: `npm test` fails on those assertions.
-- [ ] T14. **GREEN** — implement `lib/demo-valuation.ts` until T13 passes.
+- [x] T14. **GREEN** — implement `lib/demo-valuation.ts` until T13 passes.
       Verify: `npm test` passes.
-- [ ] T15. **RED** — failing tests for `GET /api/quotes`: several positions in one
+- [x] T15. **RED** — failing tests for `GET /api/quotes`: several positions in one
       call; the price comes from the order book, not the market list (plan
       constraint 5); a 404 market is absent from the map rather than an error; one
       failed quote does not fail the response; the count is capped; a cache hit
       inside the TTL.
       Verify: `npm test` fails on those assertions.
-- [ ] T16. **GREEN** — implement `app/api/quotes/route.ts` until T15 passes.
+- [x] T16. **GREEN** — implement `app/api/quotes/route.ts` until T15 passes.
       Verify: `npm test` passes; `curl` with two tokens returns both prices.
-- [ ] T17. **RED** — failing tests for `DemoPositions`: cost, current value and the
+- [x] T17. **RED** — failing tests for `DemoPositions`: cost, current value and the
       difference per position; the totals with the excluded count; an unresolved
       position reads as unresolved; **the spendable balance is unchanged by
       valuation** (`001 US-3`, plan D4); DEMO labelling on every value, difference
       and total (Art. V, `002` VR-3).
       Verify: `npm test` fails on those assertions.
-- [ ] T18. **GREEN** — implement the valuation display and wire quoting into
+- [x] T18. **GREEN** — implement the valuation display and wire quoting into
       `Widget` on the existing 30-second cadence until T17 passes.
       Verify: `npm test` passes; in the browser a position's value tracks the book
       price, every figure reads DEMO, and the practice balance does not move.
