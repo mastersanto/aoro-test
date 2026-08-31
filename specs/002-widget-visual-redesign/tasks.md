@@ -1,6 +1,6 @@
 # Tasks 002 — Widget Visual Redesign
 
-**Status:** Revised after the constitution audit — awaiting re-approval
+**Status:** Approved 2026-08-31 (revised after the constitution audit, then re-approved)
 **Plan:** ./plan.md (approved 2026-08-31)
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first.
@@ -71,4 +71,4 @@ Sequencing: the gate comes first, because a gate written after the work it judge
 
 ## Approval
 
-- [ ] Task list approved by user (required before `/implement`)
+- [x] Task list approved by user (required before `/implement`) — 2026-08-31
