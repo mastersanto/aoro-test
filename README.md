@@ -1,10 +1,12 @@
 # Polymarket Widget
 
-A web widget for browsing Polymarket prediction markets, getting AI assistance choosing a market and outcome, and placing a bet — with the user's own wallet, after explicit confirmation.
+A web widget for browsing Polymarket prediction markets, getting AI assistance choosing a market and outcome, and placing a practice bet against live prices, after explicit confirmation.
 
 **Live:** https://aoro-test-ten.vercel.app
 
-**Status:** features 002 (visual redesign), 003 (scoped recommendation) and 004 (usability and workflow) complete; feature 001 blocked at T21. 413 behaviour tests + 70 appearance checks + live tests passing.
+**Status:** all four features complete. 419 behaviour tests + 70 appearance checks + live tests passing.
+
+**This widget is demo-only.** Real-money betting (US-2) was withdrawn on 2026-08-31 — see [the scope change](specs/001-polymarket-widget/spec.md#scope-change--2026-08-31). Every other part is real: live Polymarket markets, live order-book fill prices, a real Claude model behind the assistance, and the same confirmation step a real bet would pass through. What does not happen is money moving.
 
 ## What works today
 
@@ -16,7 +18,7 @@ A web widget for browsing Polymarket prediction markets, getting AI assistance c
 - **Operable by keyboard** — Escape closes the confirmation and the bet sheet, focus moves in and returns, and the confirmation contains Tab. The bet sheet deliberately does not: it stays open for as long as a market is selected, so trapping it would put the mode toggle and the geo explanation out of reach.
 - **Geo compliance** — restricted regions keep browsing, AI and demo, and lose only real betting, with an explanation.
 
-**Real-money betting is not enabled yet.** It is blocked at task T21, a spike that must place one small real order to confirm Polymarket's pUSD approval flow — the one API detail their docs do not specify. That needs a funded wallet on Polygon in a non-restricted region; the US is close-only on Polymarket's main exchange, so the deployment above reports real betting as unavailable.
+**Real-money betting was withdrawn, not deferred.** It was blocked at T21, a spike that must place one small real order to confirm Polymarket's pUSD approval flow — the one API detail their docs do not specify. That needs a funded wallet on Polygon in a non-restricted region, and the US is close-only on Polymarket's main exchange, so the blocker was jurisdictional rather than technical. The region and per-market restriction checks were **kept** even though nothing real can be bet: they are correct, tested, and honest about where you are.
 
 ## Run it locally
 
@@ -39,13 +41,13 @@ The appearance suite exists because jsdom performs no layout: it cannot tell tha
 a required field is off-screen, a control is too small to tap, or text fails
 contrast. It runs a real browser against a production build.
 
-Progress lives in `specs/001-polymarket-widget/tasks.md`.
+Progress lives in each feature's `tasks.md`.
 
 ## Where each feature stands
 
 | Feature | State | Notes |
 |---|---|---|
-| **001** Polymarket widget | 23/31 tasks | Browse, demo betting, AI suggestions and geo gating shipped. **Blocked at T21**: the pUSD approval spike needs a funded wallet on Polygon in a non-restricted region, and the US is close-only on Polymarket's main exchange — including the region this deployment reports. T21 blocks T22–T28. |
+| **001** Polymarket widget | 24/24 ✅ | Browse, demo betting, AI suggestions and geo gating. **US-2 (real betting) withdrawn 2026-08-31** and Phase 6 removed; the blocker was jurisdictional, not technical. Because that phase had been sequenced last on purpose, nothing shipped depended on it. |
 | **002** Visual redesign | 16/16 ✅ | Dark, data-first UI. Introduced the appearance gate, because jsdom performs no layout and cannot tell that a required field is off-screen. |
 | **003** Scoped recommendation | 20/20 ✅ | The assistant argues one side of a selected market, with the counter-case beside it. Its output is shape-constrained and screened server-side; arguments are withdrawn when the price they were made from moves. |
 | **004** Usability and workflow | 24/24 ✅ | Pagination, ordering, keyboard operation, position valuation and visible error recovery. Two constitution audits found nine defects between them, five of which had already shipped — including two sort orderings that returned lexicographically-sorted nonsense, and a refresh that rewound the pagination cursor so "Load more" went quietly dead. |
@@ -85,7 +87,9 @@ The commit history mirrors the same progression: harness → spec approval → p
 
 ## Next step
 
-Open the repo in Claude Code and run `/sdd-status` — it reports every feature's gate state and names the single next action. Today that is **T21**, the pUSD spike described above.
+Open the repo in Claude Code and run `/sdd-status` — it reports every feature's gate state. All four features are complete, so the next action is a new `/spec`.
+
+The two outstanding items are judgements, not code: `specs/002-widget-visual-redesign/manual-checks.md` records **MC-7** (does scroll position hold across "Load more"?) and **MC-8** (does the keyboard order read sensibly?) as not yet performed. Neither suite can decide them — jsdom has no layout, and Playwright can measure `scrollY` without knowing whether the row you were reading moved.
 
 ## Deployment
 

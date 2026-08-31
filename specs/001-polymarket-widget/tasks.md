@@ -1,13 +1,13 @@
 # Tasks 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Approved 2026-08-31 — 23 of 31 done; Phase 6 (T21-T28) blocked on the pUSD spike
+**Status:** Approved 2026-08-31 — complete at 24 of 24. Phase 6 (T21–T28) removed 2026-08-31 with US-2's withdrawal; see below.
 **Plan:** ./plan.md (approved 2026-08-31, amended 2026-08-31)
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first. Load the `polymarket-api` skill before any task touching Polymarket.
 
 **Article VII (test-first) applies.** Binding work is split into a **RED** task (write the failing test that states the requirement) and a **GREEN** task (implement until it passes). Tasks marked **(exempt)** name an Article VII exempt category — scaffolding, styling and layout, dependency configuration, deployment, or an exploratory spike. Tasks marked **(not binding)** fall outside the article entirely: documentation is neither business logic nor a safety invariant, so it needs no exemption. A RED task's Verify line requires the test to fail *for the right reason* (a real assertion, not an import or syntax error).
 
-Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) → AI assist (US-4) → geo (US-5) → real bets (US-2). Demo betting precedes AI assist because the assist UI pre-fills the bet form that demo betting builds. Value ships from Phase 2 onward, and the unverified pUSD approval flow (T21) is retired before any real-money UI exists.
+Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) → AI assist (US-4) → geo (US-5). *(The sequence originally ended with real bets (US-2), deliberately last so the unverified pUSD approval flow was retired before any real-money UI existed. That ordering turned out to be the right call for the opposite reason to the one intended: US-2 was withdrawn, and because it had been sequenced last, nothing shipped depended on it.)*
 
 ## Phase 1 — Scaffold and test harness
 
@@ -64,24 +64,26 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 - [x] T20. **GREEN** — implement `GET /api/geo` and UI gating until T19 passes. *(As built: the server-side region check gates the control via `lib/betting-availability.ts`. Polymarket's own `polymarket.com/api/geoblock` call is a pre-trade check with no trade to precede yet, so it moved to T27 — see plan Amendment 6.)*
       Verify: `npm test` passes; with a simulated restricted region the browser disables real betting with an explanation and US-1/US-3/US-4 still work.
 
-## Phase 6 — Real betting (US-2)
+## ~~Phase 6 — Real betting (US-2)~~ — **REMOVED 2026-08-31**
 
-- [ ] T21. **(exempt — exploratory spike; plan Risk 1)** *(Partially advanced 2026-08-31 without a wallet: the pUSD proxy and all three exchange/CTF contract addresses were confirmed live on Polygon read-only, and pUSD is **6-decimal** — recorded in the polymarket-api skill. What remains needs money: which spender to approve, and one order end-to-end.)* Validate the pUSD allowance/approval flow and one minimal real order end-to-end from a non-restricted region; replace the UNVERIFIED note in `.claude/skills/polymarket-api/SKILL.md` with the confirmed flow (approval target contract, decimals, order params) and update plan.md if it differs. Spike code is throwaway — it must not be promoted into a shipped path without passing through T11/T12.
-      Verify: one real order fills on-chain; the skill file states the confirmed approval targets and steps. **Blocks T22–T29.**
-- [ ] T22. **RED** — failing tests for credential safety (Art. III/IV): derived L2 credentials and signatures never appear in a server-bound request payload or server log; and for the failure taxonomy → user-message mapping (insufficient balance, insufficient allowance, rejected signature, geo rejection, network error).
-      Verify: `npm test` fails on those assertions.
-- [ ] T23. **GREEN** — implement wallet connect (wagmi + viem, Polygon) and CLOB auth: L1 EIP-712 signature → derived L2 credentials (signatureType EOA=0), client-side only, until the T22 credential tests pass.
-      Verify: `npm test` credential tests pass; connecting a test wallet derives credentials in the browser with nothing sensitive in server logs.
-- [ ] T24. **RED** — failing tests for the pUSD allowance state machine (plan amendment 2): insufficient allowance is detected before submitting, an approve step is offered and retried after success, a sufficient allowance skips approval, and a rejected approval leaves funds untouched.
-      Verify: `npm test` fails on those assertions.
-- [ ] T25. **GREEN** — implement the allowance check and approve step until T24 passes, using the target confirmed by T21.
-      Verify: `npm test` passes; a first-time funded wallet can approve and proceed without leaving the widget.
-- [ ] T26. **RED** — failing tests for order construction: amount and outcome map to correct FOK/FAK buy parameters (size, price, tick rounding, min size), and a fill response maps to the rendered position.
-      Verify: `npm test` fails on those assertions against a recorded CLOB fixture.
-- [ ] T27. **GREEN** — implement real order placement until T26 passes: the constructed order is signed by the user's wallet and submitted from the client only after the T12 confirmation. Add the pre-trade `polymarket.com/api/geoblock` check here (moved from T20), and flip `WALLET_READY` in `components/Widget.tsx` — `lib/betting-availability.ts` already gates on region and per-market restriction, and its tests must keep passing.
-      Verify: `npm test` passes; a small real bet from a non-restricted region fills and the resulting position renders. Extend the T11 confirmation-bypass and T19 geo-gating suites to cover this real submit path.
-- [ ] T28. **GREEN** — implement failure handling until the T22 mapping tests pass: each failure surfaces its plain-language message with funds untouched and no partial state.
-      Verify: `npm test` passes; each failure is exercised or simulated in the browser and shows its message.
+US-2 was withdrawn by the project owner; see `spec.md`'s Scope change. T21–T28 are
+removed rather than left permanently unchecked, so `/sdd-status` stops reporting a
+next action that will never be taken.
+
+They were: T21, the pUSD allowance/approval spike (blocking); T22/T23, credential
+safety and wallet connect; T24/T25, the allowance state machine; T26/T27, order
+construction and placement; T28, failure handling.
+
+**Why they could not simply be finished.** T21 cannot be completed read-only — the
+docs do not name the approval target, and determining it needs a funded wallet on
+Polygon in a non-restricted region. The US, where this is built and deployed, is
+close-only on Polymarket's main exchange. The blocker was jurisdictional.
+
+**What was salvaged rather than lost.** The contract addresses T21 did confirm
+on-chain, and pUSD's 6-decimal precision, stay recorded in
+`.claude/skills/polymarket-api/SKILL.md` — they were verified read-only and remain
+true whoever picks this up. The still-UNVERIFIED approval target is marked as such
+there, which is the honest state to leave it in.
 
 ## Phase 7 — Ship
 

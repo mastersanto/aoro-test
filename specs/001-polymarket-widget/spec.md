@@ -1,6 +1,6 @@
 # Spec 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Approved 2026-08-31
+**Status:** Approved 2026-08-31; **US-2 withdrawn 2026-08-31** (see Scope change)
 **Owner:** jorgeivansandoval@gmail.com
 
 ## Why
@@ -22,21 +22,48 @@ As a visitor, I can browse and search live Polymarket markets, seeing for each: 
 - Keyword search and category filter narrow the list.
 - Works with no wallet connected and no sign-in.
 
-### US-2 *(core)* — Place a real bet
-As a bettor, I can select a market and outcome, enter an amount, see the estimated payout, connect my own wallet, and place the bet after an explicit confirmation step.
+### ~~US-2 *(core)* — Place a real bet~~ — **WITHDRAWN 2026-08-31**
 
-**Acceptance criteria**
-- The confirmation step shows market, outcome, amount, price, and estimated payout before anything is signed (Article II).
-- The transaction is signed client-side by the user's own wallet holding trading collateral on Polygon (pUSD, Polymarket's USDC-backed collateral token — funded from USDC); the server never touches funds or private keys (Article III).
-- Success shows the resulting position; failure shows a plain-language reason and leaves the user's funds untouched.
+Withdrawn by the project owner. The story text is kept rather than deleted so the
+decision is auditable and so a future reader can see exactly what was dropped.
 
-### US-3 *(core)* — Demo mode
-As a visitor without a funded wallet (e.g. a reviewer), I can toggle demo mode and practice the full betting flow against real market data with a simulated balance.
+> As a bettor, I can select a market and outcome, enter an amount, see the
+> estimated payout, connect my own wallet, and place the bet after an explicit
+> confirmation step.
+>
+> - The confirmation step shows market, outcome, amount, price, and estimated
+>   payout before anything is signed (Article II).
+> - The transaction is signed client-side by the user's own wallet holding trading
+>   collateral on Polygon (pUSD); the server never touches funds or private keys
+>   (Article III).
+> - Success shows the resulting position; failure shows a plain-language reason and
+>   leaves the user's funds untouched.
+
+**Why it was withdrawn.** It was blocked at T21, a spike that cannot be completed
+read-only: determining which spender to approve requires a funded wallet on Polygon
+in a non-restricted region, and the US — where this is being built and deployed —
+is close-only on Polymarket's main exchange. The blocker is jurisdictional, not
+technical, so no amount of further work here removes it.
+
+**What replaces it.** Nothing. US-3 (demo mode) already exercises the full journey
+against live market data and live order-book prices, through the same confirmation
+Article II requires. The widget is demo-only, and says so.
+
+**What this does NOT change.** The region and per-market restriction checks stay,
+and still run before anything else (`lib/betting-availability.ts`, US-5). They are
+the compliance answer rather than a wallet precondition, and removing working
+safety code to match a scope cut is how a codebase loses the reason it was careful.
+The constitution is unamended: Article II still binds every demo placement, and
+Article III becomes vacuous rather than violated — the server holds no funds
+because there are none to hold.
+
+### US-3 *(core)* — Demo mode — **now the only betting path**
+As a visitor, I can practice the full betting flow against real market data with a simulated balance. *(With US-2 withdrawn 2026-08-31 this is no longer a fallback for reviewers without a wallet; it is how the widget places bets.)*
 
 **Acceptance criteria**
 - Demo mode needs no wallet and moves no real money.
 - Every bet-like control and result is unmistakably labeled as demo while the mode is active.
-- The flow mirrors US-2 (same confirmation step) so it exercises the real UX.
+- The flow passes through the confirmation Article II requires — the same one US-2 would have used.
 - The simulated balance is per-session and resets on reload — consistent with "no server-side user state" (see Out of scope).
 
 ### US-4 *(bonus, per assignment)* — AI-assisted predictions
@@ -51,13 +78,33 @@ As an undecided user, I can describe what I'm interested in and receive AI-sugge
 ### US-5 *(core)* — Geo-restricted regions degrade to read-only
 As a user in a region where Polymarket trading is restricted, I can still browse markets and use AI assistance, but real betting is disabled with an explanation.
 
+*(Retained after US-2's withdrawal. The check is now belt-and-braces — nothing real can be bet regardless — but it is correct, tested, and honest about the region, and Article V makes it an acceptance criterion rather than a feature of the wallet work.)*
+
 **Acceptance criteria**
-- Restricted regions get US-1 and US-4 unchanged; US-2's controls are disabled with a plain-language explanation (Article V).
+- Restricted regions get US-1 and US-4 unchanged; the real-money controls are disabled with a plain-language explanation (Article V).
 - Demo mode (US-3) remains available — it moves no real money.
 - The "not financial advice" disclaimer required by US-4 remains visible alongside AI suggestions.
 
+## Scope change — 2026-08-31
+
+**US-2 (real betting) withdrawn by the project owner**, after two prior instructions
+to skip wallet work. Consequences, all applied in the same change:
+
+- Phase 6 (T21–T28) is removed from `tasks.md`, with the reason recorded there.
+- `plan.md`'s wallet, CLOB-signing and allowance architecture is marked withdrawn.
+- The user-facing reason changes from "not enabled in this build **yet**" to
+  demo-only by design. Saying "yet" would promise something that is not coming.
+- `realBettingAvailability`'s `walletReady` flag is renamed `realBettingBuilt`,
+  because the reason it is false is now a decision rather than pending work.
+- **The assignment asked that "the user can place a bet on a market."** With US-2
+  withdrawn, that is satisfied in demo only: real market data, live order-book
+  fill prices, the same confirmation — but no real money moves. This is the one
+  consequence worth stating plainly rather than burying, and it was the owner's
+  call to make.
+
 ## Out of scope (v1)
 
+- **Real-money betting** — see the Scope change above.
 - Embedding on third-party sites — the widget ships as a single hosted page; an embeddable version is a possible future feature.
 - Portfolio management, order history, selling or closing positions.
 - Limit orders or advanced order types — market-style buys only.

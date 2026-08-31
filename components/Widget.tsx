@@ -164,14 +164,15 @@ export function Widget() {
     };
   }, []);
 
-  // Phase 6 (T23-T27) flips this to true once the wallet and CLOB signing land.
-  // Everything else in the predicate keeps applying without further changes.
-  const WALLET_READY = false;
+  // US-2 (real betting) was withdrawn by the project owner on 2026-08-31, so this
+  // is permanently false. The region and per-market checks in the predicate below
+  // still run, and still run first.
+  const REAL_BETTING_BUILT = false;
 
   const availability = realBettingAvailability({
     geo,
     marketRestricted: Boolean(market?.restricted),
-    walletReady: WALLET_READY,
+    realBettingBuilt: REAL_BETTING_BUILT,
   });
   const geoBlocked = geo !== null && !geo.bettingAllowed;
   const marketClosed = Boolean(market?.closed);

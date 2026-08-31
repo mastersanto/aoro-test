@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Polymarket Widget — a web widget that lets a user browse Polymarket prediction markets, get AI assistance choosing a market and outcome, and place a bet. Target deployment: Vercel (primary; the planned stack is Next.js, which Vercel hosts natively — Netlify is the fallback).
 
-## Current state: features 002, 003 and 004 complete and deployed; feature 001 blocked at T21
+## Current state: all four features complete and deployed; the widget is demo-only
 
 This repository practices Spec-Driven Development (SDD). All work flows through specs before implementation. **Do not write application code for a feature until its `spec.md`, `plan.md`, and `tasks.md` are complete and approved by the user** — the PreToolUse hook enforces this mechanically.
 
-Feature 001 (`specs/001-polymarket-widget/`) is approved through all three gates and is being implemented one task at a time: work the next unchecked task in its `tasks.md`.
+Every feature is through its gates and implemented. There is no in-flight task list; new work starts at `/spec`.
 
 Shipped at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), geo gating (US-5), the feature-002 visual redesign, feature 003's scoped outcome recommendation, and feature 004's pagination, ordering, keyboard operation, position valuation and error recovery.
 
@@ -20,7 +20,9 @@ Shipped at https://aoro-test-ten.vercel.app — market browse/search (US-1), dem
 
 **Verify against the live APIs before believing a fact about them.** Gamma sorts several numeric columns as strings; `closed=false` still returns markets that ended months ago; the CLOB order book does not survive resolution; `/public-search` returns pages whose markets are all closed. Every one of these looked fine in mocked tests and was wrong. `.claude/skills/polymarket-api/SKILL.md` records what has actually been checked, and when.
 
-**Phase 6 (real betting, US-2) is blocked at T21** — the pUSD allowance/approval spike needs a funded wallet on Polygon and a non-restricted region, and the US is close-only on Polymarket's main exchange. T21 blocks T22-T28.
+**Real-money betting was withdrawn on 2026-08-31, not deferred.** US-2 and its Phase 6 (T21–T28) are removed from feature 001; see that spec's Scope change. The blocker was jurisdictional — T21 needs a funded wallet in a non-restricted region and the US is close-only on Polymarket's main exchange — so further work here would not have cleared it.
+
+Two consequences worth knowing before changing anything nearby. **The geo and per-market restriction checks were kept** (`lib/betting-availability.ts`, US-5) even though nothing real can be bet: they are correct, tested, and Article V makes them acceptance criteria rather than wallet preconditions. Deleting working safety code to match a scope cut is how a codebase loses the reason it was careful. And **the constitution was not amended** — Article II still binds every demo placement through the same confirmation, and Article III is vacuous rather than violated, since the server holds no funds because there are none to hold. If real betting is ever revived, `plan.md` keeps the withdrawn wallet/CLOB-signing design and the skill file keeps the contract addresses verified on-chain, with the approval target still marked UNVERIFIED.
 
 ## SDD workflow
 

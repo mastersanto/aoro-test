@@ -1,6 +1,17 @@
 # Plan 001 — Polymarket Betting Widget with AI Assist
 
 **Status:** Approved 2026-08-31 — amended 2026-08-31 (see Amendments below)
+
+> **Scope change 2026-08-31 — US-2 (real betting) withdrawn.** Everything below
+> describing wallet connection, CLOB order signing, L1/L2 credential derivation and
+> the pUSD allowance flow is **withdrawn and not built**. It is kept, not deleted,
+> because it records genuine research — the two API surfaces, the signing model,
+> the collateral token and its 6-decimal precision — that a future attempt would
+> otherwise have to redo. Read it as a design that was never implemented.
+>
+> What remains live in this plan: market discovery, the price/payout module, demo
+> mode, AI assistance, and geo gating. The region and per-market restriction checks
+> stay in the shipped code; see `spec.md`'s Scope change for why they were kept.
 **Spec:** ./spec.md (approved 2026-08-31, no open `[NEEDS CLARIFICATION]` markers)
 
 Polymarket API facts referenced below were verified against docs.polymarket.com on 2026-08-31 and recorded in `.claude/skills/polymarket-api/SKILL.md` — load that skill before writing any Polymarket-facing code.

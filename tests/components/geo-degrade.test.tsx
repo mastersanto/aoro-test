@@ -132,9 +132,9 @@ describe("gaps T19 promised but never covered", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("an unrestricted region and market are blocked only by the unbuilt wallet", async () => {
+  it("an unrestricted region and market are blocked only by the demo-only scope", async () => {
     // The captured fixture market is genuinely restricted upstream, so this test
-    // must use an unrestricted one to isolate the wallet as the only blocker.
+    // must use an unrestricted one to isolate the scope decision as the only blocker.
     const open = { ...market, restricted: false };
     vi.stubGlobal(
       "fetch",
@@ -156,8 +156,8 @@ describe("gaps T19 promised but never covered", () => {
     fireEvent.click(screen.getByRole("button", { name: /real money/i }));
 
     // Positive assertion, not the absence of a warning: the reason shown must be
-    // the wallet one, proving geo is not what is blocking here.
-    expect(await screen.findByText(/not enabled in this build/i)).toBeInTheDocument();
+    // the demo-only one, proving geo is not what is blocking here.
+    expect(await screen.findByText(/demo-only by design/i)).toBeInTheDocument();
     expect(screen.queryByText(/your region/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/market is restricted/i)).not.toBeInTheDocument();
   });

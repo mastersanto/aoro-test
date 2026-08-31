@@ -103,7 +103,7 @@ describe("the assistant leads whenever the bet entry cannot be acted on", () => 
     render(<Widget />);
     await selectMarket();
     fireEvent.click(screen.getByRole("button", { name: /real money/i }));
-    await waitFor(() => expect(screen.getByText(/not enabled in this build/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/demo-only by design/i)).toBeInTheDocument());
 
     const order = railOrder();
     expect(order.findIndex((t) => t.includes("Outcome recommendation"))).toBeLessThan(
