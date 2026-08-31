@@ -33,7 +33,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 ## Phase 3 — Prices, bet panel, demo mode (US-3)
 
-- [ ] T9. **RED** — failing tests for the CLOB read-only price module and payout math (best ask → estimated payout, rounding, zero and edge amounts).
+- [x] T9. **RED** — failing tests for the CLOB read-only price module and payout math (best ask → estimated payout, rounding, zero and edge amounts).
       Verify: `npm test` fails on those assertions against a recorded fixture.
 - [ ] T10. **GREEN** — implement `lib/polymarket/clob.ts` (wrapping a pinned `@polymarket/client`; `/price`, `/midpoint`, `/book`) and the payout helper until T9 passes.
       Verify: `npm test` passes; a live call returns a best ask for a known token id.
