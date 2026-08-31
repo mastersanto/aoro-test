@@ -26,7 +26,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
       Verify: `npm test` passes; a live call returns open markets ordered by 24h volume.
 - [x] T6. **RED** — failing tests for `/api/markets` behavior: cache hit within the TTL, graceful degradation on 429, search and tag params passed through.
       Verify: `npm test` fails on those assertions.
-- [ ] T7. **GREEN** — implement `GET /api/markets` until T6 passes.
+- [x] T7. **GREEN** — implement `GET /api/markets` until T6 passes.
       Verify: `npm test` passes; `curl localhost:3000/api/markets` returns normalized open markets; `?q=` narrows them.
 - [ ] T8. **(exempt — styling and layout)** Market list: title, outcomes with prices, volume, end date; search box and category filter; refresh without full page reload. Filter/search state that becomes non-trivial gets its own RED task instead.
       Verify: in the browser, search narrows the list and prices refresh without a reload, with no wallet or sign-in (US-1).

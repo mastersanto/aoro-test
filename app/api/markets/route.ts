@@ -4,15 +4,66 @@
  * normalization point, and a short cache against undocumented rate limits.
  */
 import { NextResponse } from "next/server";
+import { fetchMarkets, searchMarkets, type Market } from "@/lib/polymarket/gamma";
 
 export const dynamic = "force-dynamic";
 
 /** Cache lifetime for a market page. Rate limits are undocumented; stay polite. */
 export const CACHE_TTL_MS = 30_000;
 
-/** Test seam: drop all cached entries. */
-export function resetMarketCache(): void {}
+/** Upper bound on how long a stale page may still be served during an outage. */
+const STALE_MAX_MS = 10 * 60_000;
 
-export async function GET(_request: Request) {
-  return NextResponse.json({ markets: [], nextCursor: null, stale: false });
+type Payload = { markets: Market[]; nextCursor: string | null };
+type Entry = { payload: Payload; at: number };
+
+// Process-local cache. No user data lives here — only public market pages —
+// so it holds no server-side user state (spec out-of-scope).
+const cache = new Map<string, Entry>();
+
+/** Test seam: drop all cached entries. */
+export function resetMarketCache(): void {
+  cache.clear();
+}
+
+function clampLimit(raw: string | null): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return 20;
+  return Math.min(Math.max(Math.trunc(n), 1), 50);
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get("q")?.trim() ?? "";
+  const tagId = searchParams.get("tag") ?? undefined;
+  const cursor = searchParams.get("cursor") ?? undefined;
+  const limit = clampLimit(searchParams.get("limit"));
+
+  const key = JSON.stringify({ query, tagId, cursor, limit });
+  const hit = cache.get(key);
+  const now = Date.now();
+
+  if (hit && now - hit.at < CACHE_TTL_MS) {
+    return NextResponse.json({ ...hit.payload, stale: false });
+  }
+
+  try {
+    const payload: Payload = query
+      ? { markets: await searchMarkets(query, limit), nextCursor: null }
+      : await fetchMarkets({ limit, cursor, tagId });
+
+    cache.set(key, { payload, at: now });
+    return NextResponse.json({ ...payload, stale: false });
+  } catch {
+    // Upstream is unhappy (rate limit, outage). Prefer slightly old truth over
+    // an empty screen, but never serve something indefinitely old.
+    if (hit && now - hit.at < STALE_MAX_MS) {
+      return NextResponse.json({ ...hit.payload, stale: true });
+    }
+    // Deliberately generic: upstream hosts and paths are not the client's business.
+    return NextResponse.json(
+      { error: "Market data is temporarily unavailable. Please try again shortly." },
+      { status: 503 },
+    );
+  }
 }
