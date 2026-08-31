@@ -1,6 +1,6 @@
 # Tasks 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Revised for constitution Article VII (test-first) — awaiting re-approval
+**Status:** Approved 2026-08-31 (revised for constitution Article VII, then re-approved)
 **Plan:** ./plan.md (approved 2026-08-31, amended 2026-08-31)
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first. Load the `polymarket-api` skill before any task touching Polymarket.
@@ -92,4 +92,4 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 ## Approval
 
-- [ ] Task list approved by user (required before `/implement`)
+- [x] Task list approved by user (required before `/implement`) — 2026-08-31, including the reading that documentation tasks fall outside Article VII's binding scope
