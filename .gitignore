@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Builds
+.next/
+out/
+dist/
+build/
+
+# Environment — only .env.example is committed
+.env
+.env.*
+!.env.example
+
+# Hosting
+.vercel/
+.netlify/
+
+# Test output
+coverage/
+
+# Tooling caches
+*.tsbuildinfo
+.eslintcache
+
+# Editor/OS noise
+.DS_Store
+*.log
