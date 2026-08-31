@@ -34,3 +34,8 @@ design/**/polymarket-widget-terminal.html
 # Editor/OS noise
 .DS_Store
 *.log
+
+# Seeded design canvases: ~2.5MB each and almost entirely editor code. The design
+# CONTENT is the .dc.html artboards and canvas.json beside them, which are tracked;
+# the canvas is regenerated from those and published as an artifact.
+design/**/polymarket-*.html
