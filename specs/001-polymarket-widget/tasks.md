@@ -1,6 +1,6 @@
 # Tasks 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Approved 2026-08-31 — 22 of 30 done; Phase 6 (T21-T28) blocked on the pUSD spike
+**Status:** Approved 2026-08-31 — 23 of 31 done; Phase 6 (T21-T28) blocked on the pUSD spike
 **Plan:** ./plan.md (approved 2026-08-31, amended 2026-08-31)
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first. Load the `polymarket-api` skill before any task touching Polymarket.

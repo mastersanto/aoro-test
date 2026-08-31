@@ -4,7 +4,7 @@ A web widget for browsing Polymarket prediction markets, getting AI assistance c
 
 **Live:** https://aoro-test-ten.vercel.app
 
-**Status:** features 002 (visual redesign) and 003 (scoped recommendation) complete; feature 001 blocked at T21. 263 behaviour tests + 60 appearance checks + 8 live tests passing.
+**Status:** features 002 (visual redesign) and 003 (scoped recommendation) complete; feature 001 blocked at T21. 268 behaviour tests + 60 appearance checks + 8 live tests passing.
 
 ## What works today
 
@@ -38,6 +38,20 @@ a required field is off-screen, a control is too small to tap, or text fails
 contrast. It runs a real browser against a production build.
 
 Progress lives in `specs/001-polymarket-widget/tasks.md`.
+
+## Where each feature stands
+
+| Feature | State | Notes |
+|---|---|---|
+| **001** Polymarket widget | 23/31 tasks | Browse, demo betting, AI suggestions and geo gating shipped. **Blocked at T21**: the pUSD approval spike needs a funded wallet on Polygon in a non-restricted region, and the US is close-only on Polymarket's main exchange — including the region this deployment reports. T21 blocks T22–T28. |
+| **002** Visual redesign | 16/16 ✅ | Dark, data-first UI. Introduced the appearance gate, because jsdom performs no layout and cannot tell that a required field is off-screen. |
+| **003** Scoped recommendation | 20/20 ✅ | The assistant argues one side of a selected market, with the counter-case beside it. Its output is shape-constrained and screened server-side; arguments are withdrawn when the price they were made from moves. |
+
+Verification: `npm run verify` runs lint, build, 268 behaviour tests and 60
+appearance checks. `npm run test:live` exercises the real Polymarket and Claude
+APIs. `specs/002-widget-visual-redesign/manual-checks.md` records the six checks
+neither suite can judge — one of which, MC-6, found two real defects on the first
+production run and stays permanently outstanding.
 
 ## How this repo works
 
