@@ -34,7 +34,7 @@ Sequencing: the gate comes first, because a gate written after the work it judge
 
 ## Phase 3 — The confirmation (VR-2, highest stakes)
 
-- [ ] T6. **GREEN** — restyle the confirmation and bet panel to the tokens until T2's confirmation, question-not-clipped and outcome-label checks pass at both viewports.
+- [x] T6. **GREEN** — restyle the confirmation and bet panel to the tokens until T2's confirmation, question-not-clipped and outcome-label checks pass at both viewports.
       Verify: those checks green; `npm test` green with nothing deleted or skipped; the Art. II bypass tests untouched.
 
 ## Phase 4 — The market list (VR-1)

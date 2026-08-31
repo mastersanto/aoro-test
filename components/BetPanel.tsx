@@ -67,24 +67,24 @@ export function BetPanel({
 
   if (!market) {
     return (
-      <aside className="rounded-lg border border-black/10 bg-white p-4 text-sm text-neutral-500 dark:border-white/15 dark:bg-neutral-900">
+      <aside className="rounded-panel border border-line bg-panel p-4 text-sm text-dim">
         Choose a market to place a bet.
       </aside>
     );
   }
 
   return (
-    <aside className="rounded-lg border border-black/10 bg-white p-4 dark:border-white/15 dark:bg-neutral-900">
-      <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+    <aside className="rounded-panel border border-line bg-panel p-4">
+      <h2 className="text-sm font-semibold text-ink">
         {mode === "demo" ? "Place a demo bet" : "Place a bet"}
       </h2>
       {mode === "demo" && (
-        <p className="mt-1 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:bg-amber-900/50 dark:text-amber-100">
+        <p className="mt-1 inline-block rounded bg-demo/15 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-demo">
           DEMO
         </p>
       )}
 
-      <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-200">{market.question}</p>
+      <p className="mt-2 text-sm leading-snug text-ink [overflow-wrap:anywhere]">{market.question}</p>
 
       <form
         onSubmit={(e) => {
@@ -102,10 +102,10 @@ export function BetPanel({
               onClick={() => setOutcome(o)}
               aria-pressed={outcome?.tokenId === o.tokenId}
               disabled={bettingDisabled}
-              className={`rounded-md border px-3 py-1.5 text-sm transition disabled:opacity-50 ${
+              className={`min-h-11 rounded-control border px-3 text-sm transition disabled:opacity-50 ${
                 outcome?.tokenId === o.tokenId
-                  ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
-                  : "border-black/15 text-neutral-700 hover:border-neutral-400 dark:border-white/20 dark:text-neutral-200"
+                  ? "border-up bg-up/15 text-up"
+                  : "border-line-strong text-muted hover:border-white/35"
               }`}
             >
               {o.label} · {formatPercent(o.price)}
@@ -114,7 +114,7 @@ export function BetPanel({
         </div>
 
         <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-600 dark:text-neutral-300">
+          <span className="text-muted">
             Amount {balanceUsd !== undefined && `(balance ${formatUsdPrecise(balanceUsd)})`}
           </span>
           <input
@@ -126,17 +126,17 @@ export function BetPanel({
             disabled={bettingDisabled}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
-            className="rounded-md border border-black/15 px-3 py-2 outline-none focus:border-neutral-500 disabled:opacity-50 dark:border-white/20 dark:bg-neutral-900"
+            className="min-h-11 rounded-control border border-line-strong bg-ground px-3 font-figure tabular-nums text-ink outline-none focus:border-up disabled:opacity-50"
           />
         </label>
 
         {bettingDisabled && disabledReason && (
-          <p role="status" className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          <p role="status" className="rounded-control bg-white/5 px-3 py-2 text-xs text-muted">
             {disabledReason}
           </p>
         )}
         {outcome !== null && !priceUsable && (
-          <p role="status" className="text-xs text-red-700 dark:text-red-300">
+          <p role="status" className="text-xs text-down">
             This outcome has no usable price right now, so it cannot be bet on.
           </p>
         )}
@@ -150,7 +150,7 @@ export function BetPanel({
           type="button"
           onClick={review}
           disabled={!canReview}
-          className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-40 dark:bg-white dark:text-neutral-900"
+          className="min-h-11 rounded-control bg-up px-3 text-sm font-semibold text-on-up disabled:opacity-40"
         >
           Review bet
         </button>

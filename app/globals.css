@@ -46,3 +46,9 @@ body {
   --radius-panel: 0.625rem;
   --radius-control: 0.5rem;
 }
+
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+}
