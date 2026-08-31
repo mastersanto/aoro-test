@@ -128,6 +128,10 @@ export async function POST(request: Request) {
     const suggestions = groundSuggestions(candidates, message.parsed_output);
     return NextResponse.json({ suggestions });
   } catch (e) {
+    // Log server-side so a failure is diagnosable; the client still gets a
+    // generic message, since provider internals are not its business (Art. IV).
+    console.error("[assist] model call failed:", e instanceof Error ? e.message : e);
+
     if (e instanceof MissingApiKeyError) {
       return NextResponse.json(
         { error: "AI assistance is not configured on this deployment." },

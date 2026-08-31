@@ -14,5 +14,15 @@ export function getAnthropic(): Anthropic {
   if (!apiKey) {
     throw new MissingApiKeyError("ANTHROPIC_API_KEY is not configured on the server.");
   }
-  return new Anthropic({ apiKey });
+
+  // Identity-linked keys (sk-ant-api03-... issued to a user rather than a
+  // workspace) are rejected with a 400 unless the request names the workspace
+  // it acts in. Workspace-scoped keys ignore the header, so sending it when
+  // configured is safe either way.
+  const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID;
+
+  return new Anthropic({
+    apiKey,
+    ...(workspaceId ? { defaultHeaders: { "anthropic-workspace-id": workspaceId } } : {}),
+  });
 }
