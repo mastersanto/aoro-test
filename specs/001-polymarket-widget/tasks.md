@@ -1,71 +1,89 @@
 # Tasks 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Approved 2026-08-31
+**Status:** Revised for constitution Article VII (test-first) — awaiting re-approval
 **Plan:** ./plan.md (approved 2026-08-31)
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first. Load the `polymarket-api` skill before any task touching Polymarket.
 
-Sequencing rationale: browse (US-1) → AI assist (US-4) → demo betting (US-3) → real betting (US-2) ships user-visible value from Phase 2 onward and retires the riskiest unknown (pUSD approvals, T14) before any real-money UI is built. Geo (US-5) lands before real betting, since it gates it.
+**Article VII (test-first) applies.** Binding work is split into a **RED** task (write the failing test that states the requirement) and a **GREEN** task (implement until it passes). Tasks marked **(exempt)** are scaffolding, styling, deployment, or exploratory spikes — verified by their Verify line alone. A RED task's Verify line requires the test to fail *for the right reason* (a real assertion, not an import or syntax error).
 
-## Phase 1 — Scaffold
+Sequencing: browse (US-1) → AI assist (US-4) → demo betting (US-3) → geo (US-5) → real betting (US-2). Value ships from Phase 2 onward, and the unverified pUSD approval flow (T21) is retired before any real-money UI exists.
 
-- [ ] T1. Scaffold Next.js (App Router) + TypeScript + Tailwind at the repo root; pin exact versions; keep the existing `.gitignore` entries.
-      Verify: `npm run dev` serves the default page at localhost:3000; `npm run build` and `npm run lint` exit 0.
-- [ ] T2. Replace the "Commands" section of CLAUDE.md with the real dev/build/lint/test commands (including how to run a single test), per the harness rule.
-      Verify: every command listed in CLAUDE.md runs successfully from a clean checkout.
-- [ ] T3. Add the test runner (Vitest + a single smoke test) and wire `npm test` / single-test invocation.
+## Phase 1 — Scaffold and test harness
+
+- [ ] T1. **(exempt — scaffolding)** Scaffold Next.js (App Router) + TypeScript + Tailwind at the repo root; pin exact versions; preserve the existing `.gitignore`, `README.md`, `CLAUDE.md`, and `.env.example`.
+      Verify: `npm run dev` serves localhost:3000; `npm run build` and `npm run lint` exit 0.
+- [ ] T2. **(exempt — docs)** Replace the "Commands" section of CLAUDE.md with the real dev/build/lint/test commands, including how to run a single test.
+      Verify: every command listed runs successfully from a clean checkout.
+- [ ] T3. **(exempt — dependency config)** Add Vitest with one smoke test; wire `npm test` and single-test invocation.
       Verify: `npm test` passes; running one test by name passes.
 
 ## Phase 2 — Market discovery (US-1)
 
-- [ ] T4. `lib/polymarket/gamma.ts`: typed client for Gamma keyset endpoints (`/markets/keyset`, `/public-search`, `/tags`) — normalizes the JSON-encoded `outcomes`/`outcomePrices`/`clobTokenIds` string fields into real arrays; no offset endpoints.
-      Verify: unit test parses a recorded Gamma fixture into the normalized shape; a live call returns open markets ordered by 24h volume.
-- [ ] T5. `GET /api/markets` route: proxies T4 with ~30s cache and 429-tolerant degradation; supports search query and tag filter.
-      Verify: `curl localhost:3000/api/markets` returns normalized open markets; a repeat call inside 30s is served from cache (log or timing); `?q=` narrows results.
-- [ ] T6. Market list UI: title, outcomes with prices, volume, end date; keyword search box and category filter; refresh without full page reload.
-      Verify: in the browser, searching narrows the list and prices refresh without a reload; no wallet or sign-in involved (US-1).
+- [ ] T4. **RED** — failing tests for Gamma normalization: `outcomes`, `outcomePrices`, and `clobTokenIds` arrive as JSON-encoded strings and must become real arrays; keyset cursor handling; malformed payload rejected.
+      Verify: `npm test` fails on those assertions (not on imports), against a recorded Gamma fixture.
+- [ ] T5. **GREEN** — implement `lib/polymarket/gamma.ts` (keyset endpoints only; no offset endpoints) until T4 passes.
+      Verify: `npm test` passes; a live call returns open markets ordered by 24h volume.
+- [ ] T6. **RED** — failing tests for `/api/markets` behavior: cache hit within the TTL, graceful degradation on 429, search and tag params passed through.
+      Verify: `npm test` fails on those assertions.
+- [ ] T7. **GREEN** — implement `GET /api/markets` until T6 passes.
+      Verify: `npm test` passes; `curl localhost:3000/api/markets` returns normalized open markets; `?q=` narrows them.
+- [ ] T8. **(exempt — UI/layout)** Market list: title, outcomes with prices, volume, end date; search box and category filter; refresh without full page reload.
+      Verify: in the browser, search narrows the list and prices refresh without a reload, with no wallet or sign-in (US-1).
 
 ## Phase 3 — AI assistance (US-4)
 
-- [ ] T7. `POST /api/assist`: fetch candidate markets server-side, call Claude (`claude-opus-5`, streaming) with structured output constrained to the supplied market/outcome ids; `ANTHROPIC_API_KEY` read server-side only.
-      Verify: a request returns suggestions whose ids all exist in the supplied candidate set; `grep -r ANTHROPIC_API_KEY .next/static` finds nothing (Article IV).
-- [ ] T8. Assist UI: prompt box, streamed suggestions showing reasoning and each suggested outcome's live price, with the "not financial advice" disclaimer rendered alongside (Article V).
-      Verify: in the browser, a query streams suggestions with prices and a visible disclaimer.
-- [ ] T9. Wire suggestion selection to pre-fill the bet form only — no automatic submission (Article II).
-      Verify: selecting a suggestion populates market/outcome/amount fields and places no order; a test asserts no order-submission path is reachable from the assist response handler.
+- [ ] T9. **RED** — failing tests for the grounding invariant (Art. II): every suggestion id returned by the assist route exists in the candidate set supplied to the model, and a model response naming an unknown id is rejected rather than surfaced.
+      Verify: `npm test` fails on those assertions, including the unknown-id case.
+- [ ] T10. **GREEN** — implement `POST /api/assist` (server-side Claude call, streaming, structured output constrained to supplied ids) until T9 passes.
+      Verify: `npm test` passes; `grep -r ANTHROPIC_API_KEY .next/static` finds nothing (Art. IV).
+- [ ] T11. **RED** — failing tests for the assist UI invariants: selecting a suggestion only pre-fills the bet form and reaches no submission path (Art. II); the "not financial advice" disclaimer renders whenever suggestions render (Art. V).
+      Verify: `npm test` fails on those assertions.
+- [ ] T12. **GREEN** — implement the assist UI (prompt box, streamed suggestions with reasoning and live price, disclaimer, pre-fill wiring) until T11 passes; styling itself is exempt.
+      Verify: `npm test` passes; in the browser a query streams suggestions with prices and a visible disclaimer, and selecting one places no order.
 
-## Phase 4 — Bet flow and demo mode (US-3)
+## Phase 4 — Prices, bet panel, demo mode (US-3)
 
-- [ ] T10. `lib/polymarket/clob.ts`: read-only price access (`/price`, `/midpoint`, `/book`) behind one module wrapping `@polymarket/client` (pinned exact version).
-      Verify: unit test against a recorded fixture; a live call returns a best ask for a known token id.
-- [ ] T11. Bet panel + confirmation modal showing market, outcome, amount, price, and estimated payout — the single confirmation path both demo and real bets go through (Article II).
-      Verify: the modal renders all five fields; a test asserts no submit path bypasses it.
-- [ ] T12. Demo mode: per-session simulated balance ($1,000, resets on reload), fills at the live best ask, unmistakable DEMO labeling on every bet-like control and result.
-      Verify: in the browser, a demo bet debits the simulated balance, shows a position, requires no wallet, and every relevant control is labeled DEMO.
+- [ ] T13. **RED** — failing tests for the CLOB read-only price module and payout math (best ask → estimated payout, rounding, zero/edge amounts).
+      Verify: `npm test` fails on those assertions against a recorded fixture.
+- [ ] T14. **GREEN** — implement `lib/polymarket/clob.ts` (wrapping a pinned `@polymarket/client`; `/price`, `/midpoint`, `/book`) and the payout helper until T13 passes.
+      Verify: `npm test` passes; a live call returns a best ask for a known token id.
+- [ ] T15. **RED** — failing tests for the confirmation invariant (Art. II): the confirmation exposes market, outcome, amount, price, and estimated payout, and no submit path — demo or real — bypasses it.
+      Verify: `npm test` fails on those assertions, including the bypass check.
+- [ ] T16. **GREEN** — implement the bet panel and confirmation modal until T15 passes.
+      Verify: `npm test` passes; the modal renders all five fields.
+- [ ] T17. **RED** — failing tests for the demo-mode state machine: simulated balance starts at $1,000, debits on fill, resets per session, fills at the live best ask, and demo state is always flagged.
+      Verify: `npm test` fails on those assertions.
+- [ ] T18. **GREEN** — implement demo mode until T17 passes, with unmistakable DEMO labeling on every bet-like control and result.
+      Verify: `npm test` passes; in the browser a demo bet debits the balance, shows a position, needs no wallet, and every relevant control reads DEMO.
 
 ## Phase 5 — Geo compliance (US-5)
 
-- [ ] T13. `GET /api/geo` (region → betting allowed/blocked) plus client-side pre-trade check against `polymarket.com/api/geoblock`; restricted regions disable real-bet controls with a plain-language explanation while browse, AI, and demo stay available. Respect Gamma's per-market `restricted` flag.
-      Verify: with a simulated restricted region, real-bet controls are disabled with an explanation and US-1/US-3/US-4 still work; unrestricted region leaves them enabled.
+- [ ] T19. **RED** — failing tests for geo gating (Art. V): a restricted region disables real-bet controls with an explanation while browse, AI, and demo stay available; Gamma's per-market `restricted` flag is honored; an unrestricted region leaves betting enabled.
+      Verify: `npm test` fails on those assertions.
+- [ ] T20. **GREEN** — implement `GET /api/geo` plus the client-side pre-trade `polymarket.com/api/geoblock` check and UI gating until T19 passes.
+      Verify: `npm test` passes; with a simulated restricted region the browser disables real betting with an explanation and US-1/US-3/US-4 still work.
 
 ## Phase 6 — Real betting (US-2)
 
-- [ ] T14. **Spike (plan Risk 1):** validate the pUSD allowance/approval flow and one minimal real order end-to-end from a non-restricted region; record the verified flow in `.claude/skills/polymarket-api/SKILL.md` (replacing the UNVERIFIED note) and update plan.md if it differs.
-      Verify: one real order fills on-chain; the skill file states the confirmed approval targets and steps. **Blocks T15–T17.**
-- [ ] T15. Wallet connect (wagmi + viem, Polygon) and CLOB auth: L1 EIP-712 signature → derive L2 credentials (signatureType EOA=0), held client-side only.
-      Verify: connecting a test wallet derives credentials in the browser; no credential or key appears in any server log or request payload (Article III).
-- [ ] T16. Real order placement: market-style FOK/FAK buy signed by the user's wallet, submitted from the client after the T11 confirmation.
+- [ ] T21. **(exempt — exploratory spike; plan Risk 1)** Validate the pUSD allowance/approval flow and one minimal real order end-to-end from a non-restricted region; replace the UNVERIFIED note in `.claude/skills/polymarket-api/SKILL.md` with the confirmed flow and update plan.md if it differs.
+      Verify: one real order fills on-chain; the skill file states the confirmed approval targets and steps. **Blocks T22–T26.**
+- [ ] T22. **RED** — failing tests for credential safety (Art. III/IV): derived L2 credentials and signatures never appear in a server-bound request payload or server log; and for the failure taxonomy → user-message mapping (insufficient balance/allowance, rejected signature, geo rejection, network error).
+      Verify: `npm test` fails on those assertions.
+- [ ] T23. **GREEN** — implement wallet connect (wagmi + viem, Polygon) and CLOB auth: L1 EIP-712 signature → derived L2 credentials (signatureType EOA=0), client-side only, until the T22 credential tests pass.
+      Verify: `npm test` credential tests pass; connecting a test wallet derives credentials in the browser with nothing sensitive in server logs.
+- [ ] T24. **GREEN** — implement real order placement: market-style FOK/FAK buy signed by the user's wallet, submitted from the client only after the T16 confirmation.
       Verify: a small real bet from a non-restricted region fills and the resulting position renders.
-- [ ] T17. Failure handling: insufficient balance/allowance, rejected signature, geo rejection, and network errors each surface a plain-language message with funds untouched.
-      Verify: each failure is exercised (or simulated) and shows its message; no partial state is left behind.
+- [ ] T25. **GREEN** — implement failure handling until the T22 mapping tests pass: each failure surfaces its plain-language message with funds untouched and no partial state.
+      Verify: `npm test` passes; each failure is exercised or simulated in the browser and shows its message.
 
 ## Phase 7 — Ship
 
-- [ ] T18. Deploy to Vercel with `ANTHROPIC_API_KEY` set in project env; confirm the preview and production builds.
+- [ ] T26. **(exempt — deployment)** Deploy to Vercel with `ANTHROPIC_API_KEY` set in project env; confirm preview and production builds.
       Verify: the deployed URL serves the widget; browse, AI assist, and demo mode work in production; the key is absent from the client bundle.
-- [ ] T19. Update README (what it does, how to run it locally, demo-mode note, live URL) and confirm spec/plan still describe the system as built.
+- [ ] T27. **(exempt — docs)** Update README (what it does, how to run locally, demo-mode note, live URL) and confirm spec/plan still describe the system as built.
       Verify: a clean clone can follow the README to a running dev server; `bash scripts/sdd-lint.sh` passes.
 
 ## Approval
 
-- [x] Task list approved by user (required before `/implement`) — 2026-08-31
+- [ ] Task list approved by user (required before `/implement`)
