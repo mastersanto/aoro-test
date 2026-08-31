@@ -39,7 +39,7 @@ Sequencing: the gate comes first, because a gate written after the work it judge
 
 ## Phase 4 — The market list (VR-1)
 
-- [ ] T7. **RED** — pin the row's queryable contract *and* its state surfaces before restructuring: a market is selectable by an accessible role; its question is reachable as a heading-equivalent; both volume fields and the end date are present; **the selected row is distinguishable by more than colour** (an accessible state, asserted); and the loading, empty, error and stale rows are each *visible* by the full definition in the new layout.
+- [x] T7. **RED** — pin the row's queryable contract *and* its state surfaces before restructuring: a market is selectable by an accessible role; its question is reachable as a heading-equivalent; both volume fields and the end date are present; **the selected row is distinguishable by more than colour** (an accessible state, asserted); and the loading, empty, error and stale rows are each *visible* by the full definition in the new layout.
       Verify: the assertions fail against a scratch row omitting each; the six existing assertions in `geo-degrade`/`demo-flow` plus the `market-list` suite are enumerated in the commit message.
 - [x] T8. **RED** — failing tests for the outcome bar's geometry: widths proportional to price, summing to the full width; single-outcome and many-outcome markets render sanely; a zero or missing price yields no NaN width.
       Verify: `npm test` fails on those assertions against a stub module.
