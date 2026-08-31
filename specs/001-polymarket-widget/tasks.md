@@ -37,7 +37,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
       Verify: `npm test` fails on those assertions against a recorded fixture.
 - [x] T10. **GREEN** — implement `lib/polymarket/clob.ts` (wrapping a pinned `@polymarket/client`; `/price`, `/midpoint`, `/book`) and the payout helper until T9 passes.
       Verify: `npm test` passes; a live call returns a best ask for a known token id.
-- [ ] T11. **RED** — failing tests for the confirmation invariant (Art. II): the confirmation exposes market, outcome, amount, price, and estimated payout, and no submit path — demo or real — bypasses it.
+- [x] T11. **RED** — failing tests for the confirmation invariant (Art. II): the confirmation exposes market, outcome, amount, price, and estimated payout, and no submit path — demo or real — bypasses it.
       Verify: `npm test` fails on those assertions, including the bypass check.
 - [ ] T12. **GREEN** — implement the bet panel and confirmation modal until T11 passes.
       Verify: `npm test` passes; the modal renders all five fields.
