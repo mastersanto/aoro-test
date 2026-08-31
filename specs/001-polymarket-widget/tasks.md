@@ -54,7 +54,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
       Verify: `npm test` passes; `grep -r ANTHROPIC_API_KEY .next/static` finds nothing (Art. IV).
 - [x] T17. **RED** — failing tests for the assist UI invariants: selecting a suggestion only pre-fills the Phase 3 bet form and reaches no submission path (Art. II); the "not financial advice" disclaimer renders whenever suggestions render (Art. V).
       Verify: `npm test` fails on those assertions.
-- [ ] T18. **GREEN** — implement the assist UI (prompt box, streamed suggestions with reasoning and live price, disclaimer, pre-fill wiring) until T17 passes; styling itself is exempt.
+- [x] T18. **GREEN** — implement the assist UI (prompt box, streamed suggestions with reasoning and live price, disclaimer, pre-fill wiring) until T17 passes; styling itself is exempt.
       Verify: `npm test` passes; in the browser a query streams suggestions with prices and a visible disclaimer, and selecting one places no order.
 
 ## Phase 5 — Geo compliance (US-5)

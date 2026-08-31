@@ -13,6 +13,8 @@ export type BetPanelProps = {
   bettingDisabled?: boolean;
   disabledReason?: string;
   balanceUsd?: number;
+  /** Pre-selects an outcome (used by AI assist). Never triggers placement. */
+  initialOutcome?: Outcome | null;
 };
 
 export function BetPanel({
@@ -22,8 +24,9 @@ export function BetPanel({
   bettingDisabled = false,
   disabledReason,
   balanceUsd,
+  initialOutcome = null,
 }: BetPanelProps) {
-  const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [outcome, setOutcome] = useState<Outcome | null>(initialOutcome);
   const [amount, setAmount] = useState("");
   const [draft, setDraft] = useState<BetDraft | null>(null);
   const [pending, setPending] = useState(false);

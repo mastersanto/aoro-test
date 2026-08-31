@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import type { BetDraft, BetMode } from "@/lib/bet";
-import type { Market } from "@/lib/polymarket/gamma";
+import type { Market, Outcome } from "@/lib/polymarket/gamma";
+import type { GroundedSuggestion } from "@/lib/ai/grounding";
 import { createDemoState, placeDemoBet } from "@/lib/demo";
 import { fetchPrice } from "@/lib/polymarket/clob";
+import { AssistPanel } from "@/components/AssistPanel";
 import { BetPanel } from "@/components/BetPanel";
 import { DemoPositions } from "@/components/DemoPositions";
 import { MarketList } from "@/components/MarketList";
@@ -13,6 +15,7 @@ import { formatUsdPrecise } from "@/lib/format";
 export function Widget() {
   const [mode, setMode] = useState<BetMode>("demo");
   const [market, setMarket] = useState<Market | null>(null);
+  const [preselected, setPreselected] = useState<Outcome | null>(null);
   const [demo, setDemo] = useState(createDemoState);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +24,17 @@ export function Widget() {
   // control is visible but explicitly unavailable rather than silently broken.
   const realUnavailableReason =
     "Real betting is not enabled in this build yet. Demo mode runs the same flow with a practice balance.";
+
+  /**
+   * Article II: using a suggestion only fills in the form. It selects the market
+   * and outcome and stops — it opens no confirmation and places nothing.
+   */
+  function handleUseSuggestion(s: GroundedSuggestion) {
+    setMarket(s.market);
+    setPreselected(s.outcome);
+    setNotice(null);
+    setError(null);
+  }
 
   async function handlePlace(draft: BetDraft) {
     setError(null);
@@ -88,11 +102,21 @@ export function Widget() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <MarketList selectedId={market?.id ?? null} onSelect={setMarket} />
+        <MarketList
+          selectedId={market?.id ?? null}
+          onSelect={(m) => {
+            setMarket(m);
+            setPreselected(null);
+          }}
+        />
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
+          <AssistPanel onUseSuggestion={handleUseSuggestion} />
+
           <BetPanel
+            key={preselected?.tokenId ?? market?.id ?? "none"}
             market={market}
+            initialOutcome={preselected}
             mode={mode}
             onPlace={handlePlace}
             bettingDisabled={mode === "real"}
