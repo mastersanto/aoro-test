@@ -11,7 +11,7 @@ Betting on Polymarket today means navigating the full exchange UI and already kn
 
 ## What (user stories)
 
-Tag semantics: *(core)* stories block release; *(bonus)* do not. Scope decisions behind these stories were resolved with the project owner and recorded in `docs/plans/2026-08-31-spec-step.md`.
+Tag semantics: *(core)* stories block release; *(bonus)* do not. Scope decisions behind these stories were resolved with the project owner — see the Decision record below.
 
 ### US-1 *(core)* — Search and browse markets
 As a visitor, I can browse and search live Polymarket markets, seeing for each: title, outcomes, current prices (implied odds), volume, and end date.
@@ -68,9 +68,19 @@ As a user in a region where Polymarket trading is restricted, I can still browse
 - Polymarket's Gamma API serves market data publicly with no auth; the CLOB API places orders and requires wallet signing on Polygon with USDC collateral.
 - Consequence: US-1, US-3, and US-4 are shippable with no wallet integration; US-2 depends on it. Sequencing search → demo bets → AI assist → real bets ships value early and retires risk late-stage only where unavoidable.
 
+## Decision record
+
+Scope questions put to the project owner before drafting, and their answers:
+
+- **D1 — Form factor: single page only.** The assignment asks for a widget on a single page; an embeddable third-party version was considered and explicitly deferred (see Out of scope).
+- **D2 — Money modes: both real and demo in v1.** Real betting matches the assignment; demo mode was added so a reviewer without a funded wallet can exercise the full flow.
+- **D3 — Wallet: the user's own.** Connect an existing wallet holding USDC on Polygon; no in-widget wallet creation. Cleanest fit with constitution Article III (custody stays with the user).
+- **D4 — Geo policy: read-only degrade.** Restricted regions keep browsing and AI assistance; real betting is disabled with an explanation, mirroring how Polymarket itself gates trading.
+- **D5 — AI assistance is the assignment's "recommended bonus".** Core is search + bet; priorities are tagged accordingly. Provider (Claude API, server-side only) was pre-decided in the harness.
+
 ## Open questions
 
-None — the scope decisions (single page, both money modes, user's own wallet, geo read-only degrade) were resolved with the project owner before drafting; see `docs/plans/2026-08-31-spec-step.md`.
+None — all scope questions were resolved in the Decision record above before drafting.
 
 ## Approval
 
