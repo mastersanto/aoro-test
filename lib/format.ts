@@ -19,3 +19,9 @@ export function formatEndDate(iso: string | null): string {
   if (Number.isNaN(d.getTime())) return "No end date";
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
+
+/** Money in a confirmation must show cents — never round a stake or payout. */
+export function formatUsdPrecise(value: number): string {
+  if (!Number.isFinite(value)) return "$0.00";
+  return `$${value.toFixed(2)}`;
+}

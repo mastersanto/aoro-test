@@ -6,16 +6,18 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BetPanel } from "@/components/BetPanel";
+import type { BetDraft } from "@/lib/bet";
 import { normalizeMarket } from "@/lib/polymarket/gamma";
 import fixture from "../fixtures/gamma-keyset.json";
 
 const market = normalizeMarket(fixture.markets[0]);
 const outcome = market.outcomes[0]; // price 0.09
 
-let onPlace: ReturnType<typeof vi.fn>;
+type PlaceFn = (draft: BetDraft) => void;
+let onPlace: ReturnType<typeof vi.fn<PlaceFn>>;
 
 beforeEach(() => {
-  onPlace = vi.fn();
+  onPlace = vi.fn<PlaceFn>();
 });
 
 afterEach(() => {
@@ -44,7 +46,7 @@ describe("Article II — the confirmation step", () => {
     setup();
     const dialog = within(openConfirmation());
     expect(dialog.getByText(market.question)).toBeInTheDocument();
-    expect(dialog.getByText(new RegExp(outcome.label, "i"))).toBeInTheDocument();
+    expect(dialog.getByTestId("confirm-outcome")).toHaveTextContent(outcome.label);
     expect(dialog.getByTestId("confirm-amount")).toHaveTextContent("$10");
     expect(dialog.getByTestId("confirm-price")).toHaveTextContent("9%");
     expect(dialog.getByTestId("confirm-payout")).toHaveTextContent("$111.11");

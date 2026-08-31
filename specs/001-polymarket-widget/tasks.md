@@ -39,7 +39,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
       Verify: `npm test` passes; a live call returns a best ask for a known token id.
 - [x] T11. **RED** — failing tests for the confirmation invariant (Art. II): the confirmation exposes market, outcome, amount, price, and estimated payout, and no submit path — demo or real — bypasses it.
       Verify: `npm test` fails on those assertions, including the bypass check.
-- [ ] T12. **GREEN** — implement the bet panel and confirmation modal until T11 passes.
+- [x] T12. **GREEN** — implement the bet panel and confirmation modal until T11 passes.
       Verify: `npm test` passes; the modal renders all five fields.
 - [ ] T13. **RED** — failing tests for the demo-mode state machine: simulated balance starts at $1,000, debits on fill, resets per session, fills at the live best ask, and demo state is always flagged.
       Verify: `npm test` fails on those assertions.
