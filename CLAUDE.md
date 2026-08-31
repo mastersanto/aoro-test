@@ -6,15 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Polymarket Widget — a web widget that lets a user browse Polymarket prediction markets, get AI assistance choosing a market and outcome, and place a bet. Target deployment: Vercel (primary; the planned stack is Next.js, which Vercel hosts natively — Netlify is the fallback).
 
-## Current state: features 002 and 003 complete and deployed; feature 001 blocked at T21
+## Current state: features 002, 003 and 004 complete and deployed; feature 001 blocked at T21
 
 This repository practices Spec-Driven Development (SDD). All work flows through specs before implementation. **Do not write application code for a feature until its `spec.md`, `plan.md`, and `tasks.md` are complete and approved by the user** — the PreToolUse hook enforces this mechanically.
 
 Feature 001 (`specs/001-polymarket-widget/`) is approved through all three gates and is being implemented one task at a time: work the next unchecked task in its `tasks.md`.
 
-Shipped at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), geo gating (US-5), the feature-002 visual redesign, and feature 003's scoped outcome recommendation.
+Shipped at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), geo gating (US-5), the feature-002 visual redesign, feature 003's scoped outcome recommendation, and feature 004's pagination, ordering, keyboard operation, position valuation and error recovery.
 
 **Feature 003 introduces the project's most constrained AI surface.** The assistant argues for one side of a real-money bet, which Article II permits (it says the assistant "recommends markets and outcomes") but which carries a persuasion risk the confirmation cannot contain. Before changing anything under `lib/ai/` or `app/api/recommend/`, read `specs/003-scoped-outcome-recommendation/spec.md` — particularly AR-3 and its Known limits — and `defeat-corpus.md`, which records every sentence that has beaten a version of the content screen. The corpus only grows: a new defeat is added and tested, never argued away.
+
+**Feature 004 is where this project's verification habits were tested hardest.** Two constitution audits and one production check found ten defects; six had already shipped in commits that claimed all gates green. The pattern in every case was the same: a test that asserted something adjacent to the requirement rather than the requirement itself. Two sort orderings returned lexicographically-sorted nonsense because I wrote "verified" having checked two of four. A refresh rewound the pagination cursor while 339 tests passed, because the RED task asserted rows were kept and never asserted the cursor. A focus trap put the Demo toggle out of keyboard reach in exactly the regions `001 US-5` exists to serve. Before trusting a green suite here, check that each test names the thing it is for.
+
+**Verify against the live APIs before believing a fact about them.** Gamma sorts several numeric columns as strings; `closed=false` still returns markets that ended months ago; the CLOB order book does not survive resolution; `/public-search` returns pages whose markets are all closed. Every one of these looked fine in mocked tests and was wrong. `.claude/skills/polymarket-api/SKILL.md` records what has actually been checked, and when.
 
 **Phase 6 (real betting, US-2) is blocked at T21** — the pUSD allowance/approval spike needs a funded wallet on Polygon and a non-restricted region, and the US is close-only on Polymarket's main exchange. T21 blocks T22-T28.
 
@@ -58,7 +62,7 @@ npx vitest run -t "renders a component into a DOM"   # by test name (substring m
 npx vitest run tests/render.test.tsx                 # by file
 ```
 
-Tests live in `tests/`; network-dependent checks live in `tests/live/` and are excluded from the default run.
+Tests live in `tests/`; network-dependent checks live in `tests/live/` and are excluded from the default run. The appearance suite can also be pointed at a deployment: `PROD_URL=https://aoro-test-ten.vercel.app npm run test:visual` runs all 70 checks against production, which is how 004's deploy was verified.
 
 **Two gates, two roles.** `npm test` (jsdom) proves *behavior*; `npm run test:visual` (Playwright, real browser) proves *appearance* — visibility, size and contrast, none of which jsdom can judge, since it performs no layout. Neither suite may be weakened to make a change pass: an assertion that must change is replaced one-for-one with an equivalent, in the same change. Guarantees neither can judge are written down in `specs/002-widget-visual-redesign/manual-checks.md`. Vitest runs in jsdom with `@testing-library/react` (config: `vitest.config.mts`, matchers: `vitest.setup.ts`) — constitution Article VII binds component-level invariants, so the suite must be able to render.
 
