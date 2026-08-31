@@ -33,7 +33,7 @@ The commit history mirrors the same progression: harness → spec approval → p
 
 ## Next step
 
-Feature 001 (`specs/001-polymarket-widget/`) has a drafted spec awaiting approval. Once approved, proceed `/plan-feature` → `/tasks` → `/implement`. Run `/sdd-status` any time to see where things stand.
+Open the repo in Claude Code and run `/sdd-status` — it reports every feature's gate state and names the single next action.
 
 ## Deployment target
 

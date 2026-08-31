@@ -26,7 +26,7 @@ As a bettor, I can select a market and outcome, enter an amount, see the estimat
 
 **Acceptance criteria**
 - The confirmation step shows market, outcome, amount, price, and estimated payout before anything is signed (Article II).
-- The transaction is signed client-side by the user's own wallet holding USDC on Polygon; the server never touches funds or private keys (Article III).
+- The transaction is signed client-side by the user's own wallet holding trading collateral on Polygon (pUSD, Polymarket's USDC-backed collateral token — funded from USDC); the server never touches funds or private keys (Article III).
 - Success shows the resulting position; failure shows a plain-language reason and leaves the user's funds untouched.
 
 ### US-3 *(core)* — Demo mode
@@ -65,7 +65,7 @@ As a user in a region where Polymarket trading is restricted, I can still browse
 
 ## Context (reference facts for planning)
 
-- Polymarket's Gamma API serves market data publicly with no auth; the CLOB API places orders and requires wallet signing on Polygon with USDC collateral.
+- Polymarket's Gamma API serves market data publicly with no auth; the CLOB API places orders and requires wallet signing on Polygon with pUSD collateral (Polymarket's USDC-backed collateral token).
 - Consequence: US-1, US-3, and US-4 are shippable with no wallet integration; US-2 depends on it. Sequencing search → demo bets → AI assist → real bets ships value early and retires risk late-stage only where unavoidable.
 
 ## Decision record
@@ -74,7 +74,7 @@ Scope questions put to the project owner before drafting, and their answers:
 
 - **D1 — Form factor: single page only.** The assignment asks for a widget on a single page; an embeddable third-party version was considered and explicitly deferred (see Out of scope).
 - **D2 — Money modes: both real and demo in v1.** Real betting matches the assignment; demo mode was added so a reviewer without a funded wallet can exercise the full flow.
-- **D3 — Wallet: the user's own.** Connect an existing wallet holding USDC on Polygon; no in-widget wallet creation. Cleanest fit with constitution Article III (custody stays with the user).
+- **D3 — Wallet: the user's own.** Connect an existing wallet holding USDC on Polygon; no in-widget wallet creation. Cleanest fit with constitution Article III (custody stays with the user). *(Recorded pre-planning; API research later established the actual collateral is pUSD, funded from USDC — the US-2 acceptance criterion is authoritative.)*
 - **D4 — Geo policy: read-only degrade.** Restricted regions keep browsing and AI assistance; real betting is disabled with an explanation, mirroring how Polymarket itself gates trading.
 - **D5 — AI assistance is the assignment's "recommended bonus".** Core is search + bet; priorities are tagged accordingly. Provider (Claude API, server-side only) was pre-decided in the harness.
 

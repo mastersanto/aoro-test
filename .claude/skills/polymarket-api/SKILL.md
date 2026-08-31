@@ -1,0 +1,39 @@
+---
+name: polymarket-api
+description: Verified Polymarket API reference (Gamma discovery, CLOB orders, geoblock) for implementing feature 001. Load before writing any code that talks to Polymarket. Facts verified 2026-08-31 against docs.polymarket.com; UNVERIFIED items are marked.
+---
+
+# Polymarket API facts (verified 2026-08-31)
+
+Full machine-readable doc index: https://docs.polymarket.com/llms.txt — OpenAPI specs at `/api-spec/gamma-openapi.yaml` and `/api-spec/clob-openapi.yaml`. Re-verify anything marked UNVERIFIED before relying on it.
+
+## Gamma API — market discovery (read-only, no auth)
+
+- Base: `https://gamma-api.polymarket.com`. CORS is open (`access-control-allow-origin: *`), so browsers may call it directly; this project proxies through a server route anyway (one data path, caching, AI grounding).
+- **Do not use the legacy offset `/markets` and `/events`** — they respond with `deprecation: true`, `sunset: 2026-05-01` (already past). Use the keyset endpoints:
+  - `/markets/keyset`, `/events/keyset` — cursor pagination via `limit` + `after_cursor`, response carries `next_cursor`.
+  - Filters: `closed=false`, `tag_id`/`tag_ids`. Sorting: `order=volume24hr&ascending=false` (live-tested).
+  - Text search: `/public-search?q=...` (searches events/tags/profiles). Tag list: `/tags`.
+  - Docs: https://docs.polymarket.com/market-data/discover-markets.md
+- Market fields: `question`, `volume`, `volume24hr`, `liquidity`, `endDate`, `bestBid`/`bestAsk`, `active`, `closed`, `restricted`, tags — plus `outcomes`, `outcomePrices`, `clobTokenIds`, which are **JSON-encoded strings** (call `JSON.parse` on each). Docs: https://docs.polymarket.com/market-data/market-details.md
+
+## CLOB API — orders and prices
+
+- Base: `https://clob.polymarket.com`.
+- Official TypeScript SDK: **`@polymarket/client`** (npm; v0.8.1 as of 2026-08-30) — `createPublicClient()` / `createSecureClient({signer})`, accepts Viem/Ethers5/Privy signers. The older `@polymarket/clob-client` (v5.8.1) still works but docs feature the new one. Docs: https://docs.polymarket.com/getting-started/typescript.md
+- Auth: L1 EIP-712 signature (`clobAuthTypedData`, chainId 137/Polygon) exchanged at `POST /auth/api-key` or `GET /auth/derive-api-key` for L2 credentials (apiKey/secret/passphrase) used on order endpoints. Signature types: `EOA=0`, `POLY_PROXY=1`, `GNOSIS_SAFE=2`, `DEPOSIT_WALLET=3`. A MetaMask EOA user: sign L1 once → derive L2 creds → sign each order (EIP-712). "Session Keys" exist for delegated, time-limited trading. Docs: https://docs.polymarket.com/trading/wallets-auth.md
+- Order types: limit `GTC`/`GTD`; market `FAK`/`FOK`. Docs: https://docs.polymarket.com/trading/place-orders.md
+- **Collateral is pUSD** ("Polymarket USD", ERC-20 wrapper on a USDC claim, on Polygon) — it replaced USDC.e. Docs: https://docs.polymarket.com/concepts/pusd.md. Contracts (https://docs.polymarket.com/resources/contracts.md): CTF Exchange `0xE111180000d2663C0091e4f400237545B87B996B`, Neg-Risk Exchange `0xe2222d279d744050d28e00520010520000310F59`, CTF `0x4D97DCd97eC945f40cF65F87097ACe5EA0476045`, pUSD proxy `0xC011a7E12a19f7B1f670d46F03B03f3342E82DFB`.
+- UNVERIFIED: the exact ERC-20 approval flow per wallet type (docs expose `GET /balance-allowance/update` but don't spell out approval targets; 2024/25 tutorials citing USDC.e and the old exchange address are stale). Validate with a small real transaction before building the bet flow.
+- Read-only, no auth, CORS open (live-tested): `/midpoint?token_id=`, `/price?token_id=&side=buy`, `/book?token_id=`.
+
+## Geo-restrictions (as of Aug 2026)
+
+- Main platform: the **US is close-only** — no new orders, frontend and API; blocked orders are rejected server-side. Check endpoint: `GET https://polymarket.com/api/geoblock` → e.g. `{"blocked":true,"country":"US","region":"FL"}`. Builders are expected to call it pre-trade and surface the state. Tiers: OFAC full-block; ~35 close-only jurisdictions (incl. US, UK, DE, FR); frontend-only close list (incl. JP, IE, NL, MT). Docs: https://docs.polymarket.com/api-reference/geoblock
+- US-regulated trading launched separately: QCEX/QCX LLC (CFTC-designated Nov 2025), live 2026 at its own platform with **different APIs** — https://docs.polymarket.us. Out of scope for feature 001. Roughly 8 US states reportedly ban it regardless (AZ, IL, MA, MD, MI, MT, NV, OH — secondary sources).
+- Per-market `restricted` flag exists in Gamma responses.
+
+## Operational notes
+
+- Rate limits: no official documentation. Third-party folklore says ~4,000 req/10s Gamma, ~9,000/10s CLOB — UNVERIFIED; cache server-side and degrade politely on 429.
+- Nothing read-only needs an API key (Gamma, CLOB price endpoints).
