@@ -1,6 +1,6 @@
 # Plan 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Draft — awaiting user approval
+**Status:** Approved 2026-08-31
 **Spec:** ./spec.md (approved 2026-08-31, no open `[NEEDS CLARIFICATION]` markers)
 
 Polymarket API facts referenced below were verified against docs.polymarket.com on 2026-08-31 and recorded in `.claude/skills/polymarket-api/SKILL.md` — load that skill before writing any Polymarket-facing code.
@@ -75,4 +75,4 @@ Endpoint/field details live in `.claude/skills/polymarket-api/SKILL.md`.
 
 ## Approval
 
-- [ ] Plan approved by user (required before `/tasks`)
+- [x] Plan approved by user (required before `/tasks`) — 2026-08-31
