@@ -24,3 +24,25 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Feature 002 — design tokens (VR-5).
+   Values mirror lib/tokens.ts, which asserts their contrast arithmetically. */
+@theme {
+  --color-ground: #0b0e14;
+  --color-panel: #10141c;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-line-strong: rgba(255, 255, 255, 0.14);
+  --color-ink: #e8ecf3;
+  --color-muted: #9aa3b2;
+  --color-dim: #79828f;
+  --color-up: #3ddc97;
+  --color-down: #f0616d;
+  --color-demo: #ffc53d;
+  --color-on-up: #06251a;
+
+  --font-display: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  --font-figure: var(--font-mono), ui-monospace, Menlo, monospace;
+
+  --radius-panel: 0.625rem;
+  --radius-control: 0.5rem;
+}

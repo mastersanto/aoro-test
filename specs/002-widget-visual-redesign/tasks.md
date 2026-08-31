@@ -27,9 +27,9 @@ Sequencing: the gate comes first, because a gate written after the work it judge
 
 ## Phase 2 — Tokens and type
 
-- [ ] T4. **(exempt — dependency configuration)** Replace the two webfonts via `next/font/google`, self-hosted, each with a fallback stack.
+- [x] T4. **(exempt — dependency configuration)** Replace the two webfonts via `next/font/google`, self-hosted, each with a fallback stack.
       Verify: build 0; no Google domain in the built output; `npm test` green; **and** a visual check that blocks the font files and asserts the layout still holds — no horizontal scroll, no control below 44px — so VR-5's fallback criterion is exercised rather than asserted.
-- [ ] T5. **(exempt — spacing, radii and colour *choices*; the meaning-carrying values are gated by T2/T3)** Define the token set in a Tailwind `@theme` block using the plan's verified palette.
+- [x] T5. **(exempt — spacing, radii and colour *choices*; the meaning-carrying values are gated by T2/T3)** Define the token set in a Tailwind `@theme` block using the plan's verified palette.
       Verify: a unit test asserts each token's value and that no token equals the rejected `#6B7484`, computing the contrast of every text-on-surface pair against its background and requiring ≥4.5 (≥3 for large) — so the palette is checked by arithmetic, not by "already-styled surfaces", of which there are none at this point.
 
 ## Phase 3 — The confirmation (VR-2, highest stakes)
