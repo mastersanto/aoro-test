@@ -24,7 +24,15 @@ As someone who has chosen a market, I can ask the assistant which outcome it wou
 - The recommendation is available only when a market is selected, and concerns only that market.
 - It names exactly one outcome of that market, and shows that outcome's current price.
 - Every figure shown comes from the application's own market data; nothing numeric originates from the model.
+- **The recommendation states which market it is about**, so it can never be read as applying to another.
 - If the assistant has no usable view, it says so rather than manufacturing a case.
+
+**Context follows the selection.** The assistant's subject is always the market currently selected — never a previous one:
+
+- Changing the selected market **immediately clears any recommendation for the previous market**. A recommendation for one market is never on screen while another market's bet entry is armed; that is how a user ends up reading the case for A while staking on B.
+- Deselecting a market, or returning to no selection, returns the assistant to discovery (AR-6) and clears the scoped recommendation with it.
+- Text the user typed is preserved across a selection change; generated recommendations are not. The distinction is deliberate — losing your own words is an annoyance, keeping someone else's advice about the wrong market is a hazard.
+- A recommendation request that is in flight when the selection changes never renders against the new market.
 
 ### AR-2 *(core)* — The case against is shown with the case for
 As someone reading a recommendation, I can see what would have to be true for it to be wrong, not only the argument that it is right.
@@ -99,6 +107,7 @@ Exempt as styling: the panel's colour, type and spacing, and the *desktop* order
 Binding, and written test-first:
 - **Grounding** (AR-1): the recommended outcome belongs to the selected market, and no figure in the response originates from the model.
 - **The failure branch** (AR-1): "no usable view" is a state transition and error mapping, not copy — it must be reachable and tested.
+- **Context switching** (AR-1): that changing or clearing the selection discards the previous market's recommendation, that typed input survives while generated advice does not, and that an in-flight request cannot land against a market it was not asked about. This is a state machine over an async result — precisely the class Article VII binds, and the class where a stale render is invisible until it matters.
 - **Response shape and the screen** (AR-3): the structural constraint, the no-numerals rule, the construction check, server-side withholding, and the bounded single retry.
 - **Balance** (AR-2): a recommendation without a counter-case is withheld; the counter-case's co-visibility with the case for.
 - **The placement guarantees** (AR-4): pre-fill requires an explicit act and fills no amount; exactly one mounted bet-entry surface; one confirmation; disclaimer co-visible.
@@ -118,7 +127,8 @@ Binding, and written test-first:
 - **D2 — Balance is mandatory, not stylistic.** A one-sided argument for a real-money decision is the specific harm this feature could do, so the counter-case is an acceptance criterion with equal prominence rather than a copy guideline.
 - **D3 — Discovery is kept.** Replacing it would regress `001 US-4` and remove the assignment's stated bonus.
 - **D4 — Pre-fill never includes an amount, and the recommendation never discusses stake size.** The stake is the one decision the assistant must not influence at all; "by default" would have left sizing prose permitted while the field stayed empty.
-- **D5 — Structure over filtering.** A forbidden-word list is defeatable by fluent prose that contains none of the words. Constraining the response's shape, and forbidding model-authored numerals outright, are the controls that can actually be verified.
+- **D5 — A recommendation is bound to its market, not to the panel.** Clearing on selection change is a correctness requirement, not tidiness: advice for one market displayed beside another market's armed bet form is the most plausible way this feature causes a wrong bet.
+- **D6 — Structure over filtering.** A forbidden-word list is defeatable by fluent prose that contains none of the words. Constraining the response's shape, and forbidding model-authored numerals outright, are the controls that can actually be verified.
 
 ## Open questions
 
