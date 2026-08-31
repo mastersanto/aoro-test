@@ -1,6 +1,6 @@
 # Tasks 003 — Scoped Outcome Recommendation
 
-**Status:** Approved 2026-08-31 (revised after the constitution audit, then re-approved)
+**Status:** Complete 2026-08-31 — 20/20 tasks; deployed and verified in production
 **Plan:** ./plan.md (approved 2026-08-31)
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first.
@@ -71,7 +71,7 @@ Sequencing: the pure rules first, since they hold every binding decision and nee
       Verify: the check is performed once and its result written down.
 - [x] T19. **(not binding — documentation)** Update README and CLAUDE.md; confirm spec and plan describe the system as built.
       Verify: a clean clone runs `npm run verify` from the README alone; `bash scripts/sdd-lint.sh` passes.
-- [ ] T20. **(exempt — deployment)** Deploy; confirm the recommendation path in production at both viewports, including a withholding and a withdrawal.
+- [x] T20. **(exempt — deployment)** Deploy; confirm the recommendation path in production at both viewports, including a withholding and a withdrawal.
       Verify: `PROD_URL=… npm run test:visual` green against the deployment.
 
 ## Approval

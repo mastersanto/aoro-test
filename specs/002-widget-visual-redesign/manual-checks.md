@@ -84,6 +84,11 @@ real objection or a formality? Would a reader feel told what to do? Any sentence
 that fails goes into `specs/003-scoped-outcome-recommendation/defeat-corpus.md`
 and gets a test — it is never argued away.
 
-**Result 2026-08-31:** NOT YET PERFORMED against live model output — the route
-has not been exercised in production. Recorded as outstanding rather than
-claimed, and it is the first thing to do after deployment.
+**Result 2026-08-31:** PERFORMED, and it found two defeats on the first live
+run: "priced as a remote branch of the many possible policy paths" and "a
+plausible outcome if the data softens". Both rate likelihood, which AR-3
+forbids, and neither word was in the screen. Added as defeat-corpus entries 6
+and 7 with three held-out variants, the rule extended, and re-verified against
+production — the next recommendation contained no digits and no likelihood
+vocabulary. This check stays outstanding permanently: it is re-run whenever the
+model or the screen changes.
