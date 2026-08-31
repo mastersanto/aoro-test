@@ -122,11 +122,14 @@ export async function fetchMarkets(opts: {
   limit?: number;
   cursor?: string | null;
   tagId?: string;
+  /** Gamma order field; defaults to the shipped 24h-volume ordering (004 / UX-2). */
+  order?: string;
+  ascending?: boolean;
 } = {}): Promise<MarketPage> {
   const url = new URL(`${GAMMA_BASE}/markets/keyset`);
   url.searchParams.set("closed", "false");
-  url.searchParams.set("order", "volume24hr");
-  url.searchParams.set("ascending", "false");
+  url.searchParams.set("order", opts.order ?? "volume24hr");
+  url.searchParams.set("ascending", String(opts.ascending ?? false));
   url.searchParams.set("limit", String(opts.limit ?? 20));
   if (opts.cursor) url.searchParams.set("after_cursor", opts.cursor);
   if (opts.tagId) url.searchParams.set("tag_id", opts.tagId);

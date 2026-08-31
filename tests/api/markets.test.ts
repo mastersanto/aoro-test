@@ -100,3 +100,33 @@ describe("GET /api/markets", () => {
     expect(JSON.stringify(body)).not.toContain("keyset");
   });
 });
+
+describe("GET /api/markets — sort (004 / UX-2)", () => {
+  it("passes the resolved order to Gamma", async () => {
+    await call("http://localhost/api/markets?sort=ending-soon");
+    expect(fetchMarkets).toHaveBeenCalledWith(
+      expect.objectContaining({ order: "endDate", ascending: true }),
+    );
+  });
+
+  it("falls back to the default order for an unknown sort id", async () => {
+    // The id comes from the query string; it must be resolved through the
+    // whitelist rather than forwarded upstream.
+    await call("http://localhost/api/markets?sort=../../etc/passwd");
+    expect(fetchMarkets).toHaveBeenCalledWith(
+      expect.objectContaining({ order: "volume24hr", ascending: false }),
+    );
+  });
+
+  it("keys the cache on sort, so two sorts never serve each other's page", async () => {
+    await call("http://localhost/api/markets?sort=hot");
+    await call("http://localhost/api/markets?sort=ending-soon");
+    expect(fetchMarkets).toHaveBeenCalledTimes(2);
+  });
+
+  it("ignores sort while searching — /public-search cannot order", async () => {
+    await call("http://localhost/api/markets?q=fed&sort=ending-soon");
+    expect(searchMarkets).toHaveBeenCalled();
+    expect(fetchMarkets).not.toHaveBeenCalled();
+  });
+})

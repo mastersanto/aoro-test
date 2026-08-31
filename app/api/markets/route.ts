@@ -5,6 +5,7 @@
  */
 import { NextResponse } from "next/server";
 import { fetchMarkets, searchMarkets, type Market } from "@/lib/polymarket/gamma";
+import { resolveSort } from "@/lib/market-sort";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +39,11 @@ export async function GET(request: Request) {
   const tagId = searchParams.get("tag") ?? undefined;
   const cursor = searchParams.get("cursor") ?? undefined;
   const limit = clampLimit(searchParams.get("limit"));
+  // Resolved through the whitelist: an unknown id becomes the default rather
+  // than reaching Gamma's query string (004 / UX-2).
+  const sort = resolveSort(searchParams.get("sort"));
 
-  const key = JSON.stringify({ query, tagId, cursor, limit });
+  const key = JSON.stringify({ query, tagId, cursor, limit, sort: sort.id });
   const hit = cache.get(key);
   const now = Date.now();
 
@@ -50,7 +54,13 @@ export async function GET(request: Request) {
   try {
     const payload: Payload = query
       ? { markets: await searchMarkets(query, limit), nextCursor: null }
-      : await fetchMarkets({ limit, cursor, tagId });
+      : await fetchMarkets({
+          limit,
+          cursor,
+          tagId,
+          order: sort.order,
+          ascending: sort.ascending,
+        });
 
     cache.set(key, { payload, at: now });
     return NextResponse.json({ ...payload, stale: false });

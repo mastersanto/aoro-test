@@ -17,15 +17,19 @@ layout — the appearance of the new controls goes to the Playwright gate instea
 
 ## Constraints discovered in the code (these shape the design)
 
-1. **Text search cannot paginate or sort.** `searchMarkets` (`lib/polymarket/gamma.ts:144`)
-   calls Gamma's `/public-search`, which returns events with nested markets and
-   **no cursor** — `app/api/markets/route.ts:52` hardcodes `nextCursor: null` for
-   the search branch, correctly. `/public-search` takes no `order` either.
-   Browsing (`/markets/keyset`) supports both.
-   **Consequence:** UX-1 and UX-2 apply to browsing. During a search the "Load
-   more" control is absent and sorting is unavailable with a stated reason. The
-   alternative — sorting the ≤20 rows a search returned — is precisely the
-   "silently sorts a subset and looks correct" failure UX-2 rules out.
+1. **Search paginates by page number; browsing paginates by cursor.**
+   `/public-search` returns `pagination: {hasMore, totalResults}` and accepts
+   `page=N`; `/markets/keyset` returns `next_cursor` and accepts `after_cursor`
+   (both verified 2026-08-31). `searchMarkets` (`lib/polymarket/gamma.ts:144`)
+   discards the pagination block and `app/api/markets/route.ts:52` hardcodes
+   `nextCursor: null` for the search branch.
+   **Consequence:** UX-1 covers both, behind one client-side notion of "there is
+   more" — the route returns an opaque `nextCursor` either way, and only the
+   route knows whether it holds a cursor or a page number.
+   `/public-search` **ignores `order`** (verified: identical results across three
+   orderings), so UX-2 is browse-only and the sort control says so during a
+   search. Sorting the ≤20 rows a search returned would sort a truncated subset
+   and look correct — the failure UX-2 exists to prevent.
 2. **The list's 30-second refresh replaces `markets` wholesale**
    (`components/MarketList.tsx:50`). Once pages accumulate, that same refresh
    would truncate the list back to page 1 — a regression the user would read as
@@ -35,13 +39,23 @@ layout — the appearance of the new controls goes to the Playwright gate instea
    (line 39, 42). UX-1 needs no new server capability, only a client that keeps
    the cursor and a sort parameter added to the cache key.
 4. **Demo positions carry `tokenId` and `marketId`** (`lib/demo.ts:11`) but the
-   widget only holds the *selected* market. Valuing a position needs a price for
-   a market that may not be on screen, so UX-4 needs a way to quote several
-   markets at once.
-5. **The confirmation already carries `role="dialog"` and `aria-modal`**
+   widget only holds the *selected* market: `003`'s refresh is keyed on
+   `selectedId` (`Widget.tsx:45`) and the list's own refresh is query-scoped.
+   Neither covers a position in an unselected market, so UX-4 needs its own way
+   to quote several positions at once.
+5. **Demo bets fill at the order book's buy price** (`Widget.tsx:215`,
+   `fetchPrice(tokenId, "buy")`), not at Gamma's `outcomePrices`. Valuing against
+   Gamma would show a gain or loss the moment a bet is placed, from nothing but
+   the two sources disagreeing. UX-4 quotes the book.
+6. **At mobile width the confirmation renders inside the bet sheet**
+   (`Widget.tsx:361` → `BetPanel.tsx:166`), so both can be open at once, and
+   `tests/components/mobile-sheet.test.tsx:111` asserts exactly one element with
+   a dialog role. Giving the sheet that role makes it two — see UX-3 below.
+7. **The confirmation already carries `role="dialog"` and `aria-modal`**
    (`components/ConfirmBetDialog.tsx:46`); the bet sheet carries neither. Neither
    traps focus, neither restores it, and `grep -rn "Escape" components/` returns
-   nothing.
+   nothing. Cancel *is* reachable by Tab today — the first draft of this plan
+   claimed otherwise and was wrong.
 
 ## Architecture
 
@@ -73,70 +87,99 @@ new one.
 
 ### UX-3 — `lib/use-dialog.ts` (new hook) applied to both surfaces
 
-One hook, `useDialog({open, onDismiss})`, returning a ref to attach to the dialog
-box. It owns: focusing the first focusable element on open, containing Tab and
-Shift+Tab within the container, closing on `Escape`, and restoring focus to the
-previously focused element on close. `BetSheet` also gains `role="dialog"`,
-`aria-modal` and a label.
+One hook, `useDialog({open, onDismiss})`, returning a ref for the dialog box. It
+owns: focusing the first focusable element on open, containing Tab and Shift+Tab,
+closing on `Escape`, and restoring focus to the previously focused element on close.
 
-**Escape maps to `onCancel`, never `onConfirm`.** Article II's confirmation is the
-point of the dialog; a dismissal gesture that placed a bet would be the exact
-inversion of it. The `T11` bypass suite is extended rather than modified.
+**It keeps a module-level stack of open dialogs, and only the topmost one is
+active.** At mobile width the confirmation renders *inside* the bet sheet
+(constraint 6), so both are open together. Two independent traps would fight over
+focus, and one `Escape` would close both. Registering on open and de-registering on
+close makes "topmost wins" a property of the hook rather than something each caller
+has to arrange, and it is directly testable.
+
+`BetSheet` gains `role="dialog"` and an accessible name. It does **not** gain
+`aria-modal`: the confirmation that can sit above it is the modal, and announcing
+two nested modals would misdescribe the page to a screen reader.
+
+**The `003 AR-4` amendment.** `tests/components/mobile-sheet.test.tsx:111` enforces
+"at most one confirmation" by counting elements with a dialog role. The sheet's new
+role makes that two. The assertion is replaced in the same task by one that counts
+the confirmation by its accessible name ("Confirm your bet"), which counts the thing
+AR-4 is about instead of any dialog. This is the one existing assertion 004 changes;
+D1 names it, and `003`'s spec records it.
+
+**Escape maps to `onCancel`, never `onConfirm`** — the constraint UX-3 states. The
+`001` T11 bypass suite is extended to cover the keyboard path; those tests drive
+click, submit and Enter only, so they continue to pass unmodified.
 
 ### UX-4 — `lib/demo-valuation.ts` (new, pure) + `GET /api/quotes` (new route)
 
-The valuation rule, given a position and a quote for its market:
+Given a position and a quote for it:
 
 | Quote | Status | Value |
 |---|---|---|
-| absent (market not quoted, or gone) | `unknown` | none |
-| open, price is a finite number | `open` | `shares × price` |
-| open, price missing | `unknown` | none |
-| closed, held outcome ≥ 0.99 | `won` | `shares × 1` |
-| closed, a *different* outcome ≥ 0.99 | `lost` | `0` |
-| closed, no outcome ≥ 0.99 | `unresolved` | none |
+| absent (not quoted, or the market is gone) | `unvalued` | none |
+| stale — older than `MAX_QUOTE_AGE_MS` | `unvalued` | none |
+| price is not a usable number (0, missing, or outside 0–1) | `unvalued` | none |
+| market open, price usable | `open` | `shares × price` |
+| market closed, held outcome ≥ `SETTLED` (0.99) | `won` | `shares × 1` |
+| market closed, a *different* outcome ≥ `SETTLED` | `lost` | `0` |
+| market closed, no outcome ≥ `SETTLED` | `unresolved` | none |
 
-The last row is the one that matters. Verified 2026-08-31: resolved markets often
-report `outcomePrices` of `["0","0"]`. The obvious rule — "value it at its price"
-— reads that as zero and reports a **loss**, inventing a settlement the exchange
-never published. `unresolved` carries no value and is excluded from the totals,
-which are reported as "N positions could not be valued" rather than silently
-summed as if they were worth nothing.
+Three rows carry the weight. **`unresolved`**: resolved markets often report
+`["0","0"]` (verified), and the obvious rule — "value it at its price" — reads that
+as a loss the exchange never published. **`unvalued` for an unusable price**: the
+same fabrication in the open case, and `BetPanel.tsx:42` already treats a price
+outside 0–1 as no information. **`unvalued` for a stale quote**: `Widget.tsx:53`
+deliberately keeps the last good market data through an outage, so without an age
+check a frozen number would be labelled "current value".
 
-`GET /api/quotes?ids=a,b,c` returns `{quotes: {[marketId]: {closed, outcomes:
-[{tokenId, price}]}}}` via `fetchMarketById` — the same endpoint `003` already
-uses for the selected market, so closure comes from the authoritative flag rather
-than from absence from a query-scoped list. Ids are capped at 20 and the response
-is cached for the same 30 seconds as everything else. A market that 404s is simply
-absent from the map, which the table above turns into `unknown` — not a loss.
+Neither `unvalued` nor `unresolved` contributes to the totals, and the count of each
+is reported beside them — a total that silently omits positions is a total that
+claims the rest are worth nothing.
 
-The widget quotes its positions' markets on the existing 30-second cadence
-(`MARKET_REFRESH_MS`), not a new clock.
+**The quote is the order book's buy price** for the held token — the same measure
+`Widget.tsx:215` fills at. `GET /api/quotes?tokens=…&markets=…` returns, per token,
+that price, and per market, Gamma's authoritative `closed` flag (the same
+`fetchMarketById` `003` uses, so closure never comes from absence from a
+query-scoped list). Ids are capped and the response cached for the usual 30 seconds.
+A market that 404s is simply absent, which the table turns into `unvalued`.
 
-Every value keeps the DEMO framing that `001 US-3` and `002 VR-3` require.
+**The spendable balance does not move.** `DemoState.balanceUsd` stays the cash
+figure `001 US-3` defines. Valuation is display-only: a paper gain that became
+stakeable through `BetPanel.tsx:39`'s balance check would redefine US-3 silently.
+The panel therefore shows cash and position value as separate figures, both DEMO.
 
-### UX-5 — retry at each failure site
+### UX-5 — make the existing recovery visible, and refuse it where it is unsafe
 
-- `AssistPanel`: a "Try again" button in the error block, calling the same `ask()`.
-  The prompt is already held in state and is not cleared, so the input survives;
-  the existing `if (!trimmed || loading) return` guard is what prevents a double
-  fire.
-- `RecommendPanel`: the same, calling `onRequest`, guarded by `recLoading`.
-- `MarketList`: a "Retry now" button, plus text stating that it also retries by
-  itself — it already does, every 30 seconds, and a user who cannot see that is
-  being asked to guess.
-- The widget's own error banner reports a rejected demo bet (a stake above the
-  practice balance). That is a validation failure, not a failed request: retrying
-  the same input would fail identically, so it gets no retry button. Stated here
-  so its absence is a decision rather than an oversight.
+The first draft of this plan said the assist panel offered nothing to press. It was
+wrong: the button stays mounted and enabled and the prompt survives
+(`AssistPanel.tsx:82`). The gap is that it still reads "Get suggestions", so nothing
+marks it as the way back from a failure.
+
+- `AssistPanel` and `RecommendPanel`: after a failure the existing action relabels
+  ("Try again"), and reads as in-progress while a retry is in flight. No second
+  control, no duplicated request path — the existing `if (!trimmed || loading)`
+  and `recLoading` guards already prevent concurrency.
+- `MarketList`: a retry control, plus text saying it also retries by itself — it
+  already does, every 30 seconds, and a reader who cannot see that is being asked
+  to guess.
+- **Bet placement gets no retry** (Article II). A failed placement has already
+  cleared the draft (`BetPanel.tsx:66`), so a control that re-sent it would place a
+  bet past no confirmation. Today that re-spends demo money; at Phase 6 it would
+  re-submit a signed order.
+- **The geo decision gets no retry** (Article V). `Widget.tsx:88` fails closed when
+  the region is unknown; that is a compliance outcome, not a transient error.
 
 ## Data flow (changed paths only)
 
 ```
-browse:  MarketList(sortId, cursor) → /api/markets?sort=&cursor= → fetchMarkets(order, ascending, cursor)
-                                    → appendPage / mergeRefresh → rows
-search:  MarketList(q)              → /api/markets?q= → searchMarkets → rows   (no cursor, no sort)
-demo:    Widget(positions)          → /api/quotes?ids= → fetchMarketById ×n → valuePositions() → DemoPositions
+browse:  MarketList(sortId, cursor) → /api/markets?sort=&cursor=  → fetchMarkets(order, ascending, after_cursor)
+search:  MarketList(q, cursor)      → /api/markets?q=&cursor=     → searchMarkets(page)      (no sort)
+         both                        → appendPage / mergeRefresh → rows
+demo:    Widget(positions)          → /api/quotes?tokens=&markets= → fetchPrice ×n + fetchMarketById ×n
+                                    → valuePositions() → DemoPositions
 ```
 
 ## Environment and deployment
@@ -155,19 +198,28 @@ Deployment is unaffected — the same Vercel project and build.
   feature explicitly excludes `001`'s blocked Phase 6.
 - **Article IV (secrets server-side)** — `/api/quotes` calls Gamma, which needs no
   key. Nothing new reaches the client bundle.
-- **Article V (compliance is a requirement)** — the geo explanation and the "not
-  financial advice" disclaimer keep their positions. UX-4 is the live risk: a
-  panel showing gains could read as real money, so DEMO labelling on the values
-  and totals is an acceptance criterion, checked in both gates.
+- **Article V (compliance is a requirement)** — the first draft of this feature
+  omitted Article V entirely; the spec now carries a Compliance section, and these
+  are its plan-side consequences. The geo explanation keeps its `003 AR-5` position
+  beside the mode toggle, which the focus work must not disturb. The disabled
+  controls that carry the regional refusal stay disabled and therefore unfocusable —
+  UX-3's keyboard criterion exempts them explicitly rather than by silence. The geo
+  decision gets no retry. The "not financial advice" disclaimer's co-visibility with
+  suggestions is re-checked with UX-5's new error and retry states present. UX-4 is
+  the new risk: DEMO labelling on every value, difference and total, in both gates.
 - **Article VI (verification)** — three gates unchanged: `npm run verify` must be
   green, and the new controls get appearance checks because jsdom cannot see a
   control that is 20px tall or off-screen.
-- **Article VII (test-first)** — RED/GREEN pairs for the five binding items named
-  in the spec. The appearance of the new controls is exempt as styling.
+- **Article VII (test-first)** — RED/GREEN pairs for every binding item, which after
+  the audit includes the dialog role and the topmost-wins rule, the Article V
+  invariants UX-3 and UX-5 cross, and each row of the valuation table. Exempt as
+  styling: only the *appearance* of the new controls. Criteria about whether
+  something is visible, tappable or in a sensible focus order are not styling and go
+  to the appearance gate, which runs a real browser — jsdom performs no layout.
 
-**No conflicts found.** The one judgement call worth flagging: UX-3 is argued as
-an Article II matter above. If that reading is rejected the work still stands as
-plain accessibility — nothing depends on the classification except the priority.
+**One conflict, resolved explicitly:** UX-3's dialog role collides with `003 AR-4`'s
+count-based enforcement. Handled as a recorded amendment (above) rather than by
+loosening the invariant, and `003`'s spec is updated in the same change.
 
 ## Risks
 
@@ -175,8 +227,9 @@ plain accessibility — nothing depends on the classification except the priorit
    minutes**, which are the worst ones to bet on. Mitigation: none in code — the
    end date is already on every row, and hiding markets the exchange lists open
    would be a bigger lie than showing them. Noted so it is a known consequence.
-2. **`/api/quotes` fans out to N Gamma requests.** Capped at 20 ids and cached 30s.
-   A session's demo positions are typically fewer than five.
+2. **`/api/quotes` fans out to N book + N market requests.** Capped and cached 30s;
+   a session's demo positions are typically fewer than five. A single failed quote
+   degrades to `unvalued` for that position rather than failing the response.
 3. **The 0.99 settlement threshold is a judgement.** Observed resolved markets
    report `0.9999989…`; a market genuinely trading at 0.995 while open is
    unaffected, because the rule applies only when `closed` is true.
