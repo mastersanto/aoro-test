@@ -18,6 +18,9 @@ build/
 
 # Test output
 coverage/
+test-results/
+playwright-report/
+blob-report/
 
 # Tooling caches
 *.tsbuildinfo

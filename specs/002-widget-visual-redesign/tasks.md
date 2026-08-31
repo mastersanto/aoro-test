@@ -13,7 +13,7 @@ Sequencing: the verification harness comes first, because every later task is ju
 
 ## Phase 1 — The gate that judges everything else
 
-- [ ] T1. **(exempt — dependency configuration)** Add `@playwright/test` and `@axe-core/playwright` pinned exact; add `npm run test:visual` running against a production build; add a CI job installing chromium. Confirm the cached browser is used rather than downloading one.
+- [x] T1. **(exempt — dependency configuration)** Add `@playwright/test` and `@axe-core/playwright` pinned exact; add `npm run test:visual` running against a production build; add a CI job installing chromium. Confirm the cached browser is used rather than downloading one.
       Verify: `npm run test:visual` starts a browser and reports 0 tests; `npm test` still 135/135; `npm run build` and `npm run lint` exit 0.
 - [ ] T2. **RED** — write the VR-2/VR-3 visibility checks against the **current** UI: the five confirmation fields visible with a real bounding box and inside the viewport at 1280 and 390; the disclaimer visible with a suggestion; DEMO visible on control, result, balance, confirmation, position; the geo explanation visible beside the disabled control.
       Verify: the suite runs and **fails only where today's UI genuinely fails** (expected: 390px, which has no mobile layout yet). Any check that passes at 1280 today must be shown to fail when the guarantee is deliberately broken — hide one confirmation field and watch exactly that check go red.
