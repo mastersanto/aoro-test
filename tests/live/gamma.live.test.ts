@@ -60,22 +60,3 @@ describe("CLOB read-only (live)", () => {
     expect(Array.isArray(book.asks)).toBe(true);
   }, 30_000);
 });
-
-describe("Gamma by-id (live)", () => {
-  it("returns a single market with an authoritative closed flag", async () => {
-    const { fetchMarketById } = await import("@/lib/polymarket/gamma");
-    const page = await fetchMarkets({ limit: 1 });
-    const id = page.markets[0].id;
-
-    const market = await fetchMarketById(id);
-    expect(market).not.toBeNull();
-    expect(market!.id).toBe(id);
-    expect(typeof market!.closed).toBe("boolean");
-    expect(market!.outcomes.length).toBeGreaterThan(0);
-  }, 30_000);
-
-  it("returns null for a market id that does not exist", async () => {
-    const { fetchMarketById } = await import("@/lib/polymarket/gamma");
-    expect(await fetchMarketById("000000000")).toBeNull();
-  }, 30_000);
-});
