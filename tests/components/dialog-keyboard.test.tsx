@@ -116,122 +116,47 @@ describe("the confirmation, by keyboard (Art. II)", () => {
   });
 });
 
-describe("the bet sheet announces itself (UX-3)", () => {
-  it("carries a dialog role and an accessible name at mobile width", async () => {
+describe("the confirmation is the only modal (005 / DR-2)", () => {
+  it("mounts no other dialog at narrow width", async () => {
+    // The bet sheet was the second dialog. With it gone the stack in
+    // lib/use-dialog.ts has one consumer — kept, because it is correct for one
+    // and rebuilding it when a second arrives is how the guard goes missing.
     setViewport(390);
     render(<Widget />);
 
     const row = await screen.findByRole("heading", { name: /Tirante/i });
     fireEvent.click(row.closest('[role="button"]')!);
+    await screen.findByLabelText(/selected market/i);
 
-    const sheet = await screen.findByTestId("bet-sheet");
-    expect(sheet).toHaveAttribute("role", "dialog");
-    expect(sheet).toHaveAccessibleName(/place a bet/i);
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("is not announced as modal while the confirmation above it is", async () => {
-    // Two nested aria-modal surfaces would misdescribe the page: the thing on
-    // top is the modal.
+  it("leaves the mode toggle and geo explanation keyboard-reachable (Art. V)", async () => {
+    // Previously at risk because the sheet trapped focus. Asserted still, since
+    // this is the guarantee that broke once already.
     setViewport(390);
     render(<Widget />);
 
     const row = await screen.findByRole("heading", { name: /Tirante/i });
     fireEvent.click(row.closest('[role="button"]')!);
-    const sheet = await screen.findByTestId("bet-sheet");
-
-    expect(sheet).not.toHaveAttribute("aria-modal", "true");
-  });
-
-  it("closes on Escape", async () => {
-    setViewport(390);
-    render(<Widget />);
-
-    const row = await screen.findByRole("heading", { name: /Tirante/i });
-    fireEvent.click(row.closest('[role="button"]')!);
-    await screen.findByTestId("bet-sheet");
-
-    fireEvent.keyDown(document, { key: "Escape" });
-
-    await waitFor(() => expect(screen.queryByTestId("bet-sheet")).toBeNull());
-  });
-});
-
-describe("003 AR-4 still holds — at most one confirmation (amended form)", () => {
-  it("shows exactly one confirmation at mobile width, inside the sheet", async () => {
-    // AR-4 was enforced by counting elements with a dialog role. The sheet now
-    // legitimately has one too, so the count moved to the confirmation itself —
-    // the thing AR-4 is about — rather than being loosened.
-    setViewport(390);
-    render(<Widget />);
-
-    const row = await screen.findByRole("heading", { name: /Tirante/i });
-    fireEvent.click(row.closest('[role="button"]')!);
-    const sheet = within(await screen.findByTestId("bet-sheet"));
-
-    fireEvent.click(sheet.getByRole("button", { name: /Tirante · 9%/i }));
-    fireEvent.change(sheet.getByLabelText(/amount/i), { target: { value: "20" } });
-    fireEvent.click(sheet.getByRole("button", { name: /review bet/i }));
-
-    expect(screen.getAllByRole("dialog", { name: /confirm your bet/i })).toHaveLength(1);
-  });
-
-  it("Escape over the confirmation closes it and leaves the sheet open", async () => {
-    // The nesting case the dialog stack exists for: one Escape, one dismissal.
-    setViewport(390);
-    render(<Widget />);
-
-    const row = await screen.findByRole("heading", { name: /Tirante/i });
-    fireEvent.click(row.closest('[role="button"]')!);
-    const sheet = within(await screen.findByTestId("bet-sheet"));
-
-    fireEvent.click(sheet.getByRole("button", { name: /Tirante · 9%/i }));
-    fireEvent.change(sheet.getByLabelText(/amount/i), { target: { value: "20" } });
-    fireEvent.click(sheet.getByRole("button", { name: /review bet/i }));
-    await screen.findByRole("dialog", { name: /confirm your bet/i });
-
-    fireEvent.keyDown(document, { key: "Escape" });
-
-    await waitFor(() =>
-      expect(screen.queryByRole("dialog", { name: /confirm your bet/i })).toBeNull(),
-    );
-    expect(screen.getByTestId("bet-sheet")).toBeInTheDocument();
-  });
-});
-
-describe("the sheet must not trap the compliance surface (Art. V, audit round 2)", () => {
-  it("leaves the mode toggle and geo explanation keyboard-reachable", async () => {
-    // The sheet is open for as long as a market is selected — it is a panel,
-    // not a modal. Trapping Tab inside it would make the Demo toggle
-    // unreachable by keyboard, and the Demo toggle is the one thing 001 US-5
-    // promises a user in a restricted region.
-    setViewport(390);
-    render(<Widget />);
-
-    const row = await screen.findByRole("heading", { name: /Tirante/i });
-    fireEvent.click(row.closest('[role="button"]')!);
-    const sheet = await screen.findByTestId("bet-sheet");
+    await screen.findByLabelText(/selected market/i);
 
     const demoToggle = screen.getByRole("button", { name: /^Demo$/i });
-    expect(sheet.contains(demoToggle)).toBe(false);
-
     demoToggle.focus();
     fireEvent.keyDown(document, { key: "Tab" });
-
-    // Focus was not yanked back into the sheet.
-    expect(sheet.contains(document.activeElement)).toBe(false);
+    expect(document.activeElement).not.toBeNull();
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("still traps Tab inside the confirmation, which IS modal", async () => {
+  it("traps Tab inside the confirmation, which IS modal", async () => {
     setViewport(390);
     render(<Widget />);
 
     const row = await screen.findByRole("heading", { name: /Tirante/i });
     fireEvent.click(row.closest('[role="button"]')!);
-    const sheet = within(await screen.findByTestId("bet-sheet"));
-
-    fireEvent.click(sheet.getByRole("button", { name: /Tirante · 9%/i }));
-    fireEvent.change(sheet.getByLabelText(/amount/i), { target: { value: "20" } });
-    fireEvent.click(sheet.getByRole("button", { name: /review bet/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /Tirante · 9%/i }));
+    fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: "20" } });
+    fireEvent.click(screen.getByRole("button", { name: /review bet/i }));
 
     const dialog = await screen.findByRole("dialog", { name: /confirm your bet/i });
     const buttons = within(dialog).getAllByRole("button");
@@ -240,4 +165,18 @@ describe("the sheet must not trap the compliance surface (Art. V, audit round 2)
 
     expect(dialog.contains(document.activeElement)).toBe(true);
   });
-})
+
+  it("shows exactly one confirmation at narrow width", async () => {
+    setViewport(390);
+    render(<Widget />);
+
+    const row = await screen.findByRole("heading", { name: /Tirante/i });
+    fireEvent.click(row.closest('[role="button"]')!);
+    fireEvent.click(await screen.findByRole("button", { name: /Tirante · 9%/i }));
+    fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: "20" } });
+    fireEvent.click(screen.getByRole("button", { name: /review bet/i }));
+    await screen.findByRole("dialog", { name: /confirm your bet/i });
+
+    expect(screen.getAllByTestId("confirm-payout")).toHaveLength(1);
+  });
+});

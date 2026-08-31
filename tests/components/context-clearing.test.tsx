@@ -83,7 +83,7 @@ describe("a recommendation belongs to its market", () => {
     await select(a);
     await askForRecommendation();
 
-    fireEvent.click(await screen.findByRole("button", { name: /clear selection|deselect/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /^clear$/i }));
     expect(screen.queryByTestId("recommendation")).not.toBeInTheDocument();
   });
 
@@ -140,7 +140,17 @@ describe("a mode change clears what was chosen for the other mode", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /real money/i }));
 
-    const outcomes = within(screen.getByRole("group", { name: /choose an outcome/i }));
+    // Real money is unavailable in this build, so 005 / DR-1 renders no entry at
+    // all — a stake chosen against a practice balance cannot carry into real
+    // money because there is nowhere for it to carry TO. Stronger than the empty
+    // form this used to assert.
+    expect(screen.queryByRole("group", { name: /choose an outcome/i })).toBeNull();
+    expect(screen.queryByLabelText(/amount/i)).toBeNull();
+
+    // And coming back to demo, the draft is genuinely gone rather than restored.
+    fireEvent.click(screen.getByRole("button", { name: /^demo$/i }));
+
+    const outcomes = within(await screen.findByRole("group", { name: /choose an outcome/i }));
     expect(
       outcomes.getByRole("button", { name: new RegExp(`${a.outcomes[0].label}.*9%`, "i") }),
     ).toHaveAttribute("aria-pressed", "false");

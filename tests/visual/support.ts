@@ -152,7 +152,7 @@ export function normalized() {
 /** Drive the UI to an open confirmation dialog, the way a user would. */
 export async function openConfirmation(page: Page) {
   await page.goto("/");
-  const row = page.getByRole("button", { name: /Tirante/i }).first();
+  const row = page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first();
   await row.click();
   await page.getByRole("button", { name: /Tirante · 9%/i }).click();
   await page.getByLabel(/amount/i).fill("90");

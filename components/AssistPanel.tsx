@@ -62,34 +62,40 @@ export function AssistPanel({
   return (
     <section
       aria-label="AI assistance"
-      className="rounded-panel border border-line bg-panel p-4"
+      className="rounded-panel border border-dashed border-up/35 bg-up/[0.04] p-3"
     >
-      <h2 className="text-sm font-semibold text-ink">
-        Not sure what to bet on?
+      {/* 005 / DR-4 — this sits above the market list now, where finding
+          happens, and is ONE compact row rather than a stacked card: the taller
+          form pushed the first market row below the fold at 390px, which the
+          appearance gate caught. */}
+      <h2 className="text-xs font-semibold text-ink">
+        Not sure what to bet on? Describe it and the AI will find the market.
       </h2>
 
-      <label className="mt-2 flex flex-col gap-1 text-sm">
-        <span className="text-muted">What are you interested in?</span>
-        <textarea
-          rows={2}
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="e.g. something about the Fed meeting"
-          className="rounded-control border border-line-strong bg-ground px-3 py-2 text-sm text-ink outline-none focus:border-up"
-        />
-      </label>
+      <div className="mt-2 flex flex-wrap items-end gap-2">
+        <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
+          <span className="sr-only">What are you interested in?</span>
+          <textarea
+            rows={1}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="e.g. something about the Fed meeting"
+            className="min-h-11 resize-none rounded-control border border-line-strong bg-ground px-3 py-2.5 text-sm text-ink outline-none focus:border-up"
+          />
+        </label>
 
-      <button
-        type="button"
-        onClick={ask}
-        disabled={loading}
-        className="mt-2 min-h-11 rounded-control bg-up px-3 text-sm font-semibold text-on-up disabled:opacity-50"
-      >
-        {/* The recovery was always here — the button stays mounted and the
-            prompt survives. What was missing is that it read exactly as it did
-            before the failure, so nothing marked it as the way back (004 / UX-5). */}
-        {loading ? "Thinking…" : error ? "Try again" : "Get suggestions"}
-      </button>
+        <button
+          type="button"
+          onClick={ask}
+          disabled={loading}
+          className="min-h-11 shrink-0 rounded-control bg-up px-4 text-sm font-semibold text-on-up disabled:opacity-50"
+        >
+          {/* The recovery was always here — the button stays mounted and the
+              prompt survives. What was missing is that it read exactly as it did
+              before the failure (004 / UX-5). */}
+          {loading ? "Thinking…" : error ? "Try again" : "Get suggestions"}
+        </button>
+      </div>
 
       {error && (
         <p role="alert" className="mt-3 rounded-control bg-down/10 px-3 py-2 text-xs text-down">

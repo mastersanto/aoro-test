@@ -23,7 +23,7 @@ test.describe("DEMO signalling", () => {
   });
 
   test("a placed demo bet's result says so, on screen", async ({ page }) => {
-    await page.getByRole("button", { name: /Tirante/i }).first().click();
+    await page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first().click();
     await page.getByRole("button", { name: /Tirante · 9%/i }).click();
     await page.getByLabel(/amount/i).fill("25");
     await page.getByRole("button", { name: /review bet/i }).click();
@@ -66,7 +66,7 @@ test.describe("geo restriction (Art. V)", () => {
     await stubApi(page, { bettingAllowed: false, country: "US" });
     await page.goto("/");
 
-    await page.getByRole("button", { name: /Tirante/i }).first().click();
+    await page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first().click();
     await page.getByRole("button", { name: /real money/i }).click();
 
     await expectGenuinelyVisible(page.getByText(/close-only here/i), "geo explanation");

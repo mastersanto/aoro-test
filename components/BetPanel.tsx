@@ -86,26 +86,78 @@ export function BetPanel({
     }
   }
 
-  if (!market) {
+  /**
+   * 005 / DR-1 — the replacement for 003 AR-7.
+   *
+   * AR-7 kept a bet entry the user could not act on BELOW the assistant. Right
+   * intent, expressed as document order, which left the rail with no learnable
+   * order. Expressed as state instead: when the bet cannot be acted on there is
+   * no entry at all — no outcome control, no amount field, no review control,
+   * only the reason. Stronger than the ordering it replaces, because it holds at
+   * every width and a reader cannot scroll past it into a live form.
+   */
+  const inert = !market || bettingDisabled || marketClosed;
+
+  const inertReason = !market
+    ? "Choose a market from the list to place a bet."
+    : marketClosed
+      ? "This market has closed, so no bet can be placed on it."
+      : (disabledReason ?? "Betting is unavailable right now.");
+
+  // Rendered in BOTH branches. A market closing while the confirmation is open
+  // must surface ON the dialog, not unmount it — a bet the user is midway
+  // through reviewing cannot silently vanish (Art. II).
+  const confirmation = draft && market && (
+    <ConfirmBetDialog
+      draft={draft}
+      mode={mode}
+      pending={pending}
+      livePrice={market.outcomes.find((o) => o.tokenId === draft.outcome.tokenId)?.price}
+      marketClosed={marketClosed}
+      failureReason={failure}
+      onConfirm={confirm}
+      onCancel={() => {
+        setFailure(null);
+        setDraft(null);
+      }}
+      onReview={() => setDraft(null)}
+    />
+  );
+
+  if (inert) {
     return (
-      <aside className="rounded-panel border border-line bg-panel p-4 text-sm text-dim">
-        Choose a market to place a bet.
+      <aside
+        aria-label={mode === "demo" ? "Place a demo bet" : "Place a bet"}
+        className="rounded-panel border border-line bg-panel p-4"
+      >
+        <h2 className="text-sm font-semibold text-dim">
+          {mode === "demo" ? "Place a demo bet" : "Place a bet"}
+        </h2>
+        <p role="status" className="mt-2 text-sm leading-snug text-muted">
+          {inertReason}
+        </p>
+        {confirmation}
       </aside>
     );
   }
 
   return (
-    <aside className="rounded-panel border border-line bg-panel p-4">
-      <h2 className="text-sm font-semibold text-ink">
-        {mode === "demo" ? "Place a demo bet" : "Place a bet"}
-      </h2>
-      {mode === "demo" && (
-        <p className="mt-1 inline-block rounded bg-demo/15 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-demo">
-          DEMO
-        </p>
-      )}
+    <aside
+      aria-label={mode === "demo" ? "Place a demo bet" : "Place a bet"}
+      className="rounded-panel border border-line bg-panel p-4"
+    >
+      <div className="flex items-center gap-2">
+        <h2 className="flex-1 text-sm font-semibold text-ink">
+          {mode === "demo" ? "Place a demo bet" : "Place a bet"}
+        </h2>
+        {mode === "demo" && (
+          <p className="rounded bg-demo/15 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-demo">
+            DEMO
+          </p>
+        )}
+      </div>
 
-      <p className="mt-2 text-sm leading-snug text-ink [overflow-wrap:anywhere]">{market.question}</p>
+      {/* 005 / DR-3: the question is stated once, by the rail's header card. */}
 
       <form
         onSubmit={(e) => {
@@ -151,11 +203,6 @@ export function BetPanel({
           />
         </label>
 
-        {bettingDisabled && disabledReason && (
-          <p role="status" className="rounded-control bg-white/5 px-3 py-2 text-xs text-muted">
-            {disabledReason}
-          </p>
-        )}
         {outcome !== null && !priceUsable && (
           <p role="status" className="text-xs text-down">
             This outcome has no usable price right now, so it cannot be bet on.
@@ -177,22 +224,7 @@ export function BetPanel({
         </button>
       </form>
 
-      {draft && (
-        <ConfirmBetDialog
-          draft={draft}
-          mode={mode}
-          pending={pending}
-          livePrice={market.outcomes.find((o) => o.tokenId === draft.outcome.tokenId)?.price}
-          marketClosed={marketClosed}
-          failureReason={failure}
-          onConfirm={confirm}
-          onCancel={() => {
-            setFailure(null);
-            setDraft(null);
-          }}
-          onReview={() => setDraft(null)}
-        />
-      )}
+      {confirmation}
     </aside>
   );
 }

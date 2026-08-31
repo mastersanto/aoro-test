@@ -9,7 +9,7 @@ import { expectCoVisible, expectGenuinelyVisible, stubApi } from "./support";
 test.beforeEach(async ({ page }) => {
   await stubApi(page);
   await page.goto("/");
-  await page.getByRole("button", { name: /Tirante/i }).first().click();
+  await page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first().click();
 
   // On a phone, selecting a market opens the bet sheet over the rail — that is
   // AR-7's design, not a bug. A user reads the recommendation by dismissing it,
@@ -58,8 +58,12 @@ test("the disclaimer is visible with the recommendation it qualifies", async ({ 
 });
 
 test("the market it concerns is named on screen", async ({ page }) => {
-  await expectGenuinelyVisible(
-    page.getByTestId("recommendation").getByText(/About:/i),
-    "market attribution",
+  // 005 / DR-3 states the market once, in the rail's header card. The
+  // requirement 003 wrote — a recommendation is never read detached from its
+  // market — is now a co-visibility claim rather than a repeated line.
+  await expectCoVisible(
+    page.getByTestId("recommendation"),
+    page.getByRole("region", { name: /selected market/i }),
+    "recommendation and the market it concerns",
   );
 });

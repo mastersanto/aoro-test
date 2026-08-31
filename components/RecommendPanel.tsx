@@ -83,10 +83,10 @@ export function RecommendPanel({
       {recommendation && favoured && !withdrawnReason && (
         <div data-testid="recommendation" className="mt-3 flex flex-col gap-2">
 
-          <p className="text-xs leading-snug text-dim">
-            About: <span className="text-muted">{market.question}</span>
-          </p>
-
+          {/* 005 / DR-3: no "About: <question>" here. The rail's header card
+              states the market once, directly above this and sticky beside it,
+              which is what 003's attribution requirement was protecting — that a
+              recommendation is never read detached from the market it concerns. */}
           <p className="text-sm text-ink">
             Favours <span className="font-medium text-up">{favoured.label}</span>{" "}
             <span className="font-figure tabular-nums text-up">{formatPercent(favoured.price)}</span>

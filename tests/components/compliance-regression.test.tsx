@@ -50,51 +50,52 @@ afterEach(() => {
 });
 
 describe("the compliance surface stays keyboard-reachable (Art. V)", () => {
-  it("keeps the mode toggle reachable while the bet sheet is open", async () => {
-    // Reachability, not position. The first version of this task asserted the
-    // explanation "keeps its position beside the mode toggle", which was true
-    // while a focus trap made both unreachable for the whole session.
+  it("keeps the mode toggle reachable at narrow width with a market selected", async () => {
+    // Reachability, not position. Previously at risk because the bet sheet
+    // trapped focus; the sheet is gone (005 / DR-2) and this stays asserted,
+    // because it is the guarantee that broke once already.
     setViewport(390);
     stub(RESTRICTED);
     render(<Widget />);
     await selectMarket();
-    const sheet = await screen.findByTestId("bet-sheet");
+    await screen.findByLabelText(/selected market/i);
 
     const demo = screen.getByRole("button", { name: /^Demo$/i });
     demo.focus();
     expect(document.activeElement).toBe(demo);
 
     fireEvent.keyDown(document, { key: "Tab" });
-    expect(sheet.contains(document.activeElement)).toBe(false);
+    // Nothing traps focus: no dialog is mounted to trap it.
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("keeps the geo explanation outside the sheet and readable", async () => {
+  it("keeps the geo explanation visible with a market selected", async () => {
     setViewport(390);
     stub(RESTRICTED);
     render(<Widget />);
     await selectMarket();
-    const sheet = await screen.findByTestId("bet-sheet");
+    await screen.findByLabelText(/selected market/i);
 
     const explanation = await screen.findByText(/close-only in the US/i);
-    expect(sheet.contains(explanation)).toBe(false);
     expect(explanation).toBeVisible();
   });
 
-  it("still refuses real betting in a restricted region, with the sheet open", async () => {
+  it("still refuses real betting in a restricted region", async () => {
     setViewport(390);
     stub(RESTRICTED);
     render(<Widget />);
     fireEvent.click(screen.getByRole("button", { name: /real money/i }));
     await selectMarket();
-    await screen.findByTestId("bet-sheet");
+    await screen.findByLabelText(/selected market/i);
 
     await waitFor(() => expect(screen.getByText(/close-only in the US/i)).toBeInTheDocument());
 
-    // The route to a real bet is closed by a DISABLED control, which is how
-    // 001 US-5 expresses the refusal — and why UX-3 exempts disabled controls
-    // from its keyboard-reachability criterion rather than making them focusable.
-    const review = screen.queryByRole("button", { name: /review bet/i });
-    if (review) expect(review).toBeDisabled();
+    // 005 / DR-1: the refusal is now the ABSENCE of an entry, not a disabled
+    // control — there is no outcome group, no amount field and no review button
+    // to reach, at any width.
+    expect(screen.queryByRole("group", { name: /choose an outcome/i })).toBeNull();
+    expect(screen.queryByLabelText(/amount/i)).toBeNull();
+    expect(screen.queryByRole("button", { name: /review bet/i })).toBeNull();
     expect(screen.queryByRole("dialog", { name: /confirm your bet/i })).toBeNull();
   });
 

@@ -13,7 +13,7 @@ const MARKET_REFRESH_MS = 30_000;
 import { fetchPrice } from "@/lib/polymarket/clob";
 import { AssistPanel } from "@/components/AssistPanel";
 import { BetPanel } from "@/components/BetPanel";
-import { BetSheet, useIsNarrow } from "@/components/BetSheet";
+import { SelectedMarketCard } from "@/components/SelectedMarketCard";
 import { RecommendPanel, type Recommendation } from "@/components/RecommendPanel";
 import { freshness } from "@/lib/ai/recommendation";
 import { DemoPositions } from "@/components/DemoPositions";
@@ -29,7 +29,6 @@ export function Widget() {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [geo, setGeo] = useState<GeoDecision | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<GroundedSuggestion[] | null>(null);
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
   const [recLoading, setRecLoading] = useState(false);
@@ -38,9 +37,9 @@ export function Widget() {
   const recRequest = useRef(0);
   const [recAt, setRecAt] = useState(0);
   const [now, setNow] = useState(0);
+  const railRef = useRef<HTMLDivElement>(null);
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [marketStale, setMarketStale] = useState(false);
-  const narrow = useIsNarrow();
 
   // Keep the selected market's price current (003 / AR-1). The list is a
   // query-scoped page, so a market leaving it says nothing about closure —
@@ -177,13 +176,6 @@ export function Widget() {
   const geoBlocked = geo !== null && !geo.bettingAllowed;
   const marketClosed = Boolean(market?.closed);
 
-  // AR-7: the bet entry leads only when it can actually be acted on. Every
-  // reason counts — region, market restriction, an unbuilt wallet — not just
-  // the regional one, since the shipped default is blocked on the wallet in
-  // every permitted region.
-  const betEntryActionable =
-    market !== null && !marketClosed && (mode === "demo" || availability.allowed);
-
   // An argument is bound to the price it was made from (003 / AR-1). Decided
   // here against the live market, so the panel cannot render a stale case.
   const recState =
@@ -223,7 +215,16 @@ export function Widget() {
     setSuggestions(null); // advice about OTHER markets goes too
     setMarket(next);
     setPreselected(outcome);
-    setSheetOpen(next !== null);
+
+    // 005 / DR-2 replaces the bottom sheet. The rail is first in document order,
+    // so at narrow width it is above the list the selection came from; bringing
+    // it into view is what the sheet used to do by overlaying instead.
+    if (next) {
+      requestAnimationFrame(() => {
+        // Optional-called: jsdom implements no layout and so no scrollIntoView.
+        railRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      });
+    }
   }
 
   async function requestRecommendation() {
@@ -295,8 +296,7 @@ export function Widget() {
     }
   }
 
-  // Built once and placed in exactly one of two containers, so there is never a
-  // second bet-entry surface (Art. II).
+  // Built once and mounted in exactly one place (Art. II, 005 / DR-1).
   const betPanel = (
     <BetPanel
       // mode is part of the identity: a stake chosen against a practice
@@ -318,9 +318,6 @@ export function Widget() {
       marketClosed={marketClosed}
     />
   );
-
-  // Rendered in exactly one position, chosen by actionability — never twice.
-  const betPanelSection = narrow ? null : betPanel;
 
   return (
     <div className="flex flex-col gap-6">
@@ -375,32 +372,27 @@ export function Widget() {
           // AR-5 requires this explanation not to move with it (001 US-5,
           // 002 VR-3).
           <p role="status" className="max-w-prose text-xs text-muted">
-            Real betting unavailable{geo?.country ? ` in ${geo.country}` : ""} — {geo?.reason}{" "}
-            Browsing, AI assistance and demo mode remain available.
+            {/* The server's reason already ends "You can still browse markets,
+                use AI assistance, and practise in demo mode" — appending our own
+                version said it twice, and cost two lines of a 390px screen. */}
+            Real betting unavailable{geo?.country ? ` in ${geo.country}` : ""} — {geo?.reason}
           </p>
         )}
       </div>
 
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <MarketList
-          selectedId={market?.id ?? null}
-          onSelect={(m) => selectMarket(m)}
-        />
+      {/* 005 / DR-2 — the rail comes FIRST in document order, so the phone
+          ordering falls out of the markup rather than needing a second
+          presentation. At lg it sits on the left. */}
+      <div className="grid gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
+        <div ref={railRef} data-testid="rail" className="flex scroll-mt-4 flex-col gap-4">
+          {/* One fixed order. No application state reorders these (DR-1). */}
+          <SelectedMarketCard market={market} onClear={() => selectMarket(null)} />
 
-        <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
-          {betEntryActionable && betPanelSection}
-
-          {market && marketStale && (
-            <p
-              role="status"
-              data-testid="market-stale"
-              className="rounded-control border border-line-strong bg-white/5 px-3 py-2 text-xs text-muted"
-            >
-              This market&rsquo;s price could not be refreshed just now, so the figures
-              below may be a little behind. It keeps trying every 30 seconds.
-            </p>
-          )}
+          {/* Order is fixed (DR-1); presence is not. With nothing selected the
+              card above already says to pick one, and a second card repeating it
+              pushed the first market row below the fold at 390px. */}
+          {market && betPanel}
 
           {market && (
             <RecommendPanel
@@ -415,31 +407,34 @@ export function Widget() {
             />
           )}
 
-          {market && (
-            <button
-              type="button"
-              onClick={() => selectMarket(null)}
-              className="min-h-11 rounded-control border border-line-strong px-3 text-xs text-muted hover:bg-white/5"
+          {market && marketStale && (
+            <p
+              role="status"
+              data-testid="market-stale"
+              className="rounded-control border border-line-strong bg-white/5 px-3 py-2 text-xs text-muted"
             >
-              Clear selection
-            </button>
+              This market&rsquo;s price could not be refreshed just now, so the figures
+              above may be a little behind. It keeps trying every 30 seconds.
+            </p>
           )}
 
+          <DemoPositions {...valuePositions(demo.positions, quotes, now)} />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {/* 005 / DR-4 — the finder lives where finding happens. */}
           <AssistPanel
             onUseSuggestion={handleUseSuggestion}
             suggestions={suggestions}
             onSuggestions={setSuggestions}
           />
 
-          {!betEntryActionable && betPanelSection}
-
-          <DemoPositions {...valuePositions(demo.positions, quotes, now)} />
+          <MarketList
+            selectedId={market?.id ?? null}
+            onSelect={(m) => selectMarket(m)}
+          />
         </div>
       </div>
-
-      <BetSheet open={narrow && sheetOpen && market !== null} onDismiss={() => setSheetOpen(false)}>
-        {betPanel}
-      </BetSheet>
     </div>
   );
 }

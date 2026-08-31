@@ -23,6 +23,9 @@ test("Load more is visible, tappable and appends a page", async ({ page }) => {
   await page.goto("/");
   const more = page.getByRole("button", { name: /load more/i });
 
+  // It sits at the end of the list by definition, so it legitimately needs
+  // scrolling to — unlike a required field, which must not.
+  await more.scrollIntoViewIfNeeded();
   await expectGenuinelyVisible(more, "load more");
   const box = await more.boundingBox();
   expect(box!.height, "load more: touch target").toBeGreaterThanOrEqual(44);
@@ -66,7 +69,7 @@ test("a demo position shows its cost and value without clipping", async ({ page 
   );
 
   await page.goto("/");
-  await page.getByRole("button", { name: /Tirante/i }).first().click();
+  await page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first().click();
   await page.getByRole("button", { name: /Tirante · 9%/i }).click();
   await page.getByLabel(/amount/i).fill("20");
   await page.getByRole("button", { name: /review bet/i }).click();
@@ -89,7 +92,7 @@ test("a demo position shows its cost and value without clipping", async ({ page 
 
 test("Escape closes the confirmation and returns focus", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: /Tirante/i }).first().click();
+  await page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first().click();
   await page.getByRole("button", { name: /Tirante · 9%/i }).click();
   await page.getByLabel(/amount/i).fill("20");
 
@@ -101,4 +104,22 @@ test("Escape closes the confirmation and returns focus", async ({ page }) => {
 
   await expect(page.getByRole("dialog", { name: /confirm your bet/i })).toBeHidden();
   await expect(review).toBeFocused();
+});
+
+test("the empty rail explains itself on desktop and costs nothing on a phone", async ({ page }, testInfo) => {
+  await page.goto("/");
+  const empty = page.getByRole("region", { name: /selected market/i });
+
+  if (testInfo.project.name === "desktop") {
+    // Beside the list it costs no vertical space, and an unexplained empty
+    // column is worse than one that says why it is empty.
+    await expectGenuinelyVisible(empty, "empty rail card");
+  } else {
+    // Above the list it costs the fold, which is the whole page on a phone.
+    await expect(empty).toBeHidden();
+  }
+
+  // Either way the first market row is reachable without scrolling.
+  const row = page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first();
+  await expectGenuinelyVisible(row, "first market row");
 });

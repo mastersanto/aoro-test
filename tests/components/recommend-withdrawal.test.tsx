@@ -4,7 +4,7 @@
  * anyway passes every unit test and still shows advice about a price that no
  * longer exists.
  */
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Widget } from "@/components/Widget";
 import { MAX_AGE_MS, PRICE_TOLERANCE } from "@/lib/ai/recommendation";
@@ -91,7 +91,10 @@ describe("a recommendation is withdrawn, not left to age", () => {
     byId = { ...market, closed: true };
     await advance(31_000);
 
-    expect(screen.getByText(/closed/i)).toBeInTheDocument();
+    // Scoped to the recommendation: since 005 the bet panel ALSO says the market
+    // closed, which is correct and would make an unscoped match ambiguous.
+    const panel = screen.getByLabelText(/outcome recommendation/i);
+    expect(within(panel).getByText(/closed/i)).toBeInTheDocument();
     expect(screen.queryByTestId("case-for")).not.toBeInTheDocument();
   });
 

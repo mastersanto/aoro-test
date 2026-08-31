@@ -110,9 +110,23 @@ describe("Article II — the recommendation never places a bet", () => {
 
 describe("what the recommendation must say about itself", () => {
   it("states which market it concerns", async () => {
+    // 005 / DR-3 states the market ONCE, in the rail's header card, which is
+    // sticky directly above this panel. The requirement — a recommendation is
+    // never read detached from its market — is unchanged; what carries it moved.
+    // The appearance suite asserts the two are on screen together, which jsdom
+    // cannot judge because it performs no layout.
     await selectAndRecommend();
-    const panel = within(screen.getByTestId("recommendation"));
-    expect(panel.getByText(new RegExp(market.question.slice(0, 20), "i"))).toBeInTheDocument();
+    const rail = within(screen.getByTestId("rail"));
+
+    const header = rail.getByLabelText(/selected market/i);
+    expect(within(header).getByText(market.question)).toBeInTheDocument();
+
+    // and the recommendation sits inside the same rail, below it.
+    const rec = screen.getByTestId("recommendation");
+    expect(screen.getByTestId("rail").contains(rec)).toBe(true);
+    expect(
+      header.compareDocumentPosition(rec) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("is attributed as an opinion about prices, not a prediction", async () => {

@@ -10,7 +10,7 @@ test("a market row keeps every field the card carried", async ({ page }) => {
   await stubApi(page);
   await page.goto("/");
 
-  const row = page.getByRole("button", { name: /Tirante/i }).first();
+  const row = page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first();
   await expectGenuinelyVisible(row, "market row");
 
   const text = (await row.textContent()) ?? "";
@@ -32,7 +32,7 @@ test("the selected row is distinguishable by more than colour", async ({ page })
   await stubApi(page);
   await page.goto("/");
 
-  const row = page.getByRole("button", { name: /Tirante/i }).first();
+  const row = page.getByRole("region", { name: "Markets" }).getByRole("button", { name: /Tirante/i }).first();
   await expect(row).toHaveAttribute("aria-pressed", "false");
   await row.click();
   // An accessible state, not only a border colour (VR-1).

@@ -144,7 +144,16 @@ describe("Article II — the confirmation step", () => {
       />,
     );
     expect(screen.getByText(/not available in your region/i)).toBeInTheDocument();
-    for (const el of screen.getAllByRole("button")) fireEvent.click(el);
+
+    // Since 005 / DR-1 a bet entry that cannot be acted on renders no controls at
+    // all, so there is nothing left to press. Assert that directly AND still
+    // sweep whatever buttons exist — the sweep is what makes this a bypass check
+    // rather than a description.
+    expect(screen.queryByRole("group", { name: /choose an outcome/i })).toBeNull();
+    expect(screen.queryByLabelText(/amount/i)).toBeNull();
+    expect(screen.queryByRole("button", { name: /review bet/i })).toBeNull();
+
+    for (const el of screen.queryAllByRole("button")) fireEvent.click(el);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(onPlace).not.toHaveBeenCalled();
   });
