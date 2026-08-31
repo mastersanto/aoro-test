@@ -15,6 +15,7 @@ import { AssistPanel } from "@/components/AssistPanel";
 import { BetPanel } from "@/components/BetPanel";
 import { BetSheet, useIsNarrow } from "@/components/BetSheet";
 import { RecommendPanel, type Recommendation } from "@/components/RecommendPanel";
+import { freshness } from "@/lib/ai/recommendation";
 import { DemoPositions } from "@/components/DemoPositions";
 import { MarketList } from "@/components/MarketList";
 import { formatUsdPrecise } from "@/lib/format";
@@ -34,6 +35,8 @@ export function Widget() {
   const [recError, setRecError] = useState<string | null>(null);
   const [withheldReason, setWithheldReason] = useState<string | null>(null);
   const recRequest = useRef(0);
+  const [recAt, setRecAt] = useState(0);
+  const [, setClockTick] = useState(0);
   const narrow = useIsNarrow();
 
   // Keep the selected market's price current (003 / AR-1). The list is a
@@ -64,6 +67,14 @@ export function Widget() {
       clearInterval(repeat);
     };
   }, [selectedId]);
+
+  // A recommendation must age out even when nothing else changes on screen, so
+  // expiry cannot depend on an incidental re-render.
+  useEffect(() => {
+    if (!recommendation) return;
+    const t = setInterval(() => setClockTick((n) => n + 1), 15_000);
+    return () => clearInterval(t);
+  }, [recommendation]);
 
   // Ask the server whether real betting may be offered here (US-5). The effect
   // only subscribes; state is set in the async continuation.
@@ -102,6 +113,27 @@ export function Widget() {
   });
   const geoBlocked = geo !== null && !geo.bettingAllowed;
   const marketClosed = Boolean(market?.closed);
+
+  // An argument is bound to the price it was made from (003 / AR-1). Decided
+  // here against the live market, so the panel cannot render a stale case.
+  const recState =
+    recommendation && market
+      ? freshness({
+          arguedAtPrice: recommendation.arguedAtPrice,
+          currentPrice: market.outcomes.find((o) => o.tokenId === recommendation.favouredTokenId)?.price,
+          createdAt: recAt,
+          now: Date.now(),
+          marketClosed,
+        })
+      : "fresh";
+  const withdrawnReason =
+    recState === "fresh"
+      ? null
+      : recState === "closed"
+        ? "This market has closed, so this view no longer applies."
+        : recState === "expired"
+          ? "This view is out of date — prices have moved on since it was written."
+          : "The price has moved since this was written, so it no longer matches the market.";
 
   /**
    * Article II: using a suggestion only fills in the form. It selects the market
@@ -143,7 +175,10 @@ export function Widget() {
 
       if (!res.ok) setRecError(body.error ?? "AI assistance is briefly unavailable.");
       else if (body.withheld) setWithheldReason(body.reason ?? "No view to offer.");
-      else setRecommendation(body.recommendation ?? null);
+      else {
+        setRecommendation(body.recommendation ?? null);
+        setRecAt(Date.now());
+      }
     } catch {
       if (id === recRequest.current) setRecError("Could not reach the server. Please try again.");
     } finally {
@@ -261,6 +296,7 @@ export function Widget() {
               loading={recLoading}
               error={recError}
               withheldReason={withheldReason}
+              withdrawnReason={withdrawnReason}
               onRequest={requestRecommendation}
               onUse={(outcome) => setPreselected(outcome)}
             />

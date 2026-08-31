@@ -44,5 +44,9 @@ export function freshness({
     return "stale";
   }
 
-  return Math.abs(currentPrice - arguedAtPrice) > PRICE_TOLERANCE ? "stale" : "fresh";
+  // Compared with an epsilon: prices are floats, and 0.09 + 0.02 is
+  // 0.11000000000000001, so an exact comparison withdraws a recommendation
+  // that is precisely at the tolerance the spec says is still fresh.
+  const drift = Math.abs(currentPrice - arguedAtPrice);
+  return drift > PRICE_TOLERANCE + 1e-9 ? "stale" : "fresh";
 }

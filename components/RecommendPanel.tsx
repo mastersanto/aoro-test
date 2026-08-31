@@ -25,7 +25,7 @@ export function RecommendPanel({
   loading,
   error,
   withheldReason,
-  staleReason,
+  withdrawnReason,
   onRequest,
   onUse,
 }: {
@@ -34,8 +34,10 @@ export function RecommendPanel({
   loading?: boolean;
   error?: string | null;
   withheldReason?: string | null;
-  /** Set when the argument no longer matches the live price. */
-  staleReason?: string | null;
+  /** Set when the argument no longer matches the live market. The argument is
+   *  then removed rather than annotated — an argument about a price that no
+   *  longer exists is not a weaker argument, it is the wrong one. */
+  withdrawnReason?: string | null;
   onRequest: () => void;
   onUse: (outcome: Outcome) => void;
 }) {
@@ -73,13 +75,14 @@ export function RecommendPanel({
         </p>
       )}
 
-      {recommendation && favoured && (
+      {recommendation && favoured && withdrawnReason && (
+        <p role="alert" className="mt-3 rounded-control bg-demo/10 px-3 py-2 text-xs text-demo">
+          {withdrawnReason}
+        </p>
+      )}
+
+      {recommendation && favoured && !withdrawnReason && (
         <div data-testid="recommendation" className="mt-3 flex flex-col gap-3">
-          {staleReason && (
-            <p role="alert" className="rounded-control bg-demo/10 px-3 py-2 text-xs text-demo">
-              {staleReason}
-            </p>
-          )}
 
           <p className="text-xs text-dim">
             About: <span className="text-muted">{market.question}</span>
@@ -116,15 +119,13 @@ export function RecommendPanel({
             prediction, and you decide every bet.
           </p>
 
-          {!staleReason && (
-            <button
-              type="button"
-              onClick={() => onUse(favoured)}
-              className="min-h-11 rounded-control border border-up/40 px-3 text-xs font-medium text-up hover:bg-up/10"
-            >
-              Use this — fills the bet form
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => onUse(favoured)}
+            className="min-h-11 rounded-control border border-up/40 px-3 text-xs font-medium text-up hover:bg-up/10"
+          >
+            Use this — fills the bet form
+          </button>
         </div>
       )}
     </section>
