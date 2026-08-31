@@ -24,8 +24,10 @@ const SUGGESTION_SCHEMA = {
     required: ["suggestions"],
     properties: {
       suggestions: {
+        // No maxItems: the structured-output schema validator rejects it on
+        // arrays. The cap is enforced by the system prompt and, authoritatively,
+        // by groundSuggestions() before anything reaches the client.
         type: "array",
-        maxItems: MAX_SUGGESTIONS,
         items: {
           type: "object",
           additionalProperties: false,

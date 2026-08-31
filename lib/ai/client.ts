@@ -19,7 +19,7 @@ export function getAnthropic(): Anthropic {
   // workspace) are rejected with a 400 unless the request names the workspace
   // it acts in. Workspace-scoped keys ignore the header, so sending it when
   // configured is safe either way.
-  const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID;
+  const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID?.trim();
 
   return new Anthropic({
     apiKey,
