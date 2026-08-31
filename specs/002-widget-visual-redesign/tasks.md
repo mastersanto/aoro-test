@@ -55,7 +55,7 @@ Sequencing: the gate comes first, because a gate written after the work it judge
 
 ## Phase 6 — Mobile (VR-4)
 
-- [ ] T12. **RED** — failing tests for the mobile bet-sheet state machine: opens on selecting a market at narrow widths; dismisses without placing anything; does not mount at desktop width; renders the same `BetPanel` so `onPlace` keeps its single call site; no second confirmation component exists. Plus a visual check that **bet entry is reachable without scrolling past the whole market list** at 390.
+- [x] T12. **RED** — failing tests for the mobile bet-sheet state machine: opens on selecting a market at narrow widths; dismisses without placing anything; does not mount at desktop width; renders the same `BetPanel` so `onPlace` keeps its single call site; no second confirmation component exists. Plus a visual check that **bet entry is reachable without scrolling past the whole market list** at 390.
       Verify: `npm test` fails on those assertions, and the reachability check fails against a layout that buries the panel below the list.
 - [ ] T13. **GREEN** — implement the sheet until T12 passes and every 390px check from T2/T3 is green.
       Verify: `npm test` green; visual suite green at 390 including 44px and no horizontal scroll; the Art. II bypass tests untouched.
