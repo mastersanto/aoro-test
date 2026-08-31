@@ -6,13 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Polymarket Widget — a web widget that lets a user browse Polymarket prediction markets, get AI assistance choosing a market and outcome, and place a bet. Target deployment: Vercel (primary; the planned stack is Next.js, which Vercel hosts natively — Netlify is the fallback).
 
-## Current state: all six features complete and deployed; the widget is demo-only
+## Current state: all seven features complete and deployed; the widget is demo-only
 
 This repository practices Spec-Driven Development (SDD). All work flows through specs before implementation. **Do not write application code for a feature until its `spec.md`, `plan.md`, and `tasks.md` are complete and approved by the user** — the PreToolUse hook enforces this mechanically.
 
 Every feature is through its gates and implemented. There is no in-flight task list; new work starts at `/spec`.
 
 Shipped at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), geo gating (US-5), the feature-002 visual redesign, feature 003's scoped outcome recommendation, feature 004's pagination, ordering, keyboard operation, position valuation and error recovery, and feature 005's decision rail.
+
+**The widget opens with a market already selected** (feature 007) — the market only. Any change near that path must keep the outcome and amount untouched, open no confirmation and request no recommendation; those are asserted directly, not argued. Note the once-only guard uses a **ref**, not state: the callback can be created in a render where state was still null and fire after it changed, so a state read there is stale by construction.
 
 **Vertical space above the market list is a budget with about 38px spare at 390px** (feature 006). Two market rows must stay fully visible on entry, asserted in the appearance suite; anything new added above the list spends from that margin. Note also that the grid children carry `min-w-0` deliberately — without it a child's intrinsic width scrolls the whole document sideways at 390px, which shipped unnoticed for a whole feature.
 

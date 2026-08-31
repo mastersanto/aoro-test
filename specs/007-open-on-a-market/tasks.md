@@ -1,6 +1,10 @@
 # Tasks 007 — Open on a market
 
-**Status:** Approved 2026-08-31
+**Status:** Complete 2026-08-31 — 6/6.
+
+**Mutation results (T5), each verified to have applied:** preselecting an outcome
+alongside the market reddens 1 (the Article II assertion); letting the automatic
+selection scroll reddens 2; removing the once-only guard reddens 1.
 **Plan:** ./plan.md
 
 - [x] T1. **RED** — failing tests: on load a market is selected and the bet form is
@@ -19,11 +23,11 @@
 - [x] T4. **(exempt — styling and layout)** Re-check `006 LE-1` with a populated rail:
       two market rows still fully visible at both viewports, and no horizontal scroll.
       Verify: `npm run test:visual` passes.
-- [ ] T5. **(not binding — verification)** Mutations: preselect an outcome as well as
+- [x] T5. **(not binding — verification)** Mutations: preselect an outcome as well as
       the market; let the automatic selection scroll; let it re-fire after a clear.
       Each must redden exactly the expected test.
       Verify: each reddens as expected; reverting returns to green.
-- [ ] T6. **(not binding — documentation)** Update `README.md`, `CLAUDE.md`, and the
+- [x] T6. **(not binding — documentation)** Update `README.md`, `CLAUDE.md`, and the
       `005` spec's D2 note, which recorded the empty rail as an accepted cost.
       Verify: `bash scripts/sdd-lint.sh` passes; `npm run verify` green.
 

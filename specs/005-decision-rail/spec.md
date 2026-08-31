@@ -127,7 +127,9 @@ Binding, written test-first:
   market is chosen the rail is the task while the list becomes navigation.
 - **D2 — The rail is always mounted, with a real empty state.** The alternative —
   showing it only after selection — reflows the whole page on the first click, and a
-  stable frame is worth more than a slightly empty one.
+  stable frame is worth more than a slightly empty one. *(The cost this accepted — an
+  empty rail on every first load — is paid by `007 OM-1`, which opens on a market.
+  The empty state remains for the case reached by clearing.)*
 - **D3 — Bet above advisor, not below.** The bet is the task; the advisor is help you
   may consult. Putting help first implies it is a step you owe.
 - **D4 — The sheet goes rather than being kept alongside.** Two presentations of one
