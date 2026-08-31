@@ -160,3 +160,51 @@ describe("GET /api/markets — search pagination (004 / UX-1)", () => {
     expect(searchMarkets).toHaveBeenLastCalledWith("trump", expect.any(Number), 1);
   });
 })
+
+describe("search skips pages that hold no open markets (found in production)", () => {
+  it("keeps reading until it has something to show", async () => {
+    // /public-search returns events whose nested markets are often all closed:
+    // for "bitcoin", pages 2 and 3 contain zero open markets and page 4 has 11.
+    // Returning an empty page makes "Load more" append nothing while still
+    // saying more exist — the control looks broken.
+    vi.mocked(searchMarkets)
+      .mockResolvedValueOnce({ markets: [], hasMore: true })
+      .mockResolvedValueOnce({ markets: [], hasMore: true })
+      .mockResolvedValueOnce({ markets, hasMore: true });
+
+    const body = await (await call("http://localhost/api/markets?q=bitcoin")).json();
+
+    expect(body.markets).toHaveLength(markets.length);
+    expect(searchMarkets).toHaveBeenCalledTimes(3);
+  });
+
+  it("reports the page it actually reached, so the next request continues from there", async () => {
+    vi.mocked(searchMarkets)
+      .mockResolvedValueOnce({ markets: [], hasMore: true })
+      .mockResolvedValueOnce({ markets, hasMore: true });
+
+    const body = await (await call("http://localhost/api/markets?q=bitcoin")).json();
+    expect(body.nextCursor).toBe("3");
+  });
+
+  it("stops when the exchange says there are no more pages", async () => {
+    vi.mocked(searchMarkets)
+      .mockResolvedValueOnce({ markets: [], hasMore: true })
+      .mockResolvedValueOnce({ markets: [], hasMore: false });
+
+    const body = await (await call("http://localhost/api/markets?q=bitcoin")).json();
+    expect(body.markets).toEqual([]);
+    expect(body.nextCursor).toBeNull();
+    expect(searchMarkets).toHaveBeenCalledTimes(2);
+  });
+
+  it("gives up after a bounded number of pages rather than scanning forever", async () => {
+    vi.mocked(searchMarkets).mockResolvedValue({ markets: [], hasMore: true });
+
+    const body = await (await call("http://localhost/api/markets?q=bitcoin")).json();
+
+    expect(vi.mocked(searchMarkets).mock.calls.length).toBeLessThanOrEqual(6);
+    // Still advertises more, because there genuinely are more — just none here.
+    expect(body.nextCursor).not.toBeNull();
+  });
+})

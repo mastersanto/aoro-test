@@ -184,6 +184,16 @@ gates. Each story lands whole before the next begins.
       Verify: `npm test` reports no unhandled rejection; the new test fails if the
       `catch` is removed.
 
+- [x] T26. **(found by verifying the deployment, not by the suite)** `/public-search`
+      returns events whose nested markets are frequently all resolved: for
+      "bitcoin", pages 2 and 3 contain zero open markets and page 4 has eleven.
+      "Load more" therefore appended nothing while still advertising more — the
+      control behaved correctly and looked broken. `/api/markets` now skips
+      empty pages, bounded at five reads, and reports the page it reached so the
+      next request continues from there.
+      Verify: `curl '<deployment>/api/markets?q=bitcoin&cursor=2'` returns open
+      markets rather than an empty array.
+
 ## Approval
 
 - [x] Task list approved by user (required before `/implement`) — 2026-08-31

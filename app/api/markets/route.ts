@@ -27,17 +27,39 @@ export function resetMarketCache(): void {
   cache.clear();
 }
 
+/** How many upstream search pages one request may read before giving up. */
+const MAX_SEARCH_PAGES = 5;
+
 /**
  * Search and browse paginate differently upstream — a page number and a keyset
  * cursor. The client holds one opaque `nextCursor` either way; translating is
  * this route's job, so the list needs no branch of its own (004 / UX-1).
+ *
+ * Pages that hold no OPEN markets are skipped. `/public-search` returns events
+ * whose nested markets are frequently all resolved — for "bitcoin", pages 2 and
+ * 3 contain zero open markets and page 4 has eleven (observed in production).
+ * Returning such a page verbatim makes "Load more" append nothing while still
+ * advertising more, so the control looks broken while behaving correctly.
+ *
+ * Bounded, because "keep looking until you find something" against a
+ * 123,000-result query is not a request this route may make on a user's behalf.
  */
 async function searchPage(query: string, limit: number, cursor?: string): Promise<Payload> {
   const parsed = Number(cursor);
-  const page = Number.isInteger(parsed) && parsed > 1 ? parsed : 1;
+  let page = Number.isInteger(parsed) && parsed > 1 ? parsed : 1;
 
-  const { markets, hasMore } = await searchMarkets(query, limit, page);
-  return { markets, nextCursor: hasMore ? String(page + 1) : null };
+  for (let read = 0; read < MAX_SEARCH_PAGES; read += 1) {
+    const { markets, hasMore } = await searchMarkets(query, limit, page);
+
+    if (markets.length > 0 || !hasMore) {
+      return { markets, nextCursor: hasMore ? String(page + 1) : null };
+    }
+    page += 1;
+  }
+
+  // Nothing open in the pages we read, but the exchange still has more. Say so
+  // rather than claiming the search is exhausted.
+  return { markets: [], nextCursor: String(page) };
 }
 
 function clampLimit(raw: string | null): number {
