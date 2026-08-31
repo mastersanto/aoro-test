@@ -58,7 +58,7 @@ describe("the compliance surface stays keyboard-reachable (Art. V)", () => {
     stub(RESTRICTED);
     render(<Widget />);
     await selectMarket();
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     const demo = screen.getByRole("button", { name: /^Demo$/i });
     demo.focus();
@@ -74,7 +74,7 @@ describe("the compliance surface stays keyboard-reachable (Art. V)", () => {
     stub(RESTRICTED);
     render(<Widget />);
     await selectMarket();
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     const explanation = await screen.findByText(/close-only in the US/i);
     expect(explanation).toBeVisible();
@@ -86,7 +86,7 @@ describe("the compliance surface stays keyboard-reachable (Art. V)", () => {
     render(<Widget />);
     fireEvent.click(screen.getByRole("button", { name: /real money/i }));
     await selectMarket();
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     await waitFor(() => expect(screen.getByText(/close-only in the US/i)).toBeInTheDocument());
 

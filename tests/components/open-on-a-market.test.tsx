@@ -19,12 +19,14 @@ let geo: unknown = { country: "BR", bettingAllowed: true };
 let served = markets;
 let scrolled = 0;
 let recommendCalls = 0;
+let searchRequests = 0;
 
 beforeEach(() => {
   geo = { country: "BR", bettingAllowed: true };
   served = markets;
   scrolled = 0;
   recommendCalls = 0;
+  searchRequests = 0;
   // jsdom has no layout; count calls so "does not scroll" is observable.
   Element.prototype.scrollIntoView = function () {
     scrolled += 1;
@@ -40,7 +42,10 @@ beforeEach(() => {
       recommendCalls += 1;
       return ok({ withheld: true, reason: "No view." });
     }
-    if (u.includes("/api/markets")) return ok({ markets: served, nextCursor: null, stale: false });
+    if (u.includes("/api/markets")) {
+      if (u.includes("q=")) searchRequests += 1;
+      return ok({ markets: served, nextCursor: null, stale: false });
+    }
     return ok({ price: "0.09" });
   }));
 });
@@ -54,8 +59,15 @@ describe("OM-1 — a market is ready on arrival", () => {
   it("selects the first market so the bet form is usable with no further click", async () => {
     render(<Widget />);
 
-    const header = await screen.findByLabelText(/selected market/i);
-    expect(within(header).getByText(first.question)).toBeInTheDocument();
+    // Waits for the SELECTION, not the region. The empty state carries the same
+    // accessible name, so findByLabelText resolves against it immediately and the
+    // assertion then races the market fetch — which is exactly how this flaked
+    // under full-suite load while passing when run alone.
+    await waitFor(() =>
+      expect(
+        within(screen.getByLabelText(/selected market/i)).getByText(first.question),
+      ).toBeInTheDocument(),
+    );
 
     expect(await screen.findByRole("group", { name: /choose an outcome/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/amount/i)).toBeInTheDocument();
@@ -133,9 +145,9 @@ describe("OM-1 — it happens once", () => {
     await waitFor(() =>
       expect(screen.queryByRole("group", { name: /choose an outcome/i })).toBeNull(),
     );
-    // and stays cleared while the list keeps refreshing.
-    await new Promise((r) => setTimeout(r, 50));
-    expect(screen.queryByRole("group", { name: /choose an outcome/i })).toBeNull();
+    // The waitFor above already established it; re-asserting after a fixed sleep
+    // added a wall-clock race and no coverage.
+    expect(screen.queryByTestId("rail")).toBeInTheDocument();
   });
 
   it("does not re-select when the search changes", async () => {
@@ -146,7 +158,10 @@ describe("OM-1 — it happens once", () => {
 
     fireEvent.change(screen.getByLabelText(/search markets/i), { target: { value: "fed" } });
 
-    await new Promise((r) => setTimeout(r, 400));
+    // Waits for the debounced search to actually reach the server. A fixed sleep
+    // just past the 300ms debounce passes on an idle machine and flakes under
+    // load, which is how this suite flaked once during `npm run verify`.
+    await waitFor(() => expect(searchRequests).toBeGreaterThan(0), { timeout: 5000 });
     expect(screen.queryByRole("group", { name: /choose an outcome/i })).toBeNull();
   });
 });
@@ -157,7 +172,7 @@ describe("OM-1 / Article V — a default selection changes no refusal", () => {
     render(<Widget />);
     fireEvent.click(screen.getByRole("button", { name: /real money/i }));
 
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
     await waitFor(() => expect(screen.getByText(/close-only here/i)).toBeInTheDocument());
 
     expect(screen.queryByRole("group", { name: /choose an outcome/i })).toBeNull();
@@ -170,7 +185,7 @@ describe("OM-1 / Article V — a default selection changes no refusal", () => {
     render(<Widget />);
     fireEvent.click(screen.getByRole("button", { name: /real money/i }));
 
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
     await waitFor(() =>
       expect(screen.queryByRole("group", { name: /choose an outcome/i })).toBeNull(),
     );

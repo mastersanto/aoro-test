@@ -33,6 +33,7 @@ Three patterns, each of which shipped at least once here. They are worth more th
 1. **A test that asserts something *adjacent* to the requirement.** A refresh rewound the pagination cursor while 339 tests passed, because the RED task asserted the rows were kept and never asserted the cursor. A restatement of the market question slipped past a matcher that only matched an exact text node. Before trusting a green suite, check that each test names the thing it is for.
 2. **A mock that preserves a contract production has stopped honouring.** `searchMarkets` changed shape and the assist route silently lost every searched candidate; every mocked test stayed green. The first Gamma fixture was fabricated and keyed the payload wrongly, so the whole app would have returned zero markets with a green suite.
 3. **A mutation that does not actually apply.** An ineffective mutation and a real pass look identical from the summary line. Assert that the edit landed before believing the result — this has produced a false "proven" more than once.
+4. **A wait that is not a wait.** `findByLabelText(/selected market/i)` resolved instantly against the card's EMPTY state, so the assertion after it raced the market fetch: green when run alone, red under full-suite load. The populated card now carries `data-testid="selected-market"` so "wait until something is selected" is expressible. When a test needs to wait for a state, wait on something that only exists in that state — and never on a fixed sleep.
 
 ## SDD workflow
 

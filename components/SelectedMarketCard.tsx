@@ -34,6 +34,11 @@ export function SelectedMarketCard({
   return (
     <section
       aria-label="Selected market"
+      // Present only when a market IS selected. The empty state above carries the
+      // same accessible name — correct, since both are the selected-market
+      // region — which makes "wait until something is selected" inexpressible by
+      // label alone. Tests wait on this instead.
+      data-testid="selected-market"
       // Sticky within the rail: it is the single statement of the market
       // (DR-3), so everything below it — the bet, the advisor — must be readable
       // WITH it in view. Dropping the advisor's own "About:" line only works if

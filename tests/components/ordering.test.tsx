@@ -181,7 +181,7 @@ describe("DR-3 — the market is stated once", () => {
   it("shows the question exactly once in the rail", async () => {
     render(<Widget />);
     await selectMarket();
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     // Counted over the rail's TEXT, not by element matching. getAllByText with a
     // string is an exact per-element match, so it misses a restatement wrapped in

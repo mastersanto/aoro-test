@@ -52,7 +52,7 @@ describe("narrow width mounts no overlay", () => {
     setViewport(390);
     render(<Widget />);
     await selectMarket();
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     // The sheet is gone; nothing covers the page it came from.
     expect(screen.queryByTestId("bet-sheet")).toBeNull();
@@ -75,7 +75,7 @@ describe("narrow width mounts no overlay", () => {
     setViewport(390);
     render(<Widget />);
     await selectMarket();
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     expect(screen.getAllByLabelText(/place a demo bet/i)).toHaveLength(1);
     expect(screen.getAllByRole("group", { name: /choose an outcome/i })).toHaveLength(1);
@@ -122,7 +122,7 @@ describe("desktop keeps the same single entry", () => {
     setViewport(1280);
     render(<Widget />);
     await selectMarket();
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     expect(screen.queryByTestId("bet-sheet")).toBeNull();
     expect(screen.getAllByRole("group", { name: /choose an outcome/i })).toHaveLength(1);

@@ -126,7 +126,7 @@ describe("the confirmation is the only modal (005 / DR-2)", () => {
 
     const row = await screen.findByRole("heading", { name: /Tirante/i });
     fireEvent.click(row.closest('[role="button"]')!);
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -139,7 +139,7 @@ describe("the confirmation is the only modal (005 / DR-2)", () => {
 
     const row = await screen.findByRole("heading", { name: /Tirante/i });
     fireEvent.click(row.closest('[role="button"]')!);
-    await screen.findByLabelText(/selected market/i);
+    await screen.findByTestId("selected-market");
 
     const demoToggle = screen.getByRole("button", { name: /^Demo$/i });
     demoToggle.focus();
