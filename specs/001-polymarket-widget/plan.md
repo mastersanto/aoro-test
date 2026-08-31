@@ -12,7 +12,7 @@ Polymarket API facts referenced below were verified against docs.polymarket.com 
 | **Next.js (App Router) + TypeScript**, deployed on **Vercel** | Pre-decided in CLAUDE.md; server routes keep secrets server-side (Art. IV); single page (spec D1) is one route |
 | **Tailwind CSS** | Fast, dependency-light styling for a one-page UI; no runtime dependency (Art. VI: smallest set) |
 | **`@anthropic-ai/sdk`** (server only) | AI-assisted predictions (US-4); Art. IV |
-| **`@polymarket/client`** (official Polymarket TS SDK) | Order placement + prices (US-2); current SDK per Polymarket docs (the older `@polymarket/clob-client` is legacy) |
+| **`@polymarket/client`** (official Polymarket TS SDK) | Order construction and signing (US-2), introduced in Phase 6 where it is actually needed; current SDK per Polymarket docs (the older `@polymarket/clob-client` is legacy). Read-only price access uses plain fetch — see Amendment 4 |
 | **wagmi + viem** | Wallet connect and signing (US-2, spec D3); viem signer plugs directly into `@polymarket/client`'s `createSecureClient` |
 | **No database, no server-side user state** | Spec out-of-scope; demo balance is per-session client state (US-3) |
 | **ESLint** (`eslint`, `eslint-config-next`) | The lint gate in every task's Verify line and in CI; ships with the Next TypeScript template |
@@ -83,6 +83,8 @@ These corrections were mandated by constitution audits of tasks.md on 2026-08-31
 1. **Vitest added to the stack (Art. VI).** Constitution Article VII was adopted after this plan was approved, so the test runner every RED/GREEN task depends on was untraced.
 2. **DOM test tooling added (Art. VI).** The Article II/V invariants are component-level, so jsdom and `@testing-library/react` join Vitest; a bare runner cannot assert that the confirmation renders five fields.
 3. **pUSD allowance/approval handled in-widget (Art. I).** No task implemented the ERC-20 approval transaction, so a first-time funded user could not complete US-2 ("Success shows the resulting position"). The US-2 data flow now includes detect → approve → retry, with tasks to match.
+
+4. **Read-only CLOB prices use plain fetch, not the SDK (Art. VI).** `/price`, `/midpoint`, and `/book` are three unauthenticated GETs (verified live). `@polymarket/client` is v0.x with eight transitive dependencies, and its value is order construction and signing — so it now enters in Phase 6 (T27) rather than Phase 3, keeping the dependency set minimal. `lib/polymarket/clob.ts` is the single wrapper either way, so Risk 4's containment still holds.
 
 ## Approval
 

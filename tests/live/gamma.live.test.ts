@@ -41,3 +41,22 @@ describe("Gamma (live)", () => {
     expect(results.length).toBeGreaterThan(0);
   }, 30_000);
 });
+
+describe("CLOB read-only (live)", () => {
+  it("returns a usable buy price, midpoint and book for a live token", async () => {
+    const { fetchBook, fetchMidpoint, fetchPrice } = await import("@/lib/polymarket/clob");
+    const page = await fetchMarkets({ limit: 1 });
+    const tokenId = page.markets[0].outcomes[0].tokenId;
+
+    const price = await fetchPrice(tokenId, "buy");
+    expect(price).toBeGreaterThan(0);
+    expect(price).toBeLessThanOrEqual(1);
+
+    const mid = await fetchMidpoint(tokenId);
+    expect(mid).toBeGreaterThan(0);
+
+    const book = await fetchBook(tokenId);
+    expect(Array.isArray(book.bids)).toBe(true);
+    expect(Array.isArray(book.asks)).toBe(true);
+  }, 30_000);
+});
