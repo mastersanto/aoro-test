@@ -2,7 +2,9 @@
 
 A web widget for browsing Polymarket prediction markets, getting AI assistance choosing a market and outcome, and placing a bet — with the user's own wallet, after explicit confirmation.
 
-**Status:** feature 001 under implementation. Spec, plan, and task list are approved; the Next.js scaffold and test harness are in place (Phase 1 of 7). Progress lives in `specs/001-polymarket-widget/tasks.md`.
+**Status:** feature 001 under implementation — Phases 1-5 of 7 complete, 110 tests passing.
+
+Working today: browse and search live markets, AI-assisted suggestions grounded in real market data, and full demo betting with a practice balance. Real-money betting (Phase 6) is not enabled yet — it is blocked on a pUSD approval spike that needs a funded wallet in a non-restricted region. Progress lives in `specs/001-polymarket-widget/tasks.md`.
 
 ## How this repo works
 
