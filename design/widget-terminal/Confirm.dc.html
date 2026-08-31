@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #07090D; font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif; }
+    a { color: #3DDC97; } a:hover { color: #6BEBB4; }
+  </style>
+</helmet>
+<div style="width: 560px; height: 720px; background: #07090D; display: flex; align-items: center; justify-content: center">
+  <div style="width: 420px; background: #10141C; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; color: #E8ECF3; box-shadow: 0 24px 64px rgba(0,0,0,0.6)">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <span style="font-size: 15px; font-weight: 700">Confirm your bet</span>
+      <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; background: rgba(255,197,61,0.16); color: #FFC53D; border-radius: 4px; padding: 4px 8px">DEMO — NO REAL MONEY MOVES</span>
+    </div>
+
+    <span style="font-size: 14px; line-height: 1.45; color: #C7CEDA">Will Bitcoin reach $80,000 in August?</span>
+
+    <div style="display: flex; flex-direction: column; gap: 0; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02)">
+        <span style="font-size: 12px; color: #9AA3B2">Outcome</span>
+        <span style="font-size: 13px; font-weight: 600; color: #3DDC97">Yes</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.06)">
+        <span style="font-size: 12px; color: #9AA3B2">Amount</span>
+        <span style="font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 13px; font-variant-numeric: tabular-nums">$90.00</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.06)">
+        <span style="font-size: 12px; color: #9AA3B2">Price</span>
+        <span style="font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 13px; font-variant-numeric: tabular-nums">19%</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.06)">
+        <span style="font-size: 12px; color: #9AA3B2">Shares</span>
+        <span style="font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 13px; font-variant-numeric: tabular-nums">473.68</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: rgba(61,220,151,0.08); border-top: 1px solid rgba(61,220,151,0.25)">
+        <span style="font-size: 12px; font-weight: 600; color: #9AA3B2">Estimated payout</span>
+        <span style="font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 16px; font-weight: 700; color: #3DDC97; font-variant-numeric: tabular-nums">$473.68</span>
+      </div>
+    </div>
+
+    <span style="font-size: 11px; line-height: 1.5; color: #6B7484">Estimates use the current price and may move before the order fills.</span>
+
+    <div style="display: flex; gap: 10px">
+      <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; height: 44px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); font-size: 13px; color: #C7CEDA">Cancel</div>
+      <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; height: 44px; border-radius: 8px; background: #3DDC97; color: #06251A; font-size: 13px; font-weight: 700">Place bet</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

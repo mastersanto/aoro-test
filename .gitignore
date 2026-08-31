@@ -24,6 +24,10 @@ coverage/
 next-env.d.ts
 .eslintcache
 
+# Seeded design-canvas output (2.5MB generated page; rebuilt from the .dc.html
+# sources beside it and already hosted as the shared artifact)
+design/**/polymarket-widget-terminal.html
+
 # Editor/OS noise
 .DS_Store
 *.log
