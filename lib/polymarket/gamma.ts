@@ -155,3 +155,33 @@ export async function searchMarkets(query: string, limit = 20): Promise<Market[]
   const direct = Array.isArray(body.markets) ? body.markets : [];
   return normalizeAll([...fromEvents, ...direct]).filter((m) => !m.closed);
 }
+
+/**
+ * One market by id. The keyset list cannot answer "is this market closed?" —
+ * it is query-scoped and sends `closed=false`, so absence from it conflates
+ * "filtered out" with "closed". This endpoint carries the authoritative flag
+ * (verified 2026-08-31; see the polymarket-api skill).
+ *
+ * Returns null when the market does not exist; throws when upstream fails, so a
+ * caller can tell "gone" from "unreachable" and keep its last good data.
+ */
+export async function fetchMarketById(id: string): Promise<Market | null> {
+  const url = new URL(`${GAMMA_BASE}/markets/${encodeURIComponent(id)}`);
+
+  const res = await fetch(url.toString(), { headers: { accept: "application/json" } });
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw new Error(`Gamma request failed: ${res.status} ${url.pathname}`);
+  }
+
+  const body = (await res.json()) as unknown;
+  const raw = Array.isArray(body) ? body[0] : body;
+  if (!raw) return null;
+
+  try {
+    return normalizeMarket(raw);
+  } catch {
+    // A market we cannot trust is not a market we should price a bet from.
+    return null;
+  }
+}

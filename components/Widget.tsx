@@ -7,6 +7,9 @@ import type { GroundedSuggestion } from "@/lib/ai/grounding";
 import { createDemoState, placeDemoBet } from "@/lib/demo";
 import type { GeoDecision } from "@/lib/geo";
 import { realBettingAvailability } from "@/lib/betting-availability";
+
+/** Same cadence as the market list, so the two never disagree for long. */
+const MARKET_REFRESH_MS = 30_000;
 import { fetchPrice } from "@/lib/polymarket/clob";
 import { AssistPanel } from "@/components/AssistPanel";
 import { BetPanel } from "@/components/BetPanel";
@@ -24,7 +27,41 @@ export function Widget() {
   const [error, setError] = useState<string | null>(null);
   const [geo, setGeo] = useState<GeoDecision | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [marketClosed, setMarketClosed] = useState(false);
   const narrow = useIsNarrow();
+
+  // Keep the selected market's price current (003 / AR-1). The list is a
+  // query-scoped page, so a market leaving it says nothing about closure —
+  // this refreshes by id, and closure comes only from the market's own flag.
+  const selectedId = market?.id ?? null;
+  useEffect(() => {
+    if (!selectedId) {
+      setMarketClosed(false);
+      return;
+    }
+    let cancelled = false;
+
+    const refresh = async () => {
+      try {
+        const res = await fetch(`/api/market/${encodeURIComponent(selectedId)}`);
+        if (!res.ok || cancelled) return; // an outage keeps the last good data
+        const body = (await res.json()) as { market?: Market };
+        if (cancelled || !body.market || body.market.id !== selectedId) return;
+        setMarket(body.market);
+        setMarketClosed(Boolean(body.market.closed));
+      } catch {
+        // Keep what we have rather than blanking a selection the user made.
+      }
+    };
+
+    const first = setTimeout(refresh, 0);
+    const repeat = setInterval(refresh, MARKET_REFRESH_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(first);
+      clearInterval(repeat);
+    };
+  }, [selectedId]);
 
   // Ask the server whether real betting may be offered here (US-5). The effect
   // only subscribes; state is set in the async continuation.

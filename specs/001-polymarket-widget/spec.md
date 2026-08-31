@@ -18,6 +18,7 @@ As a visitor, I can browse and search live Polymarket markets, seeing for each: 
 
 **Acceptance criteria**
 - Markets shown are live (open, not resolved) and refresh without a full page reload.
+- A market that has been selected keeps refreshing too, from its own endpoint rather than from the list — the list is query-scoped, so a market leaving it means "filtered out or closed" and cannot distinguish them. *(Amended 2026-08-31 by feature 003 T6, which needs the selected market's price to stay current; previously the selection was a snapshot taken once.)*
 - Keyword search and category filter narrow the list.
 - Works with no wallet connected and no sign-in.
 
