@@ -4,7 +4,7 @@ A web widget for browsing Polymarket prediction markets, getting AI assistance c
 
 **Live:** https://aoro-test-ten.vercel.app
 
-**Status:** all four features complete. 419 behaviour tests + 70 appearance checks + live tests passing.
+**Status:** all five features complete. 421 behaviour tests + 72 appearance checks + live tests passing.
 
 **Reviewing this?** Two entry points: [Demo walkthrough](#demo-walkthrough--try-the-live-app) for the product (about ten minutes, nothing to install), and [Process walkthrough](#process-walkthrough--read-the-sdd-trail) for how it was specified, gated and audited.
 
@@ -183,9 +183,10 @@ Progress lives in each feature's `tasks.md`.
 | **001** Polymarket widget | 24/24 ✅ | Browse, demo betting, AI suggestions and geo gating. **US-2 (real betting) withdrawn 2026-08-31** and Phase 6 removed; the blocker was jurisdictional, not technical. Because that phase had been sequenced last on purpose, nothing shipped depended on it. |
 | **002** Visual redesign | 16/16 ✅ | Dark, data-first UI. Introduced the appearance gate, because jsdom performs no layout and cannot tell that a required field is off-screen. |
 | **003** Scoped recommendation | 20/20 ✅ | The assistant argues one side of a selected market, with the counter-case beside it. Its output is shape-constrained and screened server-side; arguments are withdrawn when the price they were made from moves. |
+| **005** Decision rail | 11/11 ✅ | The bet panel gets one fixed home on the left, first on a phone; the market is stated once by a sticky header; the AI finder moves to the list, where finding happens. Repeals `003 AR-7`'s ordering rule and removes `002 VR-4`'s bottom sheet, replacing both sets of assertions rather than dropping them. |
 | **004** Usability and workflow | 24/24 ✅ | Pagination, ordering, keyboard operation, position valuation and visible error recovery. Two constitution audits found nine defects between them, five of which had already shipped — including two sort orderings that returned lexicographically-sorted nonsense, and a refresh that rewound the pagination cursor so "Load more" went quietly dead. |
 
-Verification: `npm run verify` runs lint, build, 413 behaviour tests and 70
+Verification: `npm run verify` runs lint, build, 421 behaviour tests and 72
 appearance checks. `npm run test:live` exercises the real Polymarket and Claude
 APIs. `specs/002-widget-visual-redesign/manual-checks.md` records the six checks
 neither suite can judge — one of which, MC-6, found two real defects on the first

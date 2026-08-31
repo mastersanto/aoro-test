@@ -6,13 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Polymarket Widget — a web widget that lets a user browse Polymarket prediction markets, get AI assistance choosing a market and outcome, and place a bet. Target deployment: Vercel (primary; the planned stack is Next.js, which Vercel hosts natively — Netlify is the fallback).
 
-## Current state: all four features complete and deployed; the widget is demo-only
+## Current state: all five features complete and deployed; the widget is demo-only
 
 This repository practices Spec-Driven Development (SDD). All work flows through specs before implementation. **Do not write application code for a feature until its `spec.md`, `plan.md`, and `tasks.md` are complete and approved by the user** — the PreToolUse hook enforces this mechanically.
 
 Every feature is through its gates and implemented. There is no in-flight task list; new work starts at `/spec`.
 
-Shipped at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), geo gating (US-5), the feature-002 visual redesign, feature 003's scoped outcome recommendation, and feature 004's pagination, ordering, keyboard operation, position valuation and error recovery.
+Shipped at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), geo gating (US-5), the feature-002 visual redesign, feature 003's scoped outcome recommendation, feature 004's pagination, ordering, keyboard operation, position valuation and error recovery, and feature 005's decision rail.
+
+**Layout is feature 005's, and two earlier rules were repealed to get it.** `003 AR-7` (the bet entry reorders by actionability) and `002 VR-4` (the mobile bottom sheet) are both gone; both specs record the amendment and both sets of assertions were replaced one-for-one rather than deleted. Before reintroducing conditional ordering, read `specs/005-decision-rail/spec.md` — a fixed rail order is the point of the feature, and a bet entry that cannot be acted on is expressed by rendering no controls, not by moving.
 
 **Feature 003 introduces the project's most constrained AI surface.** The assistant argues for one side of a real-money bet, which Article II permits (it says the assistant "recommends markets and outcomes") but which carries a persuasion risk the confirmation cannot contain. Before changing anything under `lib/ai/` or `app/api/recommend/`, read `specs/003-scoped-outcome-recommendation/spec.md` — particularly AR-3 and its Known limits — and `defeat-corpus.md`, which records every sentence that has beaten a version of the content screen. The corpus only grows: a new defeat is added and tested, never argued away.
 

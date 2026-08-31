@@ -1,6 +1,17 @@
 # Tasks 005 — Decision Rail
 
-**Status:** Approved 2026-08-31
+**Status:** Complete 2026-08-31 — 11/11.
+
+**Mutation results (T11):** a non-actionable bet entry keeping its controls reddens
+7; restoring AR-7's conditional ordering reddens 2; unmounting the confirmation when
+the market closes reddens 1.
+
+The fourth — restating the question inside the recommendation — came back **green**,
+and the mutation had genuinely applied. The DR-3 test was matching the question as an
+exact text node, so a restatement wrapped in other words ("About: <question>") went
+straight past it; the earlier check that "proved" the test worked had used a mutation
+that happened to put the question in its own element. The assertion now counts
+occurrences in the rail's text, and the mutation reddens it.
 **Plan:** ./plan.md
 
 Rules as in `001`. **(exempt)** names an Article VII exempt category; a **RED** task
@@ -50,10 +61,10 @@ must fail on a real assertion, not an import error.
       unchanged. Update `openConfirmation` in `tests/visual/support.ts` if the path to
       the confirmation changed.
       Verify: `npm run test:visual` passes at both viewports.
-- [ ] T10. **(not binding — documentation)** Record the `003 AR-7` and `002 VR-4`
+- [x] T10. **(not binding — documentation)** Record the `003 AR-7` and `002 VR-4`
       amendments in those specs; update `README.md` and `CLAUDE.md`.
       Verify: `npm run verify` green; `bash scripts/sdd-lint.sh` passes.
-- [ ] T11. **(not binding — verification)** Three mutations, each reddening exactly the
+- [x] T11. **(not binding — verification)** Three mutations, each reddening exactly the
       expected test: restore AR-7's conditional ordering; give a non-actionable bet
       entry its controls back; re-introduce the question inside `BetPanel`.
       Verify: each reddens the expected test; reverting returns the suite to green.

@@ -50,6 +50,14 @@ As the project owner, I can be sure the redesign changed appearance only, and th
 - Outcome identity (which side is which) is never conveyed by colour alone. Wherever an outcome is the thing being bet on — the bet panel and the confirmation — its label appears in full, not abbreviated; compact list rows may abbreviate.
 - The accessible names and visible text the feature-001 tests query are unchanged, so those tests keep asserting what they were written to assert.
 
+> **Amended 2026-08-31 by feature 005 (DR-2): the bottom sheet is removed.** Its
+> purpose was to bring the bet entry to a phone reader without hunting for it. `005`
+> achieves that by putting the rail — and so the bet — first in document order, so
+> no overlay is needed. VR-4's guarantees were replaced rather than dropped, in the
+> same file that enforced them: no overlay is mounted at 390px, the bet entry
+> precedes the list it was chosen from, exactly one bet entry exists, and the
+> confirmation remains the single modal.
+
 ### VR-4 *(core)* — Usable on a phone
 As someone on a phone, I can browse and place a demo bet without pinching or mis-tapping.
 

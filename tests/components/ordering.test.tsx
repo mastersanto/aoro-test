@@ -54,6 +54,15 @@ async function selectMarket() {
   fireEvent.click(heading.closest('[role="button"]')!);
 }
 
+/**
+ * How many times a string appears in the rail's text, wrapped or not.
+ * Element-wise matchers miss "About: <question>"; this does not.
+ */
+function countInRail(needle: string): number {
+  const text = screen.getByTestId("rail").textContent ?? "";
+  return text.split(needle).length - 1;
+}
+
 /** Document order of the rail's landmark sections. */
 function railOrder(): string[] {
   const wanted = ["Selected market", "Place a demo bet", "Place a bet", "Outcome recommendation", "Demo positions"];
@@ -166,8 +175,7 @@ describe("DR-3 — the market is stated once", () => {
     fireEvent.click(await screen.findByRole("button", { name: /what would you favour/i }));
     await screen.findByTestId("recommendation");
 
-    const rail = screen.getByTestId("rail");
-    expect(within(rail).getAllByText(market.question)).toHaveLength(1);
+    expect(countInRail(market.question)).toBe(1);
   });
 
   it("shows the question exactly once in the rail", async () => {
@@ -175,11 +183,11 @@ describe("DR-3 — the market is stated once", () => {
     await selectMarket();
     await screen.findByLabelText(/selected market/i);
 
-    // The exact QUESTION, not any text containing a player's name — the outcome
-    // labels are player names too, so a loose match would count those.
-    const rail = screen.getByTestId("rail");
-    const inRail = within(rail).getAllByText(market.question);
-    expect(inRail).toHaveLength(1);
+    // Counted over the rail's TEXT, not by element matching. getAllByText with a
+    // string is an exact per-element match, so it misses a restatement wrapped in
+    // other words — "About: <question>" slipped straight through it, which a
+    // mutation caught after the first version of this test called itself proven.
+    expect(countInRail(market.question)).toBe(1);
 
     // and it is the header card that carries it, not the bet panel.
     const header = screen.getByLabelText(/selected market/i);

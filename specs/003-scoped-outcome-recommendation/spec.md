@@ -97,7 +97,23 @@ As someone who has not chosen a market, I still get help choosing one.
 - With no market selected, the assistant behaves exactly as `001 US-4` specifies: an interest-based search returning grounded market suggestions.
 - Switching between the two modes requires no configuration and loses no state the user typed.
 
-### AR-7 *(core)* — The bet leads once it is actionable
+### ~~AR-7 *(core)* — The bet leads once it is actionable~~ — **REPEALED 2026-08-31 by feature 005 (DR-1)**
+
+> The criteria below are kept for the record. AR-7's intent — never present a bet
+> entry the user cannot act on as though it were the main event — is **preserved
+> and strengthened**, but its mechanism is replaced.
+>
+> The mechanism was document order: the bet entry rendered above the assistant when
+> actionable and below it when not. That worked, and it left the rail with no order
+> anyone could learn, which the project owner reported as "looks confusing".
+>
+> `005 DR-1` fixes the order and expresses the intent as **state**: a bet entry that
+> cannot be acted on renders no outcome control, no amount field and no review
+> control — only the reason. That is stronger than the ordering it replaces, because
+> it holds at every viewport width and a reader cannot defeat it by scrolling. The
+> replacement is asserted in the same file that enforced AR-7.
+
+### AR-7 *(repealed — original text below)* — The bet leads once it is actionable
 As someone who has chosen a market, the thing I came to do is the thing in front of me.
 
 **Acceptance criteria**
