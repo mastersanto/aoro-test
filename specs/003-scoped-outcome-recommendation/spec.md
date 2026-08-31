@@ -1,6 +1,6 @@
 # Spec 003 — Scoped Outcome Recommendation
 
-**Status:** Draft — awaiting user approval
+**Status:** Approved 2026-08-31
 **Owner:** jorgeivansandoval@gmail.com
 
 Story IDs are prefixed **AR-**. References to other features are written `001 US-4`, `002 VR-2`.
@@ -158,8 +158,9 @@ Recorded because a spec that hides these is claiming more protection than it has
 - **D2 — Balance is mandatory, not stylistic.** A one-sided argument for a real-money decision is the specific harm this feature could do, so the counter-case is an acceptance criterion with equal prominence rather than a copy guideline.
 - **D3 — Discovery is kept.** Replacing it would regress `001 US-4` and remove the assignment's stated bonus.
 - **D4 — Pre-fill never includes an amount, and the recommendation never discusses stake size.** The stake is the one decision the assistant must not influence at all; "by default" would have left sizing prose permitted while the field stayed empty.
-- **D5 — A recommendation is bound to its market, not to the panel.** Clearing on selection change is a correctness requirement, not tidiness: advice for one market displayed beside another market's armed bet form is the most plausible way this feature causes a wrong bet.
-- **D6 — Structure over filtering.** A forbidden-word list is defeatable by fluent prose that contains none of the words. Constraining the response's shape, and forbidding model-authored numerals outright, are the controls that can actually be verified.
+- **D5 — The residual persuasion risk is accepted knowingly.** Three adversarial reviews defeated successive versions of AR-3 by paraphrase. The project owner was shown that record, together with two narrower alternatives (explain-only, and recommend-without-model-prose), and chose to proceed with the argued recommendation as specified. The Known limits section exists so that choice stays visible to whoever reads this next, rather than being rediscovered.
+- **D6 — A recommendation is bound to its market, not to the panel.** Clearing on selection change is a correctness requirement, not tidiness: advice for one market displayed beside another market's armed bet form is the most plausible way this feature causes a wrong bet.
+- **D7 — Structure over filtering.** A forbidden-word list is defeatable by fluent prose that contains none of the words. Constraining the response's shape, and forbidding model-authored numerals outright, are the controls that can actually be verified.
 
 ## Open questions
 
@@ -167,4 +168,4 @@ None — the scope was settled with the project owner before drafting.
 
 ## Approval
 
-- [ ] Spec approved by user (required before `/plan-feature`)
+- [x] Spec approved by user (required before `/plan-feature`) — 2026-08-31, affirmed after three audit rounds with the Known limits shown
