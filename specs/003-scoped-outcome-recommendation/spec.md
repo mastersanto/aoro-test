@@ -30,7 +30,9 @@ As someone who has chosen a market, I can ask the assistant which outcome it wou
 **The argument is bound to the price it was made from.** Article II requires reasoning *with current odds*; an argument anchored to a price that has since moved is no longer that:
 
 - A recommendation records the price it reasoned from and shows it as such.
-- If the application's data for that market moves beyond a stated tolerance, or the market closes or resolves, the recommendation is **withdrawn and the user told why**. It never ages silently beside an armed bet entry, and the user is never able to act on reasoning about one price while confirming at another.
+- A recommendation is **withdrawn, with the reason shown**, as soon as any of these is true: the favoured outcome's price has moved by **more than 2 percentage points** from the price it was argued at; the market has closed or resolved; or the recommendation is more than **10 minutes** old. It never ages silently beside an armed bet entry.
+- Those two numbers are the criterion, not illustrations. A tolerance left to the implementer is not a tolerance: it can be set wide enough to permit exactly what this rule exists to prevent, and no test could fail.
+- Within the tolerance a small drift is still possible, so the confirmation continues to show the live price — the user is never shown one price and charged another. What this rule prevents is an *argument* outliving the prices that produced it.
 - The selected market's data is refreshed on the same cadence as the list, rather than remaining the snapshot captured when it was selected. Without that, "current price" is unenforceable by construction.
 - Changing money mode does not invalidate the recommendation — it concerns the market, not the stake — but any pre-filled outcome and any typed amount are cleared, so a stake entered against a practice balance can never carry into a real one.
 
@@ -54,15 +56,19 @@ As someone reading a recommendation, I can see what would have to be true for it
 ### AR-3 *(core)* — It reads as an opinion, never as a certainty or an instruction
 As a user, I am not told what to do, and I am not given a prediction dressed as a fact.
 
+**What these controls do and do not achieve.** No rule about text reliably prevents a fluent argument from persuading; three adversarial reviews defeated successive versions of this section, each time by paraphrase rather than by finding a loophole in the words. The rules below therefore aim to remove the *forms* persuasion most reliably takes — asserted likelihood, quantities, and claims about the price being wrong — and the spec does not claim more than that. The controls actually load-bearing against a bad bet are elsewhere and are unchanged: the counter-case shown alongside (AR-2), the disclaimer (AR-4), the stake the user types themselves (AR-4), and the confirmation (Art. II). This section reduces harm; it does not eliminate it, and any task or plan claiming otherwise is wrong.
+
 **Structure is the primary control, not filtering.** A denylist of forbidden words does not stop persuasion — "the market is badly underpricing this", "no realistic path for the other side" and "at 12% this is close to free" contain no guarantee, no certainty term and no imperative, and are exactly the harm. So the response is constrained in *shape* first, and screened second.
 
 **Acceptance criteria**
-- The recommendation is composed of named, separately rendered parts — what the market resolves on, what its current price implies, the case for the favoured outcome, and what would make that outcome lose — rather than one free-form argument. There is no field in which open-ended rhetoric can be returned.
-- **No numeral, percentage or monetary figure appears in any model-authored text.** Every figure the user sees is rendered by the application from its own data. This is mechanically checkable and is what makes "states or implies a probability the market does not" enforceable rather than aspirational.
-- The case for argues **what would have to be true for the outcome to happen**. It does not argue that the market's price is wrong. Claims of mispricing — that an outcome is underpriced, overpriced, cheap, or a better bet than the market implies — are outside the field's subject, which is what makes "implies a probability the market does not" enforceable by shape rather than by a word list that fluent prose walks past.
+- The recommendation is composed of named, separately rendered parts — what the market resolves on, what its current price implies, the case for the favoured outcome, and what would make that outcome lose — rather than one free-form argument.
+- **No part expresses likelihood, confidence, or the sufficiency of evidence, in any form.** Not as a figure, not as a word, not as a construction: no "likely", "clearly", "nine times out of ten", "little stands in the way", "nothing suggests otherwise", "the remaining steps are procedural". This is the criterion the earlier drafts gestured at and never stated, and it is the one that matters — naming a field constrains what it is *about*, not how strongly it argues. Any expression of how probable the outcome is belongs to the market's price, which the application renders itself.
+- Each part is **bounded in length**, so the case for cannot become an essay that accumulates force by volume.
+- **No quantity appears in any model-authored text — as a digit, a percentage, a monetary figure, or a spelled-out number.** Every figure the user sees is rendered by the application from its own data. Digits alone are not the rule: "nine times out of ten" states a probability as surely as "90%".
+- The case for describes **what the market's own resolution criteria require, and what would have to occur to meet them**. It does not characterise the market's price as anything other than what it is: no claim, in any wording, that the price is wrong, lagging, stale, or has failed to account for something.
 - No part contains an instruction directed at the user, a claim that an outcome will or will not occur, a claim that the market is mispriced, or any reference to how much to stake.
 - The screen runs **server-side**, so a withheld recommendation is never present in the response the browser receives.
-- A recommendation failing any of the above is withheld and the user is told plainly that the assistant has no view to offer — never silently replaced, and never re-requested more than once, since unbounded re-generation selects for prose that is persuasive *and* compliant.
+- The checks above are together the **content screen**. A recommendation failing any of them is withheld and the user is told plainly that the assistant has no view to offer — never silently replaced, and never re-requested more than once, since unbounded re-generation selects for prose that is persuasive *and* compliant.
 - It is attributed as the assistant's reading of current prices.
 
 ### AR-4 *(core)* — Nothing about placement changes
@@ -97,7 +103,9 @@ As someone who has chosen a market, the thing I came to do is the thing in front
 **Acceptance criteria**
 - The bet entry leads when it is **actionable** — a market is selected and the current mode can accept a bet.
 - The assistant leads whenever the bet entry cannot be acted on, **for any of the reasons the application recognises** — no market selected, an unknown or restricted region, a market the exchange marks restricted, or a wallet the build does not yet provide. Naming only the regional reason would leave the rule undefined for the shipped default, in which real betting is disabled because the wallet is unimplemented. Promoting a dead panel above working help is a defect regardless of which reason killed it.
-- On a phone the ordering is satisfied by the sheet presenting over the page when open; with it dismissed no bet entry is mounted and the assistant is the primary surface. Selecting a market or acting on a recommendation may open it, since both are explicit user actions — a recommendation merely appearing may not (AR-4).
+- On a phone the ordering is satisfied by the sheet presenting over the page when open; with it dismissed no bet entry is mounted and the assistant is the primary surface.
+- The sheet opens only when the bet entry is **actionable**. Selecting a market or acting on a recommendation may open it, since both are explicit user actions; neither may present a bet entry the user cannot act on over the assistance they can — that is the same defect, and today's build reaches it in two taps by selecting a market in real-money mode.
+- If the bet entry stops being actionable while the sheet is open — a mode change, a region decision arriving, the market becoming restricted — the sheet closes and the assistant returns as the primary surface, rather than remaining open over it in a disabled state.
 - Reordering changes no behaviour: every `001` and `002` guarantee still holds, and **both** the behaviour suite and the appearance suite pass unmodified.
 
 ## Out of scope
@@ -117,24 +125,32 @@ Exempt as styling: the panel's colour, type and spacing, and the *desktop* order
 Binding, and written test-first:
 - **Grounding** (AR-1): the recommended outcome belongs to the selected market, and no figure in the response originates from the model.
 - **The failure branch** (AR-1): "no usable view" is a state transition and error mapping, not copy — it must be reachable and tested.
-- **Price currency and withdrawal** (AR-1): that a recommendation is withdrawn when its market's price moves beyond tolerance, closes or resolves, and that the selected market refreshes rather than remaining a snapshot. This is the transition that makes Art. II's "current odds" true, and its absence is invisible until someone acts on a stale argument.
+- **Price currency and withdrawal** (AR-1): that a recommendation is withdrawn when the favoured outcome's price moves more than 2 points from the argued price, when the market closes or resolves, or after 10 minutes, and that the selected market refreshes rather than remaining a snapshot. This is the transition that makes Art. II's "current odds" true, and its absence is invisible until someone acts on a stale argument.
 - **Mode transitions** (AR-1): that a mode change clears the pre-filled outcome and typed amount.
 - **Context switching** (AR-1): that changing or clearing the selection discards the previous market's recommendation, that typed input survives while generated advice does not, and that an in-flight request cannot land against a market it was not asked about. This is a state machine over an async result — precisely the class Article VII binds, and the class where a stale render is invisible until it matters.
-- **Response shape and the screen** (AR-3): the structural constraint, the no-numerals rule, the construction check, server-side withholding, and the bounded single retry.
+- **Response shape and the content screen** (AR-3): the structural constraint, the no-quantities rule (digits and spelled-out alike), the no-likelihood rule, the no-mispricing rule, per-part length bounds, server-side withholding, and the bounded single retry.
 - **Balance** (AR-2): a recommendation without a counter-case is withheld; the counter-case's co-visibility with the case for.
-- **The placement guarantees** (AR-4): pre-fill requires an explicit act and fills no amount; exactly one mounted bet-entry surface; one confirmation; disclaimer co-visible.
+- **The placement guarantees** (AR-4): pre-fill requires an explicit act and fills no amount; **at most one** mounted bet-entry surface and at most one confirmation, none being legitimate on a phone with the sheet dismissed; disclaimer co-visible.
 - **Restricted regions** (AR-5): the recommendation remains available, the geo explanation stays visible, and the assistant is not demoted beneath a disabled bet entry.
-- **Mode and ordering selection** (AR-6, AR-7): which behaviour and which order apply for a given selection, mode, region, market-restriction and wallet-readiness state — all four inputs the availability rule already takes — including the mobile sheet's mounting and dismissal.
+- **Mode and ordering selection** (AR-6, AR-7): which behaviour and which order apply for a given selection, mode, region, market-restriction and wallet-readiness state. The availability rule itself takes three of these — region, market restriction, wallet readiness — with mode applied at the call site; the ordering rule takes all of them plus selection. Includes the mobile sheet's opening, dismissal, and closure when the entry stops being actionable.
 
 ## Context (reference facts for planning)
 
 - Today's assistant is grounded **numerically**, not wholly: the model returns a pair of ids plus reasoning text, and the application rebuilds every *figure* from its own market data while rendering the model's prose verbatim (`001 US-4` already ships model-authored prose). So this feature does not introduce model prose — it makes that prose argumentative, which is the actual change and the actual risk.
 - The existing confirmation, its bypass tests, and the single `onPlace` call site are the mechanism Article II relies on. They are unchanged by this feature and remain the gate.
 - Feature 002 established two verification gates: behaviour in jsdom, appearance in a real browser, plus written manual checks. AR-2's prominence and AR-4's co-visibility are appearance-gate concerns; the rest are behaviour.
-- **Real betting is not implemented in the current build**: availability is disabled for a wallet reason in every region. Any rule phrased only around regional restriction is therefore undefined for every user today — which is how AR-7's first draft came to have a gap.
+- **Real betting is not implemented in the current build.** Availability evaluates region *before* wallet-readiness, so a user in a blocked, close-only or undetermined region is refused for the regional reason, while a user in a permitted region is refused for the wallet reason. A rule phrased only around regional restriction is therefore undefined for exactly the permitted-region users — which is how AR-7's first draft came to have a gap, and it is the smaller half of the population, not the whole of it.
 - The selected market is presently a snapshot captured at selection and is never re-hydrated by the list's 30-second refresh, so its price can drift from the list's own. That is a pre-existing behaviour; this is the first feature to anchor an argument to that price, so it is this spec's job to say what "current" means.
 - Today's discovery reasoning is invited to cite figures, while AR-3 forbids model-authored numerals in a scoped recommendation. The asymmetry is deliberate: a recommendation argues for a side, and a number in an argument carries authority a listed suggestion's does not.
 - A scoped recommendation sends one market to the model rather than the ~40 discovery sends, so it is cheaper and faster — a consequence, not a goal.
+
+## Known limits
+
+Recorded because a spec that hides these is claiming more protection than it has:
+
+- **A structurally valid counter-case can still be self-defeating.** AR-2 requires the counter-case to be present, equally prominent and co-visible; it cannot require it to be *good*. A counter-case written to be dismissed satisfies every criterion.
+- **"Suggests working around a regional restriction" (AR-5) has no mechanical check.** It is a real requirement with no automated enforcement; it belongs in the manual checks feature 002 established.
+- **The content screen reduces persuasion; it does not remove it.** See AR-3.
 
 ## Decision record
 
