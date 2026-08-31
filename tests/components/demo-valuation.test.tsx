@@ -168,12 +168,12 @@ describe("001 US-3 is unchanged: valuation never moves the spendable balance", (
     render(<Widget />);
     await placeDemoBet();
 
-    await waitFor(() => expect(screen.getByText(/practice balance/i)).toHaveTextContent("$950.00"));
+    await waitFor(() => expect(screen.getByText(/DEMO · practice/i)).toHaveTextContent("$950.00"));
 
     await waitFor(() =>
       expect(screen.getByTestId("position-totals")).toHaveTextContent(/\+\$/),
     );
     // Still 950: a paper gain is displayed, never staked.
-    expect(screen.getByText(/practice balance/i)).toHaveTextContent("$950.00");
+    expect(screen.getByText(/DEMO · practice/i)).toHaveTextContent("$950.00");
   });
 });

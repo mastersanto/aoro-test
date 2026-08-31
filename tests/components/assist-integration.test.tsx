@@ -65,7 +65,7 @@ describe("AI suggestion → bet form (Art. II)", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByText(/DEMO bet placed/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/demo positions/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/practice balance \$1000\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO · practice \$1000\.00/i)).toBeInTheDocument();
   });
 
   it("still requires the full confirmation after using a suggestion", async () => {
@@ -85,10 +85,10 @@ describe("AI suggestion → bet form (Art. II)", () => {
     const dialog = within(screen.getByRole("dialog"));
     expect(dialog.getByTestId("confirm-amount")).toHaveTextContent("$50.00");
     expect(dialog.getByTestId("confirm-price")).toHaveTextContent("9%");
-    expect(screen.getByText(/practice balance \$1000\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO · practice \$1000\.00/i)).toBeInTheDocument();
 
     fireEvent.click(dialog.getByRole("button", { name: /place bet/i }));
     await waitFor(() => expect(screen.getByText(/DEMO bet placed/i)).toBeInTheDocument());
-    expect(screen.getByText(/practice balance \$950\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO · practice \$950\.00/i)).toBeInTheDocument();
   });
 });

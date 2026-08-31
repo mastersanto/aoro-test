@@ -320,7 +320,7 @@ export function Widget() {
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 lg:gap-6">
       {(notice || error) && (
         <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-4">
           {notice && (
@@ -361,8 +361,8 @@ export function Widget() {
         </div>
 
         {mode === "demo" && (
-          <p className="rounded bg-demo/15 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-demo">
-            DEMO — practice balance {formatUsdPrecise(demo.balanceUsd)}
+          <p className="rounded bg-demo/15 px-2 py-1 text-xs font-semibold text-demo">
+            DEMO · practice {formatUsdPrecise(demo.balanceUsd)}
           </p>
         )}
 
@@ -386,8 +386,8 @@ export function Widget() {
       {/* 005 / DR-2 — the rail comes FIRST in document order, so the phone
           ordering falls out of the markup rather than needing a second
           presentation. At lg it sits on the left. */}
-      <div className="grid gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
-        <div ref={railRef} data-testid="rail" className="flex scroll-mt-4 flex-col gap-4">
+      <div className="grid gap-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-6">
+        <div ref={railRef} data-testid="rail" className="flex min-w-0 scroll-mt-4 flex-col gap-4">
           {/* One fixed order. No application state reorders these (DR-1). */}
           <SelectedMarketCard market={market} onClear={() => selectMarket(null)} />
 
@@ -423,7 +423,10 @@ export function Widget() {
           <DemoPositions {...valuePositions(demo.positions, quotes, now)} />
         </div>
 
-        <div className="flex flex-col gap-4">
+        {/* min-w-0: grid items default to min-width:auto, so the textarea's
+            intrinsic width blew the single-column grid past 390px and scrolled
+            the whole document sideways. */}
+        <div className="flex min-w-0 flex-col gap-4">
           {/* 005 / DR-4 — the finder lives where finding happens. */}
           <AssistPanel
             onUseSuggestion={handleUseSuggestion}

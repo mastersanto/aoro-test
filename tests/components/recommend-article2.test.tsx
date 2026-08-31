@@ -87,7 +87,7 @@ describe("Article II — the recommendation never places a bet", () => {
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByText(/DEMO bet placed/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/practice balance \$1000\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO · practice \$1000\.00/i)).toBeInTheDocument();
   });
 
   it("still routes through the one confirmation, which it does not replace", async () => {

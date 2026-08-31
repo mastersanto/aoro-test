@@ -203,7 +203,10 @@ export function MarketList({
           // 006 / D3 — one scrolling row, not wrapped. Wrapping cost a whole row
           // of vertical space at 390px and gets worse as categories are added.
           // Every filter stays in the tab order and reachable by swipe.
-          className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          // No negative margin: -mx-1 pushed this past the page's own padding and
+          // made the whole document scroll sideways at 390px (caught by the
+          // appearance gate's horizontal-overflow check).
+          className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           role="group"
           aria-label="Filter by category"
         >

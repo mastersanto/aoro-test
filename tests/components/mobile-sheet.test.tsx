@@ -112,7 +112,7 @@ describe("the confirmation is unchanged by the sheet's removal", () => {
     fireEvent.keyDown(document, { key: "Escape" });
 
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-    expect(screen.getByText(/practice balance/i)).toHaveTextContent("$1000.00");
+    expect(screen.getByText(/DEMO · practice/i)).toHaveTextContent("$1000.00");
     expect(screen.getByLabelText(/selected market/i)).toBeInTheDocument();
   });
 });

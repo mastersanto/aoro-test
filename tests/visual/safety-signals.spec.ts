@@ -12,7 +12,7 @@ test.describe("DEMO signalling", () => {
   });
 
   test("the balance carries the demo signal", async ({ page }) => {
-    await expectGenuinelyVisible(page.getByText(/practice balance/i), "DEMO balance");
+    await expectGenuinelyVisible(page.getByText(/DEMO · practice/i), "DEMO balance");
   });
 
   test("the mode toggle is visible and shows which mode is active", async ({ page }) => {

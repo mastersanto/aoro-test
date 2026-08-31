@@ -69,7 +69,7 @@ export function AssistPanel({
           form pushed the first market row below the fold at 390px, which the
           appearance gate caught. */}
       <h2 className="text-xs font-semibold text-ink">
-        Not sure what to bet on? Describe it and the AI will find the market.
+        Not sure? Describe it and AI will find the market.
       </h2>
 
       <div className="mt-2 flex flex-wrap items-end gap-2">

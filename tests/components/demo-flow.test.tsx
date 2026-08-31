@@ -20,7 +20,7 @@ vi.stubGlobal("fetch", vi.fn(async (url: string) => {
 describe("demo flow (end to end)", () => {
   it("places a demo bet, debits the balance and shows a DEMO position", async () => {
     render(<Widget />);
-    expect(screen.getByText(/practice balance \$1000\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO · practice \$1000\.00/i)).toBeInTheDocument();
 
     const heading = await screen.findByRole("heading", { name: /Tirante/i }, { timeout: 3000 });
     fireEvent.click(heading.closest('[role="button"]')!);
@@ -35,7 +35,7 @@ describe("demo flow (end to end)", () => {
     fireEvent.click(dialog.getByRole("button", { name: /place bet/i }));
 
     await waitFor(() => expect(screen.getByText(/DEMO bet placed/i)).toBeInTheDocument());
-    expect(screen.getByText(/practice balance \$910\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO · practice \$910\.00/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/demo positions/i)).toBeInTheDocument();
     expect(screen.getByText(/no real money involved/i)).toBeInTheDocument();
   });

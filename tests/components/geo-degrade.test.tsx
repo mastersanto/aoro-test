@@ -79,7 +79,7 @@ describe("restricted region", () => {
 
     fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: /place bet/i }));
     await waitFor(() => expect(screen.getByText(/DEMO bet placed/i)).toBeInTheDocument());
-    expect(screen.getByText(/practice balance \$980\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/DEMO · practice \$980\.00/i)).toBeInTheDocument();
   });
 
   it("offers no path to a real bet: the real panel is disabled and states why", async () => {
