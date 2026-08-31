@@ -14,6 +14,7 @@ Full machine-readable doc index: https://docs.polymarket.com/llms.txt — OpenAP
   - `/markets/keyset`, `/events/keyset` — cursor pagination via `limit` + `after_cursor`, response carries `next_cursor`.
   - Filters: `closed=false`, `tag_id`/`tag_ids`. Sorting: `order=volume24hr&ascending=false` (live-tested).
   - Text search: `/public-search?q=...` (searches events/tags/profiles). Tag list: `/tags`.
+  - **`GET /markets/{id}`** returns a single market by id, including an authoritative `closed` / `active` flag (verified 2026-08-31). Use this to refresh one market — the keyset list is query-scoped and sends `closed=false`, so a market's absence from it means "filtered out or closed" and cannot distinguish the two.
   - Docs: https://docs.polymarket.com/market-data/discover-markets.md
 - Market fields: `question`, `volume`, `volume24hr`, `liquidity`, `endDate`, `bestBid`/`bestAsk`, `active`, `closed`, `restricted`, tags — plus `outcomes`, `outcomePrices`, `clobTokenIds`, which are **JSON-encoded strings** (call `JSON.parse` on each). Docs: https://docs.polymarket.com/market-data/market-details.md
 
