@@ -58,22 +58,22 @@ gates. Each story lands whole before the next begins.
       This is the second exception to D1's "existing tests pass unmodified": four
       call sites were updated for the new shape. **Done.**
       Verify: reverting the route fix reddens 8 assist tests.
-- [ ] T9. **RED** — failing tests for `lib/use-dialog.ts`: Escape dismisses; focus
+- [x] T9. **RED** — failing tests for `lib/use-dialog.ts`: Escape dismisses; focus
       moves in on open; Tab and Shift+Tab wrap within; focus returns to the opener
       on close; **and with two open, only the topmost handles Escape and traps
       focus** — the nesting that exists at mobile width (plan constraint 6).
       Verify: `npm test` fails on those assertions.
-- [ ] T10. **GREEN** — implement `lib/use-dialog.ts`, including the open-dialog
+- [x] T10. **GREEN** — implement `lib/use-dialog.ts`, including the open-dialog
       stack, until T9 passes.
       Verify: `npm test` passes.
-- [ ] T11. **RED** — failing tests that both surfaces use it: Escape on the
+- [x] T11. **RED** — failing tests that both surfaces use it: Escape on the
       confirmation calls `onPlace` **zero** times in demo and real mode (Art. II,
       extending the `001` T11 bypass suite rather than editing it); the sheet
       exposes a dialog role and an accessible name; the sheet is not `aria-modal`
       while the confirmation above it is; **exactly one confirmation is present at
       mobile width** — the replacement for `003 AR-4`'s dialog count.
       Verify: `npm test` fails on those assertions.
-- [ ] T12. **GREEN** — apply the hook to `ConfirmBetDialog` and `BetSheet`; replace
+- [x] T12. **GREEN** — apply the hook to `ConfirmBetDialog` and `BetSheet`; replace
       the `mobile-sheet.test.tsx:111` dialog count with the confirmation count in
       the same change, and record the amendment in `003`'s spec.
       Verify: `npm test` passes, including every other pre-existing `001`/`003`

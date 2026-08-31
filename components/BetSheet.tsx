@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useDialog } from "@/lib/use-dialog";
 
 /**
  * VR-4 — the phone presentation of the bet panel.
@@ -17,11 +18,19 @@ export function BetSheet({
   onDismiss: () => void;
   children: React.ReactNode;
 }) {
+  // Hook first: it must run on every render, open or not (004 / UX-3).
+  const ref = useDialog({ open, onDismiss });
+
   if (!open) return null;
 
   return (
     <div
+      ref={ref}
       data-testid="bet-sheet"
+      role="dialog"
+      aria-label="Place a bet"
+      // Deliberately NOT aria-modal. The confirmation can open above this and
+      // is itself modal; announcing two nested modals misdescribes the page.
       className="fixed inset-x-0 bottom-0 z-40 max-h-[85vh] overflow-y-auto rounded-t-2xl border-t border-line-strong bg-panel p-4 pb-6 shadow-[0_-16px_48px_rgba(0,0,0,0.55)] lg:hidden"
     >
       <div className="mx-auto mb-3 flex items-center justify-between">

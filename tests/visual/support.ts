@@ -141,7 +141,9 @@ export async function openConfirmation(page: Page) {
   await page.getByRole("button", { name: /Tirante · 9%/i }).click();
   await page.getByLabel(/amount/i).fill("90");
   await page.getByRole("button", { name: /review bet/i }).click();
-  return page.getByRole("dialog");
+  // Named: at mobile width the bet sheet is a dialog too (004 / UX-3), and a
+  // bare role lookup would be ambiguous under Playwright's strict mode.
+  return page.getByRole("dialog", { name: /confirm your bet/i });
 }
 
 /**

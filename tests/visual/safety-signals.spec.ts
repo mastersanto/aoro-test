@@ -27,7 +27,10 @@ test.describe("DEMO signalling", () => {
     await page.getByRole("button", { name: /Tirante · 9%/i }).click();
     await page.getByLabel(/amount/i).fill("25");
     await page.getByRole("button", { name: /review bet/i }).click();
-    await page.getByRole("dialog").getByRole("button", { name: /place bet/i }).click();
+    await page
+      .getByRole("dialog", { name: /confirm your bet/i })
+      .getByRole("button", { name: /place bet/i })
+      .click();
 
     await expectGenuinelyVisible(page.getByText(/DEMO bet placed/i), "demo result notice");
     // The position row must carry the demo signal wherever it is read.

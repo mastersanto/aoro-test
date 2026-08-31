@@ -1,5 +1,6 @@
 "use client";
 
+import { useDialog } from "@/lib/use-dialog";
 import type { BetDraft, BetMode } from "@/lib/bet";
 import { estimatePayout } from "@/lib/payout";
 import { formatPercent, formatUsdPrecise } from "@/lib/format";
@@ -30,6 +31,11 @@ export function ConfirmBetDialog({
   /** Return to the form so the user re-reviews at the new price. */
   onReview?: () => void;
 }) {
+  // Escape maps to onCancel and to nothing else. Article II requires an explicit
+  // confirmation before a bet; a dismissal gesture wired to confirm would invert
+  // it, so the bypass suite asserts onConfirm is never reached this way.
+  const ref = useDialog({ open: true, onDismiss: onCancel });
+
   const { payout } = estimatePayout(draft.amountUsd, draft.outcome.price);
 
   // The draft stays authoritative: the number the user agreed to never changes
@@ -44,6 +50,7 @@ export function ConfirmBetDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div
+        ref={ref}
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
