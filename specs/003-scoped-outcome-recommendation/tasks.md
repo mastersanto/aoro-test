@@ -67,9 +67,9 @@ Sequencing: the pure rules first, since they hold every binding decision and nee
 
 ## Phase 6 — Close out
 
-- [ ] T18. **(not binding — documentation)** Add AR-5's "suggests working around a regional restriction" to `manual-checks.md` with steps, since it has no mechanical enforcement, and record its result.
+- [x] T18. **(not binding — documentation)** Add AR-5's "suggests working around a regional restriction" to `manual-checks.md` with steps, since it has no mechanical enforcement, and record its result.
       Verify: the check is performed once and its result written down.
-- [ ] T19. **(not binding — documentation)** Update README and CLAUDE.md; confirm spec and plan describe the system as built.
+- [x] T19. **(not binding — documentation)** Update README and CLAUDE.md; confirm spec and plan describe the system as built.
       Verify: a clean clone runs `npm run verify` from the README alone; `bash scripts/sdd-lint.sh` passes.
 - [ ] T20. **(exempt — deployment)** Deploy; confirm the recommendation path in production at both viewports, including a withholding and a withdrawal.
       Verify: `PROD_URL=… npm run test:visual` green against the deployment.

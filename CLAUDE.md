@@ -6,13 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Polymarket Widget — a web widget that lets a user browse Polymarket prediction markets, get AI assistance choosing a market and outcome, and place a bet. Target deployment: Vercel (primary; the planned stack is Next.js, which Vercel hosts natively — Netlify is the fallback).
 
-## Current state: feature 002 complete; feature 001 blocked at T21
+## Current state: features 002 and 003 complete; feature 001 blocked at T21
 
 This repository practices Spec-Driven Development (SDD). All work flows through specs before implementation. **Do not write application code for a feature until its `spec.md`, `plan.md`, and `tasks.md` are complete and approved by the user** — the PreToolUse hook enforces this mechanically.
 
 Feature 001 (`specs/001-polymarket-widget/`) is approved through all three gates and is being implemented one task at a time: work the next unchecked task in its `tasks.md`.
 
-Shipped and deployed at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), and geo gating (US-5), plus the feature-002 visual redesign (dark data-first UI, verified in production by the appearance suite).
+Shipped at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), geo gating (US-5), the feature-002 visual redesign, and feature 003's scoped outcome recommendation.
+
+**Feature 003 introduces the project's most constrained AI surface.** The assistant argues for one side of a real-money bet, which Article II permits (it says the assistant "recommends markets and outcomes") but which carries a persuasion risk the confirmation cannot contain. Before changing anything under `lib/ai/` or `app/api/recommend/`, read `specs/003-scoped-outcome-recommendation/spec.md` — particularly AR-3 and its Known limits — and `defeat-corpus.md`, which records every sentence that has beaten a version of the content screen. The corpus only grows: a new defeat is added and tested, never argued away.
 
 **Phase 6 (real betting, US-2) is blocked at T21** — the pUSD allowance/approval spike needs a funded wallet on Polygon and a non-restricted region, and the US is close-only on Polymarket's main exchange. T21 blocks T22-T28.
 

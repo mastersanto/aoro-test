@@ -4,12 +4,13 @@ A web widget for browsing Polymarket prediction markets, getting AI assistance c
 
 **Live:** https://aoro-test-ten.vercel.app
 
-**Status:** feature 002 (visual redesign) complete; feature 001 blocked at T21. 154 behavior tests + 50 appearance checks + 6 live tests passing.
+**Status:** features 002 (visual redesign) and 003 (scoped recommendation) complete; feature 001 blocked at T21. 263 behaviour tests + 60 appearance checks + 8 live tests passing.
 
 ## What works today
 
 - **Browse and search live markets** — real Polymarket data, prices as implied odds, category filters, refreshing without a page reload.
 - **AI-assisted suggestions** — describe what interests you and get up to three real open markets with reasoning grounded in their current odds. The model returns only ids; every question, label and price shown is read back from our own market data, so it cannot invent a market or a price.
+- **A scoped recommendation** — with a market selected, the assistant argues for one outcome and, in the same breath, for what would defeat it. Its output is constrained in shape and screened server-side: no quantities, no claims about how likely anything is, no assertions that the price is wrong. An argument is withdrawn when the price it was made from moves more than two points, when the market closes, or after ten minutes — and it only ever fills the outcome, never the stake.
 - **Demo betting** — a $1,000 practice balance, filled at the live order-book price, labelled DEMO at every step. No wallet, no real money.
 - **Geo compliance** — restricted regions keep browsing, AI and demo, and lose only real betting, with an explanation.
 
