@@ -6,9 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Polymarket Widget — a web widget that lets a user browse Polymarket prediction markets, get AI assistance choosing a market and outcome, and place a bet. Target deployment: Vercel (primary; the planned stack is Next.js, which Vercel hosts natively — Netlify is the fallback).
 
-## Current state: SDD harness only — no application code exists
+## Current state: feature 001 under implementation (Phase 1 of 7 complete)
 
-This repository practices Spec-Driven Development (SDD). All work flows through specs before implementation. **Do not scaffold or write application code until the active feature's `spec.md`, `plan.md`, and `tasks.md` are complete and approved by the user.**
+This repository practices Spec-Driven Development (SDD). All work flows through specs before implementation. **Do not write application code for a feature until its `spec.md`, `plan.md`, and `tasks.md` are complete and approved by the user** — the PreToolUse hook enforces this mechanically.
+
+Feature 001 (`specs/001-polymarket-widget/`) is approved through all three gates and is being implemented one task at a time: work the next unchecked task in its `tasks.md`. The stack is scaffolded and the test harness is in place (see Commands below).
 
 ## SDD workflow
 
@@ -55,7 +57,7 @@ This is Next.js 16 — its App Router conventions differ from older releases. Re
 
 ## Architecture context (pre-decided; confirm details in plan.md)
 
-- **Polymarket has two API surfaces.** The Gamma API (`https://gamma-api.polymarket.com`) is read-only market discovery — public, no auth. The CLOB API places orders and requires cryptographic signing with the user's wallet (Polygon network, USDC collateral). Consequence: market browsing and AI assistance can ship without any wallet integration; bet placement cannot. Sequence work accordingly.
+- **Polymarket has two API surfaces.** The Gamma API (`https://gamma-api.polymarket.com`) is read-only market discovery — public, no auth. The CLOB API places orders and requires cryptographic signing with the user's wallet (Polygon network, pUSD collateral — Polymarket's USDC-backed token; see the polymarket-api skill). Consequence: market browsing and AI assistance can ship without any wallet integration; bet placement cannot. Sequence work accordingly.
 - **AI assistance runs server-side only** — an API route calling the Claude API (Messages API, latest Claude model). `ANTHROPIC_API_KEY` and any other secrets never reach the client bundle. See `.env.example`.
 - **Bets are signed client-side by the user's wallet.** The server should never hold user funds or private keys. If plan.md ever needs a server-held credential, that is a constitution-level decision requiring user approval.
 - **Real money is involved.** The constitution mandates: AI suggests but never executes; an explicit confirmation step before any transaction; geo-restriction handling and "not financial advice" disclaimers are spec-level requirements, not polish.

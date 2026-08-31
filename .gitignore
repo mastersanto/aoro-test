@@ -21,6 +21,7 @@ coverage/
 
 # Tooling caches
 *.tsbuildinfo
+next-env.d.ts
 .eslintcache
 
 # Editor/OS noise

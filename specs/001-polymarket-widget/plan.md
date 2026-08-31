@@ -15,6 +15,7 @@ Polymarket API facts referenced below were verified against docs.polymarket.com 
 | **`@polymarket/client`** (official Polymarket TS SDK) | Order placement + prices (US-2); current SDK per Polymarket docs (the older `@polymarket/clob-client` is legacy) |
 | **wagmi + viem** | Wallet connect and signing (US-2, spec D3); viem signer plugs directly into `@polymarket/client`'s `createSecureClient` |
 | **No database, no server-side user state** | Spec out-of-scope; demo balance is per-session client state (US-3) |
+| **ESLint** (`eslint`, `eslint-config-next`) | The lint gate in every task's Verify line and in CI; ships with the Next TypeScript template |
 | **Vitest + jsdom + `@testing-library/react`/`dom`/`jest-dom` + `@vitejs/plugin-react`** (test tooling, per Next 16's official Vitest guide) | Constitution Art. VII requires an executable test suite, and the Art. II/V invariants (five-field confirmation, disclaimer rendering, DEMO labeling) are component-level — asserting them needs a DOM and a render library, not a bare runner |
 
 ## Architecture
@@ -77,7 +78,7 @@ Endpoint/field details live in `.claude/skills/polymarket-api/SKILL.md`.
 
 ## Amendments since approval
 
-Both corrections were mandated by the constitution audit of tasks.md on 2026-08-31; neither changes scope:
+These corrections were mandated by constitution audits of tasks.md on 2026-08-31; none changes scope:
 
 1. **Vitest added to the stack (Art. VI).** Constitution Article VII was adopted after this plan was approved, so the test runner every RED/GREEN task depends on was untraced.
 2. **DOM test tooling added (Art. VI).** The Article II/V invariants are component-level, so jsdom and `@testing-library/react` join Vitest; a bare runner cannot assert that the confirmation renders five fields.
