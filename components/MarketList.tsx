@@ -9,7 +9,13 @@ const REFRESH_MS = 30_000;
 
 type Payload = { markets: Market[]; nextCursor: string | null; stale?: boolean; error?: string };
 
-export function MarketList() {
+export function MarketList({
+  selectedId,
+  onSelect,
+}: {
+  selectedId?: string | null;
+  onSelect?: (market: Market) => void;
+} = {}) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
@@ -130,7 +136,12 @@ export function MarketList() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {markets.map((m) => (
-            <MarketCard key={m.id} market={m} />
+            <MarketCard
+              key={m.id}
+              market={m}
+              selected={m.id === selectedId}
+              onSelect={onSelect}
+            />
           ))}
         </div>
       )}

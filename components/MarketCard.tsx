@@ -1,9 +1,40 @@
 import type { Market } from "@/lib/polymarket/gamma";
 import { formatEndDate, formatPercent, formatUsd } from "@/lib/format";
 
-export function MarketCard({ market }: { market: Market }) {
+export function MarketCard({
+  market,
+  selected = false,
+  onSelect,
+}: {
+  market: Market;
+  selected?: boolean;
+  onSelect?: (market: Market) => void;
+}) {
+  const interactive = Boolean(onSelect);
   return (
-    <article className="rounded-lg border border-black/10 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-white/15 dark:bg-neutral-900">
+    <article
+      onClick={onSelect ? () => onSelect(market) : undefined}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onKeyDown={
+        onSelect
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelect(market);
+              }
+            }
+          : undefined
+      }
+      aria-pressed={interactive ? selected : undefined}
+      className={`rounded-lg border bg-white p-4 shadow-sm transition dark:bg-neutral-900 ${
+        interactive ? "cursor-pointer hover:shadow-md" : ""
+      } ${
+        selected
+          ? "border-neutral-900 ring-1 ring-neutral-900 dark:border-white dark:ring-white"
+          : "border-black/10 dark:border-white/15"
+      }`}
+    >
       <h3 className="mb-3 text-sm font-medium leading-snug text-neutral-900 dark:text-neutral-100">
         {market.question}
       </h3>

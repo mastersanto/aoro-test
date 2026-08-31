@@ -43,7 +43,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
       Verify: `npm test` passes; the modal renders all five fields.
 - [x] T13. **RED** — failing tests for the demo-mode state machine: simulated balance starts at $1,000, debits on fill, resets per session, fills at the live best ask, and demo state is always flagged.
       Verify: `npm test` fails on those assertions.
-- [ ] T14. **GREEN** — implement demo mode until T13 passes, with unmistakable DEMO labeling on every bet-like control and result.
+- [x] T14. **GREEN** — implement demo mode until T13 passes, with unmistakable DEMO labeling on every bet-like control and result.
       Verify: `npm test` passes; in the browser a demo bet debits the balance, shows a position, needs no wallet, and every relevant control reads DEMO.
 
 ## Phase 4 — AI assistance (US-4)
