@@ -27,7 +27,6 @@ export function Widget() {
   const [error, setError] = useState<string | null>(null);
   const [geo, setGeo] = useState<GeoDecision | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [marketClosed, setMarketClosed] = useState(false);
   const narrow = useIsNarrow();
 
   // Keep the selected market's price current (003 / AR-1). The list is a
@@ -35,10 +34,7 @@ export function Widget() {
   // this refreshes by id, and closure comes only from the market's own flag.
   const selectedId = market?.id ?? null;
   useEffect(() => {
-    if (!selectedId) {
-      setMarketClosed(false);
-      return;
-    }
+    if (!selectedId) return;
     let cancelled = false;
 
     const refresh = async () => {
@@ -48,7 +44,6 @@ export function Widget() {
         const body = (await res.json()) as { market?: Market };
         if (cancelled || !body.market || body.market.id !== selectedId) return;
         setMarket(body.market);
-        setMarketClosed(Boolean(body.market.closed));
       } catch {
         // Keep what we have rather than blanking a selection the user made.
       }
@@ -99,6 +94,7 @@ export function Widget() {
     walletReady: WALLET_READY,
   });
   const geoBlocked = geo !== null && !geo.bettingAllowed;
+  const marketClosed = Boolean(market?.closed);
 
   /**
    * Article II: using a suggestion only fills in the form. It selects the market
