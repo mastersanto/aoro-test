@@ -16,6 +16,7 @@ Polymarket API facts referenced below were verified against docs.polymarket.com 
 | **wagmi + viem** | Wallet connect and signing (US-2, spec D3); viem signer plugs directly into `@polymarket/client`'s `createSecureClient` |
 | **No database, no server-side user state** | Spec out-of-scope; demo balance is per-session client state (US-3) |
 | **ESLint** (`eslint`, `eslint-config-next`) | The lint gate in every task's Verify line and in CI; ships with the Next TypeScript template |
+| **`server-only`** | Build-time guard so a client component importing `lib/ai/client.ts` fails the build rather than leaking the key at runtime (Art. IV) |
 | **Vitest + jsdom + `@testing-library/react`/`dom`/`jest-dom` + `@vitejs/plugin-react`** (test tooling, per Next 16's official Vitest guide) | Constitution Art. VII requires an executable test suite, and the Art. II/V invariants (five-field confirmation, disclaimer rendering, DEMO labeling) are component-level — asserting them needs a DOM and a render library, not a bare runner |
 
 ## Architecture
@@ -25,7 +26,7 @@ One page (`/`) with three panels — market list + search, bet panel (real/demo)
 ```
 browser (widget page)
   ├─ GET /api/markets ──→ Gamma /markets/keyset (closed=false, order=volume24hr)   [cached ~30s]
-  ├─ POST /api/assist ──→ Gamma (candidate markets) → Claude API → suggestions      [streamed]
+  ├─ POST /api/assist ──→ Gamma (candidate markets) → Claude API → suggestions      [one-shot]
   ├─ GET /api/geo ─────→ Vercel geo header + close-only country list → {betting: on|off}
   └─ wallet + CLOB (client-side only): wagmi connect → L1/L2 auth → signed order → clob.polymarket.com
 ```
@@ -39,7 +40,7 @@ browser (widget page)
 - **US-2 Real bet:** connect wallet (wagmi injected/WalletConnect, Polygon) → `@polymarket/client` `createSecureClient` with the viem signer → L1 EIP-712 auth, derive L2 creds (signatureType EOA=0) → user picks outcome + amount → **confirmation modal showing market, outcome, amount, price, estimated payout (Art. II)** → market-style FOK/FAK buy order signed by the wallet → success shows position, failure shows plain-language reason. Collateral is **pUSD** (Polymarket's USDC-claim wrapper on Polygon). The widget handles the ERC-20 allowance itself: it detects an insufficient allowance before submitting, offers an approve step, and retries — a first-time funded user must be able to complete a bet without leaving the widget. The exact approval targets are Risk 1 below.
 - **US-3 Demo mode:** toggle switches the bet panel to a simulated per-session balance (starts at $1,000, resets on reload); "orders" fill at the live best ask from CLOB `/price` (no auth); identical confirmation modal; every control and result labeled DEMO. Available regardless of geo (moves no money).
 - **US-4 AI assist:** user describes interest → `POST /api/assist` → route fetches current candidate markets from Gamma and passes them to Claude (`claude-opus-5` via `@anthropic-ai/sdk`, structured output constrained to the provided market/outcome ids — see Amendment 5 on streaming). Grounding is stronger than validation: the model returns only ids plus reasoning, and every field the user sees is rebuilt from our own market data, so an invented market or price cannot reach the UI → suggestions render with reasoning + live price and a **"not financial advice" disclaimer (Art. V)** → selecting one only pre-fills the bet form (Art. II).
-- **US-5 Geo degrade:** `/api/geo` maps the request's country (Vercel geo header) against the close-only/blocked tiers (US included — see Risk 2); when restricted, real-bet controls are disabled with an explanation while browse, AI, and demo stay live. Per-market `restricted` flag from Gamma is respected too. Pre-trade, the client also consults Polymarket's own `GET polymarket.com/api/geoblock` as the authoritative signal.
+- **US-5 Geo degrade:** `/api/geo` maps the request's country (Vercel geo header) against the close-only/blocked tiers (US included — see Risk 2); when restricted, real-bet controls are disabled with an explanation while browse, AI, and demo stay live. Per-market `restricted` flag from Gamma is respected too. `lib/betting-availability.ts` composes region, per-market restriction and wallet readiness into the predicate that disables the control itself. Polymarket's own `GET polymarket.com/api/geoblock` is the authoritative pre-trade signal and lands with real placement in T27 (Amendment 6).
 
 ## External APIs and services
 
@@ -47,8 +48,8 @@ browser (widget page)
 |---|---|---|---|
 | Gamma API (`gamma-api.polymarket.com`) | US-1 discovery, US-4 grounding | none | **Keyset endpoints only** — offset `/markets` is past its documented sunset |
 | CLOB API (`clob.polymarket.com`) | US-2 orders; US-3/US-2 prices | L1 wallet sig → L2 derived creds (orders); none (prices) | Order signing client-side only |
-| `polymarket.com/api/geoblock` | US-5 authoritative geo check | none | Builders are expected to call it pre-trade |
-| Claude API (Messages) | US-4 suggestions | `ANTHROPIC_API_KEY`, server-side (Art. IV) | Model `claude-opus-5` (env-overridable); streaming; structured outputs |
+| `polymarket.com/api/geoblock` | US-5 authoritative pre-trade check | none | Lands in T27 with real placement (Amendment 6); the server-side region check gates the control until then |
+| Claude API (Messages) | US-4 suggestions | `ANTHROPIC_API_KEY`, server-side (Art. IV) | Model `claude-opus-5` (env-overridable); structured outputs (Amendment 5) |
 
 Endpoint/field details live in `.claude/skills/polymarket-api/SKILL.md`.
 
@@ -87,6 +88,9 @@ These corrections were mandated by constitution audits of tasks.md on 2026-08-31
 4. **Read-only CLOB prices use plain fetch, not the SDK (Art. VI).** `/price`, `/midpoint`, and `/book` are three unauthenticated GETs (verified live). `@polymarket/client` is v0.x with eight transitive dependencies, and its value is order construction and signing — so it now enters in Phase 6 (T27) rather than Phase 3, keeping the dependency set minimal. `lib/polymarket/clob.ts` is the single wrapper either way, so Risk 4's containment still holds.
 
 5. **AI assist responds in one shot rather than streaming (Art. VI).** The plan assumed streaming, but the response is a capped, schema-constrained list of at most three suggestions; streaming partial JSON would add moving parts for no user-visible gain on a payload that small. `client.messages.parse()` with `output_config.format` also validates the shape for us. Reconsider if the response ever grows to prose.
+
+6. **The `geoblock` pre-trade check moves to T27 (Art. I).** The plan named it the authoritative geo signal, but it is a *pre-trade* check and no trade exists until Phase 6. As built, the server-side region check plus `lib/betting-availability.ts` gate the control; the geoblock call lands with real placement.
+7. **`server-only` added to the stack (Art. VI).** It makes the Art. IV boundary a build error rather than a convention.
 
 ## Approval
 

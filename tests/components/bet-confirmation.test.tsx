@@ -149,3 +149,41 @@ describe("Article II — the confirmation step", () => {
     expect(onPlace).not.toHaveBeenCalled();
   });
 });
+
+describe("hazards found in the final audit", () => {
+  it("refuses to review an outcome with no usable price instead of crashing", () => {
+    const zeroPriced = {
+      ...market,
+      outcomes: [{ label: "Broken", price: 0, tokenId: "z1" }],
+    };
+    render(<BetPanel market={zeroPriced} mode="real" onPlace={onPlace} />);
+    fireEvent.click(screen.getByRole("button", { name: /Broken/i }));
+    fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: "10" } });
+    fireEvent.click(screen.getByRole("button", { name: /review bet/i }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByText(/no usable price/i)).toBeInTheDocument();
+    expect(onPlace).not.toHaveBeenCalled();
+  });
+
+  it("will not place a draft that was opened before betting became disabled", () => {
+    const { rerender } = render(
+      <BetPanel market={market} mode="real" onPlace={onPlace} balanceUsd={1000} />,
+    );
+    const dialog = within(openConfirmation());
+
+    // The region decision arrives late and disables betting while the modal is open.
+    rerender(
+      <BetPanel
+        market={market}
+        mode="real"
+        onPlace={onPlace}
+        balanceUsd={1000}
+        bettingDisabled
+        disabledReason="Betting is not available in your region."
+      />,
+    );
+    fireEvent.click(dialog.getByRole("button", { name: /place bet/i }));
+    expect(onPlace).not.toHaveBeenCalled();
+  });
+});

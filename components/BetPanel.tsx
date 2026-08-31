@@ -34,8 +34,11 @@ export function BetPanel({
   const amountUsd = Number(amount);
   const amountValid = Number.isFinite(amountUsd) && amountUsd > 0;
   const withinBalance = balanceUsd === undefined || amountUsd <= balanceUsd;
+  // A 0-priced outcome would make the payout estimate throw while the dialog
+  // renders, so it can never become a reviewable draft.
+  const priceUsable = outcome !== null && outcome.price > 0 && outcome.price <= 1;
   const canReview =
-    Boolean(market) && Boolean(outcome) && amountValid && withinBalance && !bettingDisabled;
+    Boolean(market) && priceUsable && amountValid && withinBalance && !bettingDisabled;
 
   /** The only place a draft is created. It opens the confirmation; it never places. */
   function review() {
@@ -46,6 +49,12 @@ export function BetPanel({
   /** The only call site of onPlace in the entire component (Art. II). */
   async function confirm() {
     if (!draft || pending) return;
+    // Re-check at the moment of placement: the draft may have been opened before
+    // the region decision arrived or before the market/mode changed.
+    if (bettingDisabled) {
+      setDraft(null);
+      return;
+    }
     setPending(true);
     try {
       await onPlace(draft);
@@ -124,6 +133,11 @@ export function BetPanel({
         {bettingDisabled && disabledReason && (
           <p role="status" className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
             {disabledReason}
+          </p>
+        )}
+        {outcome !== null && !priceUsable && (
+          <p role="status" className="text-xs text-red-700 dark:text-red-300">
+            This outcome has no usable price right now, so it cannot be bet on.
           </p>
         )}
         {amountValid && !withinBalance && (

@@ -104,3 +104,61 @@ describe("restricted region", () => {
     );
   });
 });
+
+describe("gaps T19 promised but never covered", () => {
+  it("honors Gamma's per-market restricted flag even in an allowed region", async () => {
+    const restricted = { ...market, restricted: true };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const u = String(url);
+        if (u.includes("/api/geo"))
+          return { ok: true, status: 200, json: async () => ({ country: "BR", bettingAllowed: true }) };
+        if (u.includes("/api/markets"))
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({ markets: [restricted], nextCursor: null, stale: false }),
+          };
+        return { ok: true, status: 200, json: async () => ({ price: "0.09" }) };
+      }),
+    );
+    render(<Widget />);
+    fireEvent.click((await screen.findByRole("heading", { name: /Tirante/i })).closest('[role="button"]')!);
+    fireEvent.click(screen.getByRole("button", { name: /real money/i }));
+
+    expect(await screen.findByText(/this market is restricted/i)).toBeInTheDocument();
+    for (const el of screen.getAllByRole("button")) fireEvent.click(el);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("an unrestricted region and market are blocked only by the unbuilt wallet", async () => {
+    // The captured fixture market is genuinely restricted upstream, so this test
+    // must use an unrestricted one to isolate the wallet as the only blocker.
+    const open = { ...market, restricted: false };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const u = String(url);
+        if (u.includes("/api/geo"))
+          return { ok: true, status: 200, json: async () => ({ country: "BR", bettingAllowed: true }) };
+        if (u.includes("/api/markets"))
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({ markets: [open], nextCursor: null, stale: false }),
+          };
+        return { ok: true, status: 200, json: async () => ({ price: "0.09" }) };
+      }),
+    );
+    render(<Widget />);
+    fireEvent.click((await screen.findByRole("heading", { name: /Tirante/i })).closest('[role="button"]')!);
+    fireEvent.click(screen.getByRole("button", { name: /real money/i }));
+
+    // Positive assertion, not the absence of a warning: the reason shown must be
+    // the wallet one, proving geo is not what is blocking here.
+    expect(await screen.findByText(/not enabled in this build/i)).toBeInTheDocument();
+    expect(screen.queryByText(/your region/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/market is restricted/i)).not.toBeInTheDocument();
+  });
+});

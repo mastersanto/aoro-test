@@ -6,6 +6,7 @@ import type { Market, Outcome } from "@/lib/polymarket/gamma";
 import type { GroundedSuggestion } from "@/lib/ai/grounding";
 import { createDemoState, placeDemoBet } from "@/lib/demo";
 import type { GeoDecision } from "@/lib/geo";
+import { realBettingAvailability } from "@/lib/betting-availability";
 import { fetchPrice } from "@/lib/polymarket/clob";
 import { AssistPanel } from "@/components/AssistPanel";
 import { BetPanel } from "@/components/BetPanel";
@@ -48,16 +49,16 @@ export function Widget() {
     };
   }, []);
 
-  // Real betting is unavailable for two independent reasons, and the user is
-  // told which one applies. Geo comes first: it is the compliance answer, and it
-  // stays true even once Phase 6 ships the wallet.
+  // Phase 6 (T23-T27) flips this to true once the wallet and CLOB signing land.
+  // Everything else in the predicate keeps applying without further changes.
+  const WALLET_READY = false;
+
+  const availability = realBettingAvailability({
+    geo,
+    marketRestricted: Boolean(market?.restricted),
+    walletReady: WALLET_READY,
+  });
   const geoBlocked = geo !== null && !geo.bettingAllowed;
-  const marketRestricted = Boolean(market?.restricted);
-  const realDisabledReason = geoBlocked
-    ? geo?.reason
-    : marketRestricted
-      ? "This market is restricted and cannot be bet on from the widget. Demo mode still works."
-      : "Real betting is not enabled in this build yet. Demo mode runs the same flow with a practice balance.";
 
   /**
    * Article II: using a suggestion only fills in the form. It selects the market
@@ -160,8 +161,8 @@ export function Widget() {
             initialOutcome={preselected}
             mode={mode}
             onPlace={handlePlace}
-            bettingDisabled={mode === "real"}
-            disabledReason={mode === "real" ? realDisabledReason : undefined}
+            bettingDisabled={mode === "real" && !availability.allowed}
+            disabledReason={mode === "real" ? availability.reason : undefined}
             balanceUsd={mode === "demo" ? demo.balanceUsd : undefined}
           />
           <DemoPositions positions={demo.positions} />

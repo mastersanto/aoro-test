@@ -35,7 +35,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 - [x] T9. **RED** — failing tests for the CLOB read-only price module and payout math (best ask → estimated payout, rounding, zero and edge amounts).
       Verify: `npm test` fails on those assertions against a recorded fixture.
-- [x] T10. **GREEN** — implement `lib/polymarket/clob.ts` (wrapping a pinned `@polymarket/client`; `/price`, `/midpoint`, `/book`) and the payout helper until T9 passes.
+- [x] T10. **GREEN** — implement `lib/polymarket/clob.ts` (`/price`, `/midpoint`, `/book`) and the payout helper until T9 passes. *(As built: plain fetch, not `@polymarket/client` — plan Amendment 4. The SDK enters at T27 for order signing.)*
       Verify: `npm test` passes; a live call returns a best ask for a known token id.
 - [x] T11. **RED** — failing tests for the confirmation invariant (Art. II): the confirmation exposes market, outcome, amount, price, and estimated payout, and no submit path — demo or real — bypasses it.
       Verify: `npm test` fails on those assertions, including the bypass check.
@@ -50,18 +50,18 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 - [x] T15. **RED** — failing tests for the grounding invariant (Art. II): every suggestion id returned by the assist route exists in the candidate set supplied to the model, and a model response naming an unknown id is rejected rather than surfaced.
       Verify: `npm test` fails on those assertions, including the unknown-id case.
-- [x] T16. **GREEN** — implement `POST /api/assist` (server-side Claude call, streaming, structured output constrained to supplied ids) until T15 passes.
+- [x] T16. **GREEN** — implement `POST /api/assist` (server-side Claude call, structured output constrained to supplied ids) until T15 passes. *(As built: one-shot `messages.parse()`, not streaming — plan Amendment 5.)*
       Verify: `npm test` passes; `grep -r ANTHROPIC_API_KEY .next/static` finds nothing (Art. IV).
 - [x] T17. **RED** — failing tests for the assist UI invariants: selecting a suggestion only pre-fills the Phase 3 bet form and reaches no submission path (Art. II); the "not financial advice" disclaimer renders whenever suggestions render (Art. V).
       Verify: `npm test` fails on those assertions.
-- [x] T18. **GREEN** — implement the assist UI (prompt box, streamed suggestions with reasoning and live price, disclaimer, pre-fill wiring) until T17 passes; styling itself is exempt.
+- [x] T18. **GREEN** — implement the assist UI (prompt box, suggestions with reasoning and live price, disclaimer, pre-fill wiring) until T17 passes; styling itself is exempt.
       Verify: `npm test` passes; in the browser a query streams suggestions with prices and a visible disclaimer, and selecting one places no order.
 
 ## Phase 5 — Geo compliance (US-5)
 
 - [x] T19. **RED** — failing tests for geo gating (Art. V): a restricted region disables real-bet controls with an explanation while browse, AI, and demo stay available; Gamma's per-market `restricted` flag is honored; an unrestricted region leaves betting enabled.
       Verify: `npm test` fails on those assertions.
-- [x] T20. **GREEN** — implement `GET /api/geo` plus the client-side pre-trade `polymarket.com/api/geoblock` check and UI gating until T19 passes.
+- [x] T20. **GREEN** — implement `GET /api/geo` and UI gating until T19 passes. *(As built: the server-side region check gates the control via `lib/betting-availability.ts`. Polymarket's own `polymarket.com/api/geoblock` call is a pre-trade check with no trade to precede yet, so it moved to T27 — see plan Amendment 6.)*
       Verify: `npm test` passes; with a simulated restricted region the browser disables real betting with an explanation and US-1/US-3/US-4 still work.
 
 ## Phase 6 — Real betting (US-2)
@@ -78,7 +78,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
       Verify: `npm test` passes; a first-time funded wallet can approve and proceed without leaving the widget.
 - [ ] T26. **RED** — failing tests for order construction: amount and outcome map to correct FOK/FAK buy parameters (size, price, tick rounding, min size), and a fill response maps to the rendered position.
       Verify: `npm test` fails on those assertions against a recorded CLOB fixture.
-- [ ] T27. **GREEN** — implement real order placement until T26 passes: the constructed order is signed by the user's wallet and submitted from the client only after the T12 confirmation.
+- [ ] T27. **GREEN** — implement real order placement until T26 passes: the constructed order is signed by the user's wallet and submitted from the client only after the T12 confirmation. Add the pre-trade `polymarket.com/api/geoblock` check here (moved from T20), and flip `WALLET_READY` in `components/Widget.tsx` — `lib/betting-availability.ts` already gates on region and per-market restriction, and its tests must keep passing.
       Verify: `npm test` passes; a small real bet from a non-restricted region fills and the resulting position renders. Extend the T11 confirmation-bypass and T19 geo-gating suites to cover this real submit path.
 - [ ] T28. **GREEN** — implement failure handling until the T22 mapping tests pass: each failure surfaces its plain-language message with funds untouched and no partial state.
       Verify: `npm test` passes; each failure is exercised or simulated in the browser and shows its message.
