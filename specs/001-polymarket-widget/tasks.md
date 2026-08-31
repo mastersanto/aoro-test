@@ -5,7 +5,7 @@
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first. Load the `polymarket-api` skill before any task touching Polymarket.
 
-**Article VII (test-first) applies.** Binding work is split into a **RED** task (write the failing test that states the requirement) and a **GREEN** task (implement until it passes). Tasks marked **(exempt)** name an Article VII exempt category — scaffolding, styling and layout, dependency configuration, documentation, deployment, or an exploratory spike. A RED task's Verify line requires the test to fail *for the right reason* (a real assertion, not an import or syntax error).
+**Article VII (test-first) applies.** Binding work is split into a **RED** task (write the failing test that states the requirement) and a **GREEN** task (implement until it passes). Tasks marked **(exempt)** name an Article VII exempt category — scaffolding, styling and layout, dependency configuration, deployment, or an exploratory spike. Tasks marked **(not binding)** fall outside the article entirely: documentation is neither business logic nor a safety invariant, so it needs no exemption. A RED task's Verify line requires the test to fail *for the right reason* (a real assertion, not an import or syntax error).
 
 Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) → AI assist (US-4) → geo (US-5) → real bets (US-2). Demo betting precedes AI assist because the assist UI pre-fills the bet form that demo betting builds. Value ships from Phase 2 onward, and the unverified pUSD approval flow (T21) is retired before any real-money UI exists.
 
@@ -13,10 +13,10 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 - [ ] T1. **(exempt — scaffolding)** Scaffold Next.js (App Router) + TypeScript + Tailwind at the repo root; pin exact versions; preserve the existing `.gitignore`, `README.md`, `CLAUDE.md`, and `.env.example`.
       Verify: `npm run dev` serves localhost:3000; `npm run build` and `npm run lint` exit 0.
-- [ ] T2. **(exempt — documentation)** Replace the "Commands" section of CLAUDE.md with the real dev/build/lint/test commands, including how to run a single test.
+- [ ] T2. **(not binding — documentation)** Replace the "Commands" section of CLAUDE.md with the real dev/build/lint/test commands, including how to run a single test.
       Verify: every command listed runs successfully from a clean checkout.
-- [ ] T3. **(exempt — dependency configuration)** Add Vitest with one smoke test; wire `npm test` and single-test invocation.
-      Verify: `npm test` passes; running one test by name passes.
+- [ ] T3. **(exempt — dependency configuration)** Add Vitest plus a DOM environment (jsdom) and `@testing-library/react` — the render-dependent RED tasks (T11, T13, T17, T19) assert on rendered components and cannot run without them — with one smoke test and one trivial component render; wire `npm test` and single-test invocation.
+      Verify: `npm test` passes including the component render; running one test by name passes.
 
 ## Phase 2 — Market discovery (US-1)
 
@@ -79,7 +79,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 - [ ] T26. **RED** — failing tests for order construction: amount and outcome map to correct FOK/FAK buy parameters (size, price, tick rounding, min size), and a fill response maps to the rendered position.
       Verify: `npm test` fails on those assertions against a recorded CLOB fixture.
 - [ ] T27. **GREEN** — implement real order placement until T26 passes: the constructed order is signed by the user's wallet and submitted from the client only after the T12 confirmation.
-      Verify: `npm test` passes; a small real bet from a non-restricted region fills and the resulting position renders.
+      Verify: `npm test` passes; a small real bet from a non-restricted region fills and the resulting position renders. Extend the T11 confirmation-bypass and T19 geo-gating suites to cover this real submit path.
 - [ ] T28. **GREEN** — implement failure handling until the T22 mapping tests pass: each failure surfaces its plain-language message with funds untouched and no partial state.
       Verify: `npm test` passes; each failure is exercised or simulated in the browser and shows its message.
 
@@ -87,7 +87,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 - [ ] T29. **(exempt — deployment)** Deploy to Vercel with `ANTHROPIC_API_KEY` set in project env; confirm preview and production builds.
       Verify: the deployed URL serves the widget; browse, AI assist, and demo mode work in production; the key is absent from the client bundle.
-- [ ] T30. **(exempt — documentation)** Update README (what it does, how to run locally, demo-mode note, live URL) and confirm spec/plan still describe the system as built.
+- [ ] T30. **(not binding — documentation)** Update README (what it does, how to run locally, demo-mode note, live URL, and the Netlify fallback the plan commits to) and confirm spec/plan still describe the system as built.
       Verify: a clean clone can follow the README to a running dev server; `bash scripts/sdd-lint.sh` passes.
 
 ## Approval

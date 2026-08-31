@@ -34,7 +34,7 @@ Business logic and every safety invariant this constitution asserts are written 
 - the Article V guarantees — restricted regions cannot place real bets, and required disclaimers render;
 - pure logic — data normalization, price and payout math, state transitions, and error mapping.
 
-Exempt: project scaffolding, styling and layout, dependency configuration, documentation, deployment, and exploratory spikes against an external API whose behavior is the thing being discovered. These are verified by their Article VI Verify line alone, and a task that claims exemption says so explicitly.
+Exempt: project scaffolding, styling and layout, dependency configuration, deployment, and exploratory spikes against an external API whose behavior is the thing being discovered. These are verified by their Article VI Verify line alone, and a task that claims exemption says so explicitly.
 
 ---
 

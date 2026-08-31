@@ -15,7 +15,7 @@ Polymarket API facts referenced below were verified against docs.polymarket.com 
 | **`@polymarket/client`** (official Polymarket TS SDK) | Order placement + prices (US-2); current SDK per Polymarket docs (the older `@polymarket/clob-client` is legacy) |
 | **wagmi + viem** | Wallet connect and signing (US-2, spec D3); viem signer plugs directly into `@polymarket/client`'s `createSecureClient` |
 | **No database, no server-side user state** | Spec out-of-scope; demo balance is per-session client state (US-3) |
-| **Vitest** (test runner) | Constitution Art. VII (test-first where it binds) requires an executable test suite; Vitest is the standard runner for this stack |
+| **Vitest + jsdom + `@testing-library/react`** (test tooling) | Constitution Art. VII requires an executable test suite, and the Art. II/V invariants (five-field confirmation, disclaimer rendering, DEMO labeling) are component-level — asserting them needs a DOM and a render library, not a bare runner |
 
 ## Architecture
 
@@ -70,7 +70,7 @@ Endpoint/field details live in `.claude/skills/polymarket-api/SKILL.md`.
 - **Art. III (custody stays with the user):** orders signed in-browser by the user's wallet; server holds no keys, funds, or Polymarket credentials. **Pass.**
 - **Art. IV (secrets server-side):** the only secret is `ANTHROPIC_API_KEY`, used exclusively in `/api/assist`; `.env.example` documents it. **Pass.**
 - **Art. V (compliance is a requirement):** geo handling is a first-class route + UI state (US-5); the disclaimer is an acceptance criterion of US-4 and rendered with every suggestion. **Pass.**
-- **Art. VI (small, verifiable steps):** dependency set is seven packages, each justified in the Stack table; tasks.md gives every task a Verify line. **Pass.**
+- **Art. VI (small, verifiable steps):** every dependency is justified in the Stack table above, test tooling included; tasks.md gives every task a Verify line. **Pass.**
 - **Art. VII (test-first where it binds):** business logic and every Art. II/V invariant is split RED/GREEN in tasks.md — grounding, confirmation-bypass, demo state, geo gating, order construction, allowance handling, credential safety, error mapping. Scaffolding, styling, dependency config, documentation, deployment, and the pUSD spike are tagged exempt with reasons. **Pass.**
 
 **Spec correction made in this change (Art. I — docs describe reality):** spec US-2 said the wallet holds "USDC on Polygon"; Polymarket migrated collateral to pUSD (a USDC-claim wrapper). The acceptance criterion now names pUSD. Scope is unchanged.
@@ -80,7 +80,8 @@ Endpoint/field details live in `.claude/skills/polymarket-api/SKILL.md`.
 Both corrections were mandated by the constitution audit of tasks.md on 2026-08-31; neither changes scope:
 
 1. **Vitest added to the stack (Art. VI).** Constitution Article VII was adopted after this plan was approved, so the test runner every RED/GREEN task depends on was untraced. Dependency count is now seven.
-2. **pUSD allowance/approval handled in-widget (Art. I).** No task implemented the ERC-20 approval transaction, so a first-time funded user could not complete US-2 ("Success shows the resulting position"). The US-2 data flow now includes detect → approve → retry, with tasks to match.
+2. **DOM test tooling added (Art. VI).** The Article II/V invariants are component-level, so jsdom and `@testing-library/react` join Vitest; a bare runner cannot assert that the confirmation renders five fields.
+3. **pUSD allowance/approval handled in-widget (Art. I).** No task implemented the ERC-20 approval transaction, so a first-time funded user could not complete US-2 ("Success shows the resulting position"). The US-2 data flow now includes detect → approve → retry, with tasks to match.
 
 ## Approval
 
