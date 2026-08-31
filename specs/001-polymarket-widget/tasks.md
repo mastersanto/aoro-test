@@ -1,6 +1,6 @@
 # Tasks 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Approved 2026-08-31 (revised for constitution Article VII, then re-approved)
+**Status:** Approved 2026-08-31 — 22 of 30 done; Phase 6 (T21-T28) blocked on the pUSD spike
 **Plan:** ./plan.md (approved 2026-08-31, amended 2026-08-31)
 
 Rules: tasks are ordered, small, and each states its verification. Check off items as they land; if a task turns out wrong, fix plan.md first. Load the `polymarket-api` skill before any task touching Polymarket.
@@ -85,9 +85,9 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 ## Phase 7 — Ship
 
-- [ ] T29. **(exempt — deployment)** Deploy to Vercel with `ANTHROPIC_API_KEY` set in project env; confirm preview and production builds.
+- [x] T29. **(exempt — deployment)** Deploy to Vercel with `ANTHROPIC_API_KEY` set in project env; confirm preview and production builds.
       Verify: the deployed URL serves the widget; browse, AI assist, and demo mode work in production; the key is absent from the client bundle.
-- [ ] T30. **(not binding — documentation)** Update README (what it does, how to run locally, demo-mode note, live URL, and the Netlify fallback the plan commits to) and confirm spec/plan still describe the system as built.
+- [x] T30. **(not binding — documentation)** Update README (what it does, how to run locally, demo-mode note, live URL, and the Netlify fallback the plan commits to) and confirm spec/plan still describe the system as built.
       Verify: a clean clone can follow the README to a running dev server; `bash scripts/sdd-lint.sh` passes.
 
 ## Approval

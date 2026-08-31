@@ -6,13 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Polymarket Widget — a web widget that lets a user browse Polymarket prediction markets, get AI assistance choosing a market and outcome, and place a bet. Target deployment: Vercel (primary; the planned stack is Next.js, which Vercel hosts natively — Netlify is the fallback).
 
-## Current state: feature 001 under implementation (Phases 1-5 of 7 complete)
+## Current state: feature 001 under implementation (22 of 30 tasks; deployed)
 
 This repository practices Spec-Driven Development (SDD). All work flows through specs before implementation. **Do not write application code for a feature until its `spec.md`, `plan.md`, and `tasks.md` are complete and approved by the user** — the PreToolUse hook enforces this mechanically.
 
 Feature 001 (`specs/001-polymarket-widget/`) is approved through all three gates and is being implemented one task at a time: work the next unchecked task in its `tasks.md`.
 
-Shipped: market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), and geo gating (US-5). **Phase 6 (real betting, US-2) is blocked at T21** — the pUSD allowance/approval spike needs a funded wallet on Polygon and a non-restricted region, and the US is close-only on Polymarket's main exchange. T21 blocks T22-T29.
+Shipped and deployed at https://aoro-test-ten.vercel.app — market browse/search (US-1), demo betting (US-3), AI-assisted suggestions (US-4), and geo gating (US-5), plus Phase 7 (deploy, docs).
+
+**Phase 6 (real betting, US-2) is blocked at T21** — the pUSD allowance/approval spike needs a funded wallet on Polygon and a non-restricted region, and the US is close-only on Polymarket's main exchange. T21 blocks T22-T28.
 
 ## SDD workflow
 

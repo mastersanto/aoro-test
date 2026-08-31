@@ -2,9 +2,37 @@
 
 A web widget for browsing Polymarket prediction markets, getting AI assistance choosing a market and outcome, and placing a bet — with the user's own wallet, after explicit confirmation.
 
-**Status:** feature 001 under implementation — Phases 1-5 of 7 complete, 110 tests passing.
+**Live:** https://aoro-test-ten.vercel.app
 
-Working today: browse and search live markets, AI-assisted suggestions grounded in real market data, and full demo betting with a practice balance. Real-money betting (Phase 6) is not enabled yet — it is blocked on a pUSD approval spike that needs a funded wallet in a non-restricted region. Progress lives in `specs/001-polymarket-widget/tasks.md`.
+**Status:** feature 001 under implementation — 22 of 30 tasks done, 121 unit tests + 6 live tests passing.
+
+## What works today
+
+- **Browse and search live markets** — real Polymarket data, prices as implied odds, category filters, refreshing without a page reload.
+- **AI-assisted suggestions** — describe what interests you and get up to three real open markets with reasoning grounded in their current odds. The model returns only ids; every question, label and price shown is read back from our own market data, so it cannot invent a market or a price.
+- **Demo betting** — a $1,000 practice balance, filled at the live order-book price, labelled DEMO at every step. No wallet, no real money.
+- **Geo compliance** — restricted regions keep browsing, AI and demo, and lose only real betting, with an explanation.
+
+**Real-money betting is not enabled yet.** It is blocked at task T21, a spike that must place one small real order to confirm Polymarket's pUSD approval flow — the one API detail their docs do not specify. That needs a funded wallet on Polygon in a non-restricted region; the US is close-only on Polymarket's main exchange, so the deployment above reports real betting as unavailable.
+
+## Run it locally
+
+```bash
+npm install
+cp .env.example .env.local     # add ANTHROPIC_API_KEY for the AI panel
+npm run dev                    # http://localhost:3000
+```
+
+Market browsing and demo betting work with no key at all; only the AI panel needs one. Use a **workspace-scoped** Claude API key — an identity-linked key additionally requires `ANTHROPIC_WORKSPACE_ID` (see `.env.example`).
+
+```bash
+npm test          # 121 unit tests, no network
+npm run test:live # exercises the real Polymarket and Claude APIs (costs a model call)
+npm run build
+npm run lint
+```
+
+Progress lives in `specs/001-polymarket-widget/tasks.md`.
 
 ## How this repo works
 
@@ -35,8 +63,8 @@ The commit history mirrors the same progression: harness → spec approval → p
 
 ## Next step
 
-Open the repo in Claude Code and run `/sdd-status` — it reports every feature's gate state and names the single next action.
+Open the repo in Claude Code and run `/sdd-status` — it reports every feature's gate state and names the single next action. Today that is **T21**, the pUSD spike described above.
 
-## Deployment target
+## Deployment
 
-Vercel (primary — native host for the planned Next.js stack; preview deploys per PR). Netlify remains a compatible fallback. Final call is made in `plan.md`.
+Deployed on Vercel at the URL above; `ANTHROPIC_API_KEY` is set as a project environment variable and never reaches the browser. Netlify remains a compatible fallback (`plan.md`).
