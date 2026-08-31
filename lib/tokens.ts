@@ -15,7 +15,8 @@ export const color = {
   /** Text ramp, brightest first. */
   text: "#E8ECF3",
   muted: "#9AA3B2",
-  dim: "#79828F", // was #6B7484 — failed AA for body text
+  dim: "#828B99", // #6B7484 failed AA outright; #79828F failed only on the
+  // selected row, whose translucent tint composites the ground to #132225
   /** Outcome pairing. Never the sole carrier of meaning (VR-3). */
   up: "#3DDC97",
   down: "#F0616D",
@@ -23,6 +24,10 @@ export const color = {
   demo: "#FFC53D",
   /** Text placed on the up colour, e.g. a primary button. */
   onUp: "#06251A",
+  /** The ground as it appears under the selected row's translucent tint.
+      Not a paintable token — it exists so contrast can be checked against
+      what the eye actually sees, which is where #79828F failed. */
+  groundSelected: "#132225",
 } as const;
 
 /** Every (foreground, background) pair the UI actually renders. */
@@ -39,6 +44,8 @@ export const TEXT_PAIRS: ReadonlyArray<{ name: string; fg: string; bg: string; l
   { name: "down on panel", fg: color.down, bg: color.panel },
   { name: "demo on ground", fg: color.demo, bg: color.ground },
   { name: "demo on panel", fg: color.demo, bg: color.panel },
+  { name: "dim on the selected row", fg: color.dim, bg: color.groundSelected },
+  { name: "muted on the selected row", fg: color.muted, bg: color.groundSelected },
   { name: "button text on up", fg: color.onUp, bg: color.up },
 ];
 

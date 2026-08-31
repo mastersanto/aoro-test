@@ -45,12 +45,12 @@ Sequencing: the gate comes first, because a gate written after the work it judge
       Verify: `npm test` fails on those assertions against a stub module.
 - [x] T9. **GREEN** — implement `lib/outcome-bar.ts` until T8 passes.
       Verify: `npm test` green; the bar's widths for the fixture market match the displayed percentages.
-- [ ] T10. **GREEN** — restructure the list into dense rows with the bar, satisfying T7. If the heading/`role="button"` contract changes, replace each affected assertion with an equivalent in **this** task, never delete one.
+- [x] T10. **GREEN** — restructure the list into dense rows with the bar, satisfying T7. If the heading/`role="button"` contract changes, replace each affected assertion with an equivalent in **this** task, never delete one.
       Verify: `npm test` green with no test deleted or skipped and every replacement named in the commit; T7's and T3's list-related checks green; no horizontal scroll at 390.
 
 ## Phase 5 — Assist, positions, shell (VR-3)
 
-- [ ] T11. **GREEN** — restyle the assist panel, demo positions, geo notice, money-mode toggle, DEMO balance banner and bet-result notice to the tokens until T2's and T3's remaining checks pass.
+- [x] T11. **GREEN** — restyle the assist panel, demo positions, geo notice, money-mode toggle, DEMO balance banner and bet-result notice to the tokens until T2's and T3's remaining checks pass.
       Verify: the visual suite green at **both** viewports; `npm test` green with nothing deleted or skipped.
 
 ## Phase 6 — Mobile (VR-4)

@@ -100,17 +100,17 @@ export function Widget() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex rounded-md border border-black/15 p-0.5 dark:border-white/20" role="group" aria-label="Betting mode">
+        <div className="flex rounded-control border border-line-strong p-0.5" role="group" aria-label="Betting mode">
           {(["demo", "real"] as const).map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => setMode(m)}
               aria-pressed={mode === m}
-              className={`rounded px-3 py-1 text-xs font-medium transition ${
+              className={`min-h-11 rounded px-4 text-xs font-medium transition ${
                 mode === m
-                  ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                  : "text-neutral-600 dark:text-neutral-300"
+                  ? "bg-ink text-ground"
+                  : "text-muted"
               }`}
             >
               {m === "demo" ? "Demo" : "Real money"}
@@ -119,13 +119,13 @@ export function Widget() {
         </div>
 
         {mode === "demo" && (
-          <p className="rounded bg-amber-100 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:bg-amber-900/50 dark:text-amber-100">
+          <p className="rounded bg-demo/15 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-demo">
             DEMO — practice balance {formatUsdPrecise(demo.balanceUsd)}
           </p>
         )}
 
         {geoBlocked && (
-          <p role="status" className="text-xs text-neutral-600 dark:text-neutral-300">
+          <p role="status" className="text-xs text-muted">
             Real betting unavailable{geo?.country ? ` in ${geo.country}` : ""} — browsing, AI
             assistance and demo mode remain available.
           </p>
@@ -133,12 +133,12 @@ export function Widget() {
       </div>
 
       {notice && (
-        <p role="status" className="rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <p role="status" className="rounded-control border border-demo/30 bg-demo/10 px-3 py-2 text-xs text-demo">
           {notice}
         </p>
       )}
       {error && (
-        <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-800 dark:bg-red-950/40 dark:text-red-200">
+        <p role="alert" className="rounded-control bg-down/10 px-3 py-2 text-xs text-down">
           {error}
         </p>
       )}
