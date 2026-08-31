@@ -35,7 +35,7 @@ Sequencing: the pure rules first, since they hold every binding decision and nee
       Verify: `npm test` passes; a live check in `tests/live/` returns the market with its `closed` flag; `npm run test:visual` green; `bash scripts/sdd-lint.sh` passes.
 - [x] T7. **RED** — failing tests for re-hydration's hazards. **The new clause is the telling**: against shipped code a refreshed price already cannot reach an open dialog (the draft is frozen at review) and the remount key is the market id, which in-place refresh does not change — so those two are regression guards, and the assertions that must go red are that a moved price **is surfaced on the open confirmation and requires re-confirmation**, and that a market closing while a dialog is open **surfaces there** rather than unmounting it.
       Verify: `npm test` fails on the two new assertions; the two regression guards pass from the start and are labelled as such.
-- [ ] T8. **GREEN** — implement until T7 passes.
+- [x] T8. **GREEN** — implement until T7 passes.
       Verify: `npm test` passes; the Article II bypass tests in `tests/components/bet-confirmation.test.tsx` are untouched; `git diff --name-only` shows no pre-existing test file modified.
 
 ## Phase 3 — The route

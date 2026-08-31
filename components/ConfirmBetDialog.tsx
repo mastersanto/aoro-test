@@ -13,16 +13,33 @@ export function ConfirmBetDialog({
   draft,
   mode,
   pending,
+  livePrice,
+  marketClosed = false,
   onConfirm,
   onCancel,
+  onReview,
 }: {
   draft: BetDraft;
   mode: BetMode;
   pending?: boolean;
+  /** The outcome's price now. May differ from the draft's after a refresh. */
+  livePrice?: number | null;
+  marketClosed?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  /** Return to the form so the user re-reviews at the new price. */
+  onReview?: () => void;
 }) {
   const { payout } = estimatePayout(draft.amountUsd, draft.outcome.price);
+
+  // The draft stays authoritative: the number the user agreed to never changes
+  // underneath them. A move is surfaced instead, and commitment is withdrawn
+  // until they look again (003 / AR-1).
+  const moved =
+    typeof livePrice === "number" &&
+    Number.isFinite(livePrice) &&
+    Math.abs(livePrice - draft.outcome.price) > 0.0001;
+  const blocked = marketClosed || moved;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
@@ -71,6 +88,18 @@ export function ConfirmBetDialog({
           </div>
         </dl>
 
+        {marketClosed && (
+          <p role="alert" className="mt-3 rounded-control bg-down/10 px-3 py-2 text-xs text-down">
+            This market has closed since you opened this. No bet can be placed on it.
+          </p>
+        )}
+        {moved && !marketClosed && (
+          <p role="alert" className="mt-3 rounded-control bg-demo/10 px-3 py-2 text-xs text-demo">
+            The price has moved to {formatPercent(livePrice!)} since you reviewed this.
+            Nothing was placed — look again before confirming.
+          </p>
+        )}
+
         <p className="mt-3 text-xs text-dim">
           Estimates use the current price and may move before the order fills.
         </p>
@@ -83,14 +112,24 @@ export function ConfirmBetDialog({
           >
             Cancel
           </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            disabled={pending}
-            className="min-h-11 flex-1 rounded-control bg-up px-3 text-sm font-semibold text-on-up disabled:opacity-60"
-          >
-            {pending ? "Placing…" : "Place bet"}
-          </button>
+          {blocked ? (
+            <button
+              type="button"
+              onClick={onReview ?? onCancel}
+              className="min-h-11 flex-1 rounded-control border border-line-strong px-3 text-sm font-semibold text-ink hover:bg-white/5"
+            >
+              {marketClosed ? "Close" : "Review again"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={pending}
+              className="min-h-11 flex-1 rounded-control bg-up px-3 text-sm font-semibold text-on-up disabled:opacity-60"
+            >
+              {pending ? "Placing…" : "Place bet"}
+            </button>
+          )}
         </div>
       </div>
     </div>

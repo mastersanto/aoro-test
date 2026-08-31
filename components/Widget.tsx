@@ -146,6 +146,7 @@ export function Widget() {
       bettingDisabled={mode === "real" && !availability.allowed}
       disabledReason={mode === "real" ? availability.reason : undefined}
       balanceUsd={mode === "demo" ? demo.balanceUsd : undefined}
+      marketClosed={marketClosed}
     />
   );
 

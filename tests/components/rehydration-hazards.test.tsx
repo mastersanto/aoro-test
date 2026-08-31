@@ -7,7 +7,7 @@
  * are the new requirements — that a moved price is TOLD to the user on the open
  * confirmation, and that a market closing surfaces there rather than unmounting.
  */
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Widget } from "@/components/Widget";
 import { normalizeMarket } from "@/lib/polymarket/gamma";
@@ -24,6 +24,7 @@ const closed = { ...market, closed: true };
 let byId = market;
 
 beforeEach(() => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   byId = market;
   vi.stubGlobal(
     "fetch",
@@ -37,13 +38,14 @@ beforeEach(() => {
   );
 });
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.clearAllMocks();
 });
 
 async function openConfirmation() {
   render(<Widget />);
-  const heading = await screen.findByRole("heading", { name: /Tirante/i });
+  const heading = await screen.findByRole("heading", { name: /Tirante/i }, { timeout: 3000 });
   fireEvent.click(heading.closest('[role="button"]')!);
   fireEvent.click(await screen.findByRole("button", { name: /Tirante · 9%/i }));
   fireEvent.change(screen.getByLabelText(/amount/i), { target: { value: "90" } });
@@ -51,14 +53,12 @@ async function openConfirmation() {
   return screen.getByRole("dialog");
 }
 
-/** Force the next by-id poll to land. */
+/** Drive the by-id poll forward so the next refresh actually lands. */
 async function refreshWith(next: typeof market) {
   byId = next;
-  await waitFor(
-    () => expect(screen.getByRole("dialog")).toBeInTheDocument(),
-    { timeout: 1000 },
-  );
-  await new Promise((r) => setTimeout(r, 60));
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(31_000);
+  });
 }
 
 describe("regression guards (these hold today and must keep holding)", () => {

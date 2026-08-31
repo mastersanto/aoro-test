@@ -13,6 +13,8 @@ export type BetPanelProps = {
   bettingDisabled?: boolean;
   disabledReason?: string;
   balanceUsd?: number;
+  /** True when the market has closed since it was selected. */
+  marketClosed?: boolean;
   /** Pre-selects an outcome (used by AI assist). Never triggers placement. */
   initialOutcome?: Outcome | null;
 };
@@ -24,6 +26,7 @@ export function BetPanel({
   bettingDisabled = false,
   disabledReason,
   balanceUsd,
+  marketClosed = false,
   initialOutcome = null,
 }: BetPanelProps) {
   const [outcome, setOutcome] = useState<Outcome | null>(initialOutcome);
@@ -51,10 +54,14 @@ export function BetPanel({
     if (!draft || pending) return;
     // Re-check at the moment of placement: the draft may have been opened before
     // the region decision arrived or before the market/mode changed.
-    if (bettingDisabled) {
+    if (bettingDisabled || marketClosed) {
       setDraft(null);
       return;
     }
+    // The price may have moved since review; the dialog surfaces that and the
+    // user must look again, so nothing is placed from a stale draft.
+    const live = market?.outcomes.find((o) => o.tokenId === draft.outcome.tokenId)?.price;
+    if (typeof live === "number" && Math.abs(live - draft.outcome.price) > 0.0001) return;
     setPending(true);
     try {
       await onPlace(draft);
@@ -161,8 +168,11 @@ export function BetPanel({
           draft={draft}
           mode={mode}
           pending={pending}
+          livePrice={market.outcomes.find((o) => o.tokenId === draft.outcome.tokenId)?.price}
+          marketClosed={marketClosed}
           onConfirm={confirm}
           onCancel={() => setDraft(null)}
+          onReview={() => setDraft(null)}
         />
       )}
     </aside>
