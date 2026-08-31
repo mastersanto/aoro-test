@@ -29,7 +29,7 @@ Sequencing: the pure rules first, since they hold every binding decision and nee
 
 ## Phase 2 — Current prices
 
-- [ ] T5. **RED** — failing tests for by-id re-hydration: the selected market refreshes on the list's cadence from its own endpoint; **absence from the list is never closure** (searching or filtering must not mark a market closed); closure only from the market's own flag; a failed refresh keeps the last good data rather than blanking the selection.
+- [x] T5. **RED** — failing tests for by-id re-hydration: the selected market refreshes on the list's cadence from its own endpoint; **absence from the list is never closure** (searching or filtering must not mark a market closed); closure only from the market's own flag; a failed refresh keeps the last good data rather than blanking the selection.
       Verify: `npm test` fails on those assertions. New clause, stated because no RED may hide behind shipped behaviour: re-hydration does not exist today, so these fail by absence — each must additionally be shown to fail against a *list-absence* implementation, which is the wrong design they exist to forbid.
 - [ ] T6. **GREEN** — implement `app/api/market/[id]` and re-hydration until T5 passes. **Amend feature 001's spec in this task**, not later: it describes a selected market that never refreshes, which stops being true here (Art. I, and plan.md's "amended in the same change").
       Verify: `npm test` passes; a live check in `tests/live/` returns the market with its `closed` flag; `npm run test:visual` green; `bash scripts/sdd-lint.sh` passes.
