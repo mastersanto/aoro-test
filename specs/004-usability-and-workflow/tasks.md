@@ -50,7 +50,8 @@ gates. Each story lands whole before the next begins.
 
 ## Phase 2 — Keyboard and focus (UX-3)
 
-- [x] T8b. **(discovered at T6 — recorded, not silent)** `searchMarkets` changed
+- [x] T8b. **(discovered at T6 — belongs to Phase 1; listed here because it was
+      found after Phase 1 was checked off, and moving it would rewrite history)** `searchMarkets` changed
       shape from `Market[]` to `{markets, hasMore}`. `app/api/assist/route.ts:93`
       consumed it as an array, so AI suggestions would have silently lost every
       searched candidate — and the assist tests mock `searchMarkets`, so they
@@ -125,32 +126,42 @@ gates. Each story lands whole before the next begins.
 
 ## Phase 5 — Article V regression and gates
 
-- [ ] T21. **RED then GREEN** — the compliance invariants this feature crosses,
-      asserted with 004's new states present: the geo explanation keeps its
-      position beside the mode toggle while a dialog is open and focus is trapped;
-      real betting stays refused in a restricted region throughout; the "not
-      financial advice" disclaimer stays co-visible with suggestions in the new
-      error and retry states.
-      Verify: each fails first against the pre-004 behaviour where applicable, then
-      `npm test` passes.
+- [ ] T21. **(regression assertions — not a RED/GREEN pair, and relabelled as such
+      after audit: these are pre-existing invariants, and an assertion that a
+      shipped invariant still holds cannot be red first)** The Article V surfaces
+      004 crosses, asserted with 004's new states present: the geo explanation and
+      the mode toggle stay **keyboard-reachable** while the sheet is open — not
+      merely still positioned there, which is what the first version of this task
+      said and which would not have caught the focus trap that shipped; real
+      betting stays refused in a restricted region throughout; the disclaimer
+      stays co-visible with suggestions after a retry **that succeeded** — an
+      error state clears the suggestions, so asserting co-visibility during one
+      asserts nothing.
+      Verify: `npm test` passes; each assertion is mutation-checked in T24.
 - [ ] T22. **(exempt — styling and layout)** Appearance checks for everything new:
       the sort control, "Load more", the retry labels and the position values —
       genuinely visible, 44px targets, AA contrast including the DEMO tint, not
-      clipped, at both viewports; the focus ring visible on the new controls. Add
-      `/api/quotes` to `stubApi`, which otherwise lets the visual suite reach the
-      live exchange (the failure `003` already caused once).
-      Verify: `npm run test:visual` passes at both viewports.
+      clipped, at both viewports; the focus ring visible on the new controls.
+      **`stubApi` must be changed first, or the check is vacuous:** it fulfils
+      `/api/markets` with `nextCursor: null`, so "Load more" never renders and a
+      test asserting it looks right would pass without it existing. It also needs
+      `/api/quotes`, which it does not route at all — the same omission `003`
+      caused, which let the visual suite reach the live exchange.
+      Verify: `npm run test:visual` passes at both viewports, and the "Load more"
+      check fails when the control is removed.
 - [ ] T23. **(not binding — documentation)** Record in
       `specs/002-widget-visual-redesign/manual-checks.md` the criteria neither
       suite can judge — that scroll position holds across "Load more" and that the
       focus order reads sensibly. Update `README.md` and confirm `001`/`003`
       describe the system as built.
       Verify: `npm run verify` green; `bash scripts/sdd-lint.sh` passes.
-- [ ] T24. **(not binding — verification)** Prove the new tests can fail: four
+- [ ] T24. **(not binding — verification)** Prove the new tests can fail: six
       deliberate mutations, each reddening exactly the expected test — remove the
       `appendPage` de-duplication; map Escape to confirm instead of cancel; treat
-      an unresolved closed market as a loss; value positions at the market-list
-      price instead of the book price.
+      an unresolved closed market as a loss; let the refresh overwrite an advanced
+      cursor; restore the focus trap on the bet sheet; price a closed market from
+      the order book. The last three are the defects that shipped and were caught
+      by audit rather than by tests, so each needs a test that would have caught it.
       Verify: each mutation reddens exactly the expected test; reverting returns
       the suite to green.
 

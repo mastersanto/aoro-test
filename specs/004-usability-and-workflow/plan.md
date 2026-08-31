@@ -71,19 +71,36 @@ layout — the appearance of the new controls goes to the Playwright gate instea
   already-loaded market that the refresh did not mention. This is what makes
   constraint 2 safe.
 
-`market-sort.ts` holds `SORT_OPTIONS` as data — `{id, label, order, ascending}`
-for `volume24hr` desc (default, today's behaviour), `endDate` asc, `volume` desc,
-`liquidity` desc. All four verified against Gamma 2026-08-31. `startDate` returned
-unusable values and is deliberately absent.
+`market-sort.ts` holds `SORT_OPTIONS` as data — `{id, label, order, ascending,
+requiresFutureEndDate}`.
+
+*(Corrected after audit — the first version of this paragraph claimed all four
+orderings were verified when two were not, and shipped both.)* Gamma sorts
+`volume` and `liquidity` **lexicographically**: descending returns 99.99, then
+999.84, then 9.99. They look like they work. `volume24hr` is genuinely numeric,
+and the `volumeNum` / `liquidityNum` aliases are the numeric forms of the other
+two — those are what ship. `startDate` stays excluded for the same reason.
+
+`endDate` ascending additionally needs an **end-date floor**: `closed=false` still
+returns markets dated October 2025 flagged open, so "Ending soonest" would open on
+a wall of dead markets. `end_date_min` is the parameter Gamma honours
+(`end_date_after` and `endDateMin` are ignored). All re-verified live 2026-08-31.
 
 `fetchMarkets` gains `order`/`ascending`; the route maps a `sort` query parameter
 through `SORT_OPTIONS` and **falls back to the default for an unknown id** — user
 input never reaches the upstream query string directly. `sort` joins the cache key.
 
-`MarketList` keeps `cursor`, `loadingMore`, and `sortId`. Changing search,
-category or sort resets the cursor and the accumulated list together, in one
-state transition, so a cursor from the previous query can never be sent with the
-new one.
+`MarketList` holds its rows and cursor **together with the query key they belong
+to**, and compares that key during render. A cursor from a previous query is not
+cleared by an effect that may not have run yet — it is simply not the current
+query's cursor, so it cannot be read. That makes UX-1's cursor rule structural.
+
+**The refresh must not touch an advanced cursor.** It only ever fetches page one,
+so its `nextCursor` points at page two. Overwriting a cursor that "Load more" has
+advanced makes the next press re-fetch a loaded page, which `appendPage`
+de-duplicates to nothing — the control simply looks dead. *(This shipped and was
+caught by audit, not by tests: the RED task asserted the refresh kept the rows and
+said nothing about the cursor.)*
 
 ### UX-3 — `lib/use-dialog.ts` (new hook) applied to both surfaces
 
@@ -99,15 +116,26 @@ close makes "topmost wins" a property of the hook rather than something each cal
 has to arrange, and it is directly testable.
 
 `BetSheet` gains `role="dialog"` and an accessible name. It does **not** gain
-`aria-modal`: the confirmation that can sit above it is the modal, and announcing
-two nested modals would misdescribe the page to a screen reader.
+`aria-modal`, and it does **not** trap focus.
 
-**The `003 AR-4` amendment.** `tests/components/mobile-sheet.test.tsx:111` enforces
-"at most one confirmation" by counting elements with a dialog role. The sheet's new
-role makes that two. The assertion is replaced in the same task by one that counts
-the confirmation by its accessible name ("Confirm your bet"), which counts the thing
-AR-4 is about instead of any dialog. This is the one existing assertion 004 changes;
-D1 names it, and `003`'s spec records it.
+*(Corrected after audit — the first version trapped it, which defeated Article V.)*
+The sheet is open for as long as a market is selected; it is not tied to a
+confirmation. Containing Tab inside it therefore put the mode toggle and the geo
+explanation beyond keyboard reach for the entire session, and the Demo toggle is
+the one thing `001 US-5` promises a user in a restricted region. Only a genuinely
+modal surface may contain focus, so `trap` is a hook option and the confirmation
+is the only caller that sets it.
+
+**The `003 AR-4` amendment.** `mobile-sheet.test.tsx` enforced "at most one
+confirmation" by counting elements with a dialog role; the sheet's new role makes
+that two. *(Corrected after audit: the first replacement counted by accessible
+name and was strictly weaker — a differently-named confirmation, which is exactly
+the Phase 6 case AR-4 guards, would have passed.)* The count is on the
+confirmation's payout field: name-independent, and required on every confirmation
+by Article II. Four assertions changed, not one — the same helper is used by
+`tests/visual/support.ts` and `safety-signals.spec.ts`, both of which run under the
+Playwright mobile project where the sheet mounts and a bare role lookup is
+ambiguous.
 
 **Escape maps to `onCancel`, never `onConfirm`** — the constraint UX-3 states. The
 `001` T11 bypass suite is extended to cover the keyboard path; those tests drive
@@ -139,12 +167,29 @@ Neither `unvalued` nor `unresolved` contributes to the totals, and the count of 
 is reported beside them — a total that silently omits positions is a total that
 claims the rest are worth nothing.
 
-**The quote is the order book's buy price** for the held token — the same measure
-`Widget.tsx:215` fills at. `GET /api/quotes?tokens=…&markets=…` returns, per token,
-that price, and per market, Gamma's authoritative `closed` flag (the same
-`fetchMarketById` `003` uses, so closure never comes from absence from a
-query-scoped list). Ids are capped and the response cached for the usual 30 seconds.
-A market that 404s is simply absent, which the table turns into `unvalued`.
+**Two quote sources, each where it is the only correct one** *(corrected after
+audit — the first version named the book alone, which made settlement unreachable)*:
+
+- An **open** market is quoted from the order book's buy price, the same measure
+  the fill uses.
+- A **closed** market is quoted from Gamma. The book does not survive resolution —
+  `/price` answers "No orderbook exists for the requested token id" — so a
+  book-only design settles nothing and every finished position reads as
+  unpriceable. Gamma is also the source the `["0","0"]` observation is about, and
+  it returns **every** outcome, which is what makes row 6 (`lost`) decidable: the
+  client only knows the tokens it holds.
+
+`GET /api/quotes?tokens=…&markets=…` returns both, plus Gamma's authoritative
+`closed` flag per market (the same `fetchMarketById` `003` uses, so closure never
+comes from absence from a query-scoped list). Ids are capped and the response is
+cached for the usual 30 seconds. A market that 404s is simply absent, which the
+table turns into `unvalued`. **Precedence is explicit: the `closed` flag is read
+first**, so a closed market never falls through to the open-market rows.
+
+**A position filled at the listed price is marked.** The fill falls back to Gamma
+when the book is briefly unreachable, so its cost basis is not comparable with a
+book-quoted value; the row says its change is approximate rather than presenting
+the gap between two sources as market movement.
 
 **The spendable balance does not move.** `DemoState.balanceUsd` stays the cash
 figure `001 US-3` defines. Valuation is display-only: a paper gain that became
@@ -223,10 +268,11 @@ loosening the invariant, and `003`'s spec is updated in the same change.
 
 ## Risks
 
-1. **Sorting by `endDate` on open markets may surface markets ending within
-   minutes**, which are the worst ones to bet on. Mitigation: none in code — the
-   end date is already on every row, and hiding markets the exchange lists open
-   would be a bigger lie than showing them. Noted so it is a known consequence.
+1. **Sorting by `endDate` may surface markets ending within minutes**, which are
+   the worst ones to bet on. The end date is already on every row, and hiding
+   markets the exchange lists open would be a bigger lie than showing them.
+   *(The real defect here was the opposite of this risk and is now fixed: the
+   ordering returned markets that had already ended.)*
 2. **`/api/quotes` fans out to N book + N market requests.** Capped and cached 30s;
    a session's demo positions are typically fewer than five. A single failed quote
    degrades to `unvalued` for that position rather than failing the response.

@@ -107,11 +107,14 @@ describe("mobile bet sheet", () => {
     fireEvent.click(sheet.getByRole("button", { name: /review bet/i }));
 
     // 004 / UX-3 gives the sheet its own dialog role, so a bare dialog count no
-    // longer means "one confirmation". Counting the confirmation by its own
-    // accessible name asserts what AR-4 is actually about, and asserts it more
-    // precisely than the role count did.
+    // longer means "one confirmation". Counting by accessible NAME was the first
+    // replacement and was too weak: a second confirmation labelled anything else
+    // — a real-money one at Phase 6, exactly what AR-4 exists for — would pass.
+    // The count is on the payout field instead. It is name-independent, and
+    // Article II requires every confirmation to show a payout, so it cannot be
+    // dropped to slip past this.
     const dialog = within(screen.getByRole("dialog", { name: /confirm your bet/i }));
     expect(dialog.getByTestId("confirm-payout")).toHaveTextContent("$222.22");
-    expect(screen.getAllByRole("dialog", { name: /confirm your bet/i })).toHaveLength(1);
+    expect(screen.getAllByTestId("confirm-payout")).toHaveLength(1);
   });
 });

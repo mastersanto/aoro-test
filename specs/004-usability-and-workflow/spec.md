@@ -30,6 +30,42 @@ the false trap claim, so it is withdrawn: **UX-3 is an accessibility and usabili
 fix, not a constitutional one.** What remains constitutional is a constraint on the
 new work, which is a different and narrower claim — see UX-3.
 
+## Second revision note (same day, after a second audit)
+
+The revised spec was audited again and failed on four articles. Three of its
+claims were still wrong, and two of them had shipped as working code:
+
+- **"`volume`, `endDate`, `liquidity` and `volume24hr` all verified."** Only two
+  were. Gamma sorts `volume` and `liquidity` **lexicographically**: descending
+  returns 99.99, then 999.84, then 9.99 (re-verified 2026-08-31). Two of the four
+  orderings offered by UX-2 returned nonsense while looking correct — the same
+  defect that had already excluded `startDate`. The `…Num` aliases sort
+  numerically and are what UX-2 now names.
+- **"Ending soonest" surfaces upcoming markets.** It did not. `closed=false` still
+  returns markets dated October 2025 flagged open, so the ordering opened on a
+  wall of dead markets. An end-date floor now excludes them.
+- **The order book survives resolution.** It does not: `/price` on a resolved
+  market's token answers "No orderbook exists for the requested token id". Pricing
+  everything from the book made UX-4's *won* and *lost* unreachable by
+  construction — every settled position would have read as unpriceable. Closed
+  markets are priced from Gamma, which is also the source the `["0","0"]`
+  observation is about, and which returns **every** outcome — the fact that makes
+  "a different outcome won" decidable at all, since the client only knows the
+  tokens it holds.
+
+Two further defects, both in shipped code:
+
+- The 30-second refresh **rewound the pagination cursor**. It only ever fetches
+  page one, so after "Load more" the next refresh reset the cursor and the next
+  press re-fetched a loaded page, which de-duplication reduced to nothing: the
+  control looked dead. 339 tests passed over it, because the RED task asserted
+  that rows were kept and never asserted the cursor.
+- **UX-3's focus trap defeated Article V.** The bet sheet stays open for as long
+  as a market is selected — it is a panel, not a modal — so containing Tab put the
+  mode toggle and the geo explanation out of keyboard reach for the whole session.
+  The Demo toggle is the one thing `001 US-5` promises a user in a restricted
+  region. The sheet no longer traps; the confirmation, which is modal, still does.
+
 ## Why
 
 The widget works, and in five specific places it works badly:
@@ -70,6 +106,12 @@ As someone browsing, I can order markets by activity or by how soon they end.
 
 **Acceptance criteria**
 - At minimum: 24-hour volume (the current default), soonest to end, and total volume.
+- **Only orderings the exchange performs correctly may be offered.** Gamma sorts
+  several numeric columns as strings, so `volume` and `liquidity` are excluded in
+  favour of their `…Num` aliases (verified 2026-08-31). An ordering that returns
+  nonsense while looking plausible is worse than one that is absent.
+- **"Soonest to end" excludes markets that have already ended.** `closed=false` is
+  not sufficient: markets dated months in the past are still returned flagged open.
 - The active ordering is readable from the control itself, without opening anything.
 - Ordering composes with the category filter rather than resetting it.
 - Ordering is a query the exchange performs. Re-ordering the rows already loaded is
@@ -141,11 +183,20 @@ what I typed.
   cannot start a second request.
 - Where a surface already retries by itself, it says so rather than leaving the
   reader to guess.
+- **A surface that keeps stale data through a failure says so.** The selected
+  market's price refresh keeps its last good value through an outage; that value
+  is what the confirmation displays as Article II's price, so presenting it as
+  current without a word is the most consequential silence in the app.
 - **Bet placement is excluded, and this is an Article II requirement, not an
-  omission.** A failed placement leaves no confirmation on screen
-  (`BetPanel.tsx:66` clears the draft). A control that re-sent it would place a bet
-  that passed no confirmation showing market, outcome, amount, price and payout.
-  Recovery from a rejected bet is to enter it again, through the confirmation.
+  omission.** A control that re-sent a placement would place a bet past no
+  confirmation showing market, outcome, amount, price and payout. Recovery from a
+  rejected placement is the confirmation itself, which stays open. *(Corrected
+  after audit: this previously said the confirmation is cleared on failure and
+  cited the wrong line. `BetPanel` clears the draft **after** awaiting `onPlace`,
+  inside the `try`, so a rejecting `onPlace` leaves the confirmation up — which is
+  the behaviour this criterion wants. It is currently unobservable only because
+  `Widget.handlePlace` swallows every error; Phase 6 will supply one that rejects,
+  and a test now holds the behaviour.)*
 - **The geo decision is excluded for the same class of reason.** `Widget.tsx:88`
   fails closed when the region cannot be determined. That refusal is a compliance
   outcome, not a transient error, and must not be re-rolled by a retry button.
@@ -186,39 +237,60 @@ is a test, not a promise:
 Stated here rather than discovered during implementation, since `001` and `002` both
 require the specs to describe the system as built:
 
-- **`003 AR-4`'s "at most one confirmation" changes form.** It is currently enforced
-  by counting elements with a dialog role (`tests/components/mobile-sheet.test.tsx:111`).
-  UX-3 gives the bet sheet a dialog role, which would make that count two. The
-  invariant is replaced by one that counts the confirmation itself, by its accessible
-  name — strictly more precise, since it counts the thing AR-4 is about rather than
-  any dialog. The replacement lands in the same task, and AR-4's meaning is unchanged.
+- **`003 AR-4`'s "at most one confirmation" changes form.** It was enforced by
+  counting elements with a dialog role. UX-3 gives the bet sheet a dialog role,
+  which makes that count two. *(Corrected after audit: the first replacement counted
+  the confirmation by its accessible name and was strictly **weaker** — a second
+  confirmation labelled anything else, such as a real-money one at Phase 6, would
+  have passed, and that is exactly what AR-4 exists to catch. The count is now on
+  the confirmation's payout field: name-independent, and required on every
+  confirmation by Article II, so it cannot be renamed or dropped to evade it.)*
+- **`searchMarkets` returns a page, not an array.** UX-1 needs to know whether more
+  results exist. `app/api/assist/route.ts` consumed the old array shape, so AI
+  suggestions would have silently lost every searched candidate — and the assist
+  tests mock that function, so they stayed green. Fixed with a test that fails
+  against the array assumption.
 
 ## Context (reference facts — no design)
 
-- `/api/markets` returns `nextCursor` from Gamma's keyset pagination; the client
-  discards it (`components/MarketList.tsx:50`).
-- Gamma's `/markets/keyset` accepts `order` with `ascending` for `volume24hr`,
-  `endDate`, `liquidity` and `volume` (verified 2026-08-31). `startDate` returned
-  unusable values.
+- `/api/markets` returns `nextCursor` from Gamma's keyset pagination; before 004
+  the client discarded it. *(Citations here name files and symbols rather than
+  line numbers: an audit found two line references that were already stale when
+  written and two more that implementation invalidated.)*
+- Gamma's `/markets/keyset` accepts `order` with `ascending`. **`volume24hr` sorts
+  numerically; `volume` and `liquidity` sort as strings and are unusable, as is
+  `startDate`; the `volumeNum` and `liquidityNum` aliases sort numerically**
+  (verified 2026-08-31).
+- `end_date_min` filters the keyset endpoint by end date; `end_date_after` and
+  `endDateMin` are ignored (verified 2026-08-31).
+- The CLOB order book does not exist for a resolved market: `/price` returns
+  "No orderbook exists for the requested token id" (verified 2026-08-31).
 - Gamma's `/public-search` returns `pagination: {hasMore, totalResults}` and accepts
   `page=N` (verified 2026-08-31). It ignores `order`.
 - Closed markets do not consistently identify a winner (verified 2026-08-31): some
   report prices near 1 and 0, others report `["0","0"]`.
-- Demo bets fill at the order book's buy price (`Widget.tsx:215`); the market list
-  carries Gamma's `outcomePrices`. The two differ.
+- Demo bets fill at the order book's buy price, **falling back to the listed price
+  when the book is unreachable**; the market list carries Gamma's `outcomePrices`.
+  The sources differ.
 - `003 AR-1` refreshes only the *selected* market, keyed on `selectedId`
   (`Widget.tsx:45`). It does not cover positions in unselected markets.
-- The confirmation carries `role="dialog"` and `aria-modal` (`ConfirmBetDialog.tsx:47`);
-  the bet sheet carries neither, and no component handles `Escape`.
-- At mobile width the confirmation renders inside the bet sheet
-  (`Widget.tsx:361` → `BetPanel.tsx:166`), so the two can be open at once.
+- The confirmation carries `role="dialog"` and `aria-modal`; before 004 the bet
+  sheet carried neither and no component handled `Escape`.
+- The bet sheet is open for as long as a market is selected at narrow width — it
+  is not tied to a confirmation, so it is a panel rather than a modal.
+- At mobile width the confirmation renders inside the bet sheet, so the two can be
+  open at once.
 
 ## Decision record
 
 - **D1 — Fix in place.** Chosen by the project owner over reworking the journey.
-  Existing tests are treated as the regression gate; the single exception is the
-  dialog-count assertion named under Known amendments, which is replaced rather than
-  deleted, in the same task, with the reason recorded.
+  Existing tests are treated as the regression gate. *(Corrected after audit: this
+  said "the single exception". There were two, touching five assertions. The dialog
+  role change broke four — `mobile-sheet.test.tsx` twice, plus `tests/visual/support.ts`
+  and `safety-signals.spec.ts`, both of which run under the Playwright mobile
+  project where the sheet mounts. Separately, `searchMarkets` changed shape for
+  UX-1, which required updating four call sites; that one also broke production
+  code the mocked tests could not see — see the Known amendments.)*
 - **D2 — All five gaps in one feature.** Small and independent; splitting would cost
   more in process than the work.
 - **D3 — Valuation is mark-to-market at the fill's own price source, with settlement
