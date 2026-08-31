@@ -16,7 +16,8 @@ A web widget for browsing Polymarket prediction markets, getting AI assistance c
 - **AI-assisted suggestions** — describe what interests you and get up to three real open markets with reasoning grounded in their current odds. The model returns only ids; every question, label and price shown is read back from our own market data, so it cannot invent a market or a price.
 - **A scoped recommendation** — with a market selected, the assistant argues for one outcome and, in the same breath, for what would defeat it. Its output is constrained in shape and screened server-side: no quantities, no claims about how likely anything is, no assertions that the price is wrong. An argument is withdrawn when the price it was made from moves more than two points, when the market closes, or after ten minutes — and it only ever fills the outcome, never the stake.
 - **Demo betting** — a $1,000 practice balance, filled at the live order-book price, labelled DEMO at every step. No wallet, no real money. Positions are marked to market, so the practice account can rise as well as fall. A position whose price cannot be established reads as *not valued*, and a market that closed without the exchange publishing a winner reads as *unresolved* — never as a loss. The spendable balance stays cash: a paper gain is displayed, never staked.
-- **Operable by keyboard** — Escape closes the confirmation and the bet sheet, focus moves in and returns, and the confirmation contains Tab. The bet sheet deliberately does not: it stays open for as long as a market is selected, so trapping it would put the mode toggle and the geo explanation out of reach.
+- **A decision rail with one fixed order** — what you picked, the bet, the advisor, your positions. Nothing reorders on state, and the widget opens with the most active market already selected so a bet can be started without a click. It selects the market and nothing else: no outcome, no amount.
+- **Operable by keyboard** — Escape closes the confirmation and returns focus to what opened it, and the confirmation contains Tab. It is the only modal: the mode toggle and the geo explanation stay reachable at every width, which is what a phone bottom sheet used to break.
 - **Geo compliance** — restricted regions keep browsing, AI and demo, and lose only real betting, with an explanation.
 
 **Real-money betting was withdrawn, not deferred.** It was blocked at T21, a spike that must place one small real order to confirm Polymarket's pUSD approval flow — the one API detail their docs do not specify. That needs a funded wallet on Polygon in a non-restricted region, and the US is close-only on Polymarket's main exchange, so the blocker was jurisdictional rather than technical. The region and per-market restriction checks were **kept** even though nothing real can be bet: they are correct, tested, and honest about where you are.
@@ -59,8 +60,13 @@ odds, 24-hour and total volume, and a resolution date.
 
 ### 2. Ask the AI what to bet on (US-4)
 
-In **"Not sure what to bet on?"**, type something like `something about the Fed` and
-press **"Get suggestions"**. You get up to three real open markets with reasoning.
+Above the market list, in **"Not sure? Describe it and AI will find the market."**,
+type something like `something about the Fed` and press **"Get suggestions"**. You
+get up to three real open markets with reasoning.
+
+It sits with the list rather than in the rail on purpose: it is a tool for *finding*
+a market, and it used to render below the form for betting on one you had already
+chosen — visible only once it was least useful.
 
 - **The disclaimer sits with the suggestions**, not in a footer — that co-visibility
   is asserted in a real browser, because jsdom cannot tell whether two things are on
@@ -76,8 +82,9 @@ press **"Get suggestions"**. You get up to three real open markets with reasonin
 
 ### 3. Pick a market and get the scoped recommendation (feature 003)
 
-Click any market row. A bet panel and **"What would you favour here?"** appear.
-Press it.
+You already have a market — the widget opened on one — so **"What would you favour
+here?"** is in the rail below the bet form. Press it. (Pick a different market from
+the list first if you want; the rail follows your selection.)
 
 This is the most constrained surface in the project — an assistant arguing one side
 of a bet. Notice:
@@ -142,9 +149,12 @@ The interesting part is what it *refuses* to say:
   **"Try again"** and your typed prompt survives. Turn the network back on and
   press it.
 - **Do the whole flow with the keyboard.** Tab reaches every enabled control,
-  Escape closes the confirmation, focus returns where it started. On a phone the
-  bet sheet deliberately does *not* trap focus — it stays open as long as a market
-  is selected, so trapping it would put the mode toggle out of reach.
+  Escape closes the confirmation, focus returns to "Review bet". The confirmation is
+  the only thing that traps Tab, and that is deliberate: an earlier build also
+  trapped a bottom sheet that stayed open for the whole session, which put the mode
+  toggle — the one control a restricted user still needs — out of keyboard reach.
+- **Clear the selection.** The rail empties and the list leads again, which is the
+  state the two-row entry guarantee covers.
 
 ### If you would rather read than click
 
@@ -186,12 +196,12 @@ Progress lives in each feature's `tasks.md`.
 | Feature | State | Notes |
 |---|---|---|
 | **001** Polymarket widget | 24/24 ✅ | Browse, demo betting, AI suggestions and geo gating. **US-2 (real betting) withdrawn 2026-08-31** and Phase 6 removed; the blocker was jurisdictional, not technical. Because that phase had been sequenced last on purpose, nothing shipped depended on it. |
-| **002** Visual redesign | 16/16 ✅ | Dark, data-first UI. Introduced the appearance gate, because jsdom performs no layout and cannot tell that a required field is off-screen. |
-| **003** Scoped recommendation | 20/20 ✅ | The assistant argues one side of a selected market, with the counter-case beside it. Its output is shape-constrained and screened server-side; arguments are withdrawn when the price they were made from moves. |
-| **007** Open on a market | 6/6 ✅ | The widget opens with the most active market selected, so a bet can be started without a click. The **market** only — no outcome, no amount, no confirmation, no recommendation request; Article II reserves those. Writing it test-first caught a real bug: the automatic selection cleared suggestions the user had already asked for. |
-| **006** List leads on entry | 5/5 ✅ | Arriving shows two market rows, not one on the fold. The check `005` shipped asked only whether the first row *fits*, which a row flush against the bottom edge satisfies. Space came from a scrolling category row, a desktop-only page subtitle and a shorter geo reason — and the work exposed a horizontal scroll at 390px that had been live since `005`. |
-| **005** Decision rail | 11/11 ✅ | The bet panel gets one fixed home on the left, first on a phone; the market is stated once by a sticky header; the AI finder moves to the list, where finding happens. Repeals `003 AR-7`'s ordering rule and removes `002 VR-4`'s bottom sheet, replacing both sets of assertions rather than dropping them. |
-| **004** Usability and workflow | 24/24 ✅ | Pagination, ordering, keyboard operation, position valuation and visible error recovery. Two constitution audits found nine defects between them, five of which had already shipped — including two sort orderings that returned lexicographically-sorted nonsense, and a refresh that rewound the pagination cursor so "Load more" went quietly dead. |
+| **002** Visual redesign | 17/17 ✅ | Dark, data-first UI. Introduced the appearance gate, because jsdom performs no layout and cannot tell that a required field is off-screen. |
+| **003** Scoped recommendation | 21/21 ✅ | The assistant argues one side of a selected market, with the counter-case beside it. Its output is shape-constrained and screened server-side; arguments are withdrawn when the price they were made from moves. |
+| **004** Usability and workflow | 28/28 ✅ | Pagination, ordering, keyboard operation, position valuation and visible error recovery. Two constitution audits found nine defects between them, five of which had already shipped — including two sort orderings that returned lexicographically-sorted nonsense, and a refresh that rewound the pagination cursor so "Load more" went quietly dead. |
+| **005** Decision rail | 12/12 ✅ | The bet panel gets one fixed home on the left, first on a phone; the market is stated once by a sticky header; the AI finder moves to the list, where finding happens. Repeals `003 AR-7`'s ordering rule and removes `002 VR-4`'s bottom sheet, replacing both sets of assertions rather than dropping them. |
+| **006** List leads on entry | 6/6 ✅ | Arriving shows two market rows, not one on the fold. The check `005` shipped asked only whether the first row *fits*, which a row flush against the bottom edge satisfies. Space came from a scrolling category row, a desktop-only page subtitle and a shorter geo reason — and the work exposed a horizontal scroll at 390px that had been live since `005`. |
+| **007** Open on a market | 7/7 ✅ | The widget opens with the most active market selected, so a bet can be started without a click. The **market** only — no outcome, no amount, no confirmation, no recommendation request; Article II reserves those. Writing it test-first caught a real bug: the automatic selection cleared suggestions the user had already asked for. |
 
 Verification: `npm run verify` runs lint, build, 434 behaviour tests and 80
 appearance checks. `npm run test:live` exercises the real Polymarket and Claude

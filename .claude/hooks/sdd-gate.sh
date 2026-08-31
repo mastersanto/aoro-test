@@ -25,9 +25,12 @@ case "$file_path" in
   *) exit 0 ;; # outside the repo (scratchpad, plan files) — not our concern
 esac
 
-# Harness, spec, docs, and CI paths are always writable.
+# Harness, spec, design, docs and CI paths are always writable.
+# `design/` holds design-canvas sources (.dc.html artboards + canvas.json). They are
+# explored BEFORE a feature is specced — that is what they are for — so gating them
+# behind an approved tasks.md had the sequence backwards.
 case "$rel" in
-  specs/*|.claude/*|.github/*|scripts/*|docs/*|.env.example|.gitignore|LICENSE) exit 0 ;;
+  specs/*|design/*|.claude/*|.github/*|scripts/*|docs/*|.env.example|.gitignore|LICENSE) exit 0 ;;
 esac
 # Root-level markdown (README.md, CLAUDE.md, ...) is documentation.
 if [[ "$rel" == *.md && "$rel" != */* ]]; then exit 0; fi
