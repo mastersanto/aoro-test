@@ -1,6 +1,6 @@
 # Spec 001 — Polymarket Betting Widget with AI Assist
 
-**Status:** Draft — awaiting user approval
+**Status:** Approved 2026-08-31
 **Owner:** jorgeivansandoval@gmail.com
 
 ## Why
@@ -84,4 +84,4 @@ None — all scope questions were resolved in the Decision record above before d
 
 ## Approval
 
-- [ ] Spec approved by user (required before `/plan-feature`)
+- [x] Spec approved by user (required before `/plan-feature`) — 2026-08-31
