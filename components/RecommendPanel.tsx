@@ -59,7 +59,8 @@ export function RecommendPanel({
         disabled={loading}
         className="mt-2 min-h-11 w-full rounded-control border border-up/40 px-3 text-sm font-medium text-up hover:bg-up/10 disabled:opacity-50"
       >
-        {loading ? "Thinking…" : "What would you favour?"}
+        {/* Relabelled after a failure so the way back is visible (004 / UX-5). */}
+        {loading ? "Thinking…" : error ? "Try again" : "What would you favour?"}
       </button>
 
       {error && (

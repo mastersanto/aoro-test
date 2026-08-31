@@ -85,7 +85,10 @@ export function AssistPanel({
         disabled={loading}
         className="mt-2 min-h-11 rounded-control bg-up px-3 text-sm font-semibold text-on-up disabled:opacity-50"
       >
-        {loading ? "Thinking…" : "Get suggestions"}
+        {/* The recovery was always here — the button stays mounted and the
+            prompt survives. What was missing is that it read exactly as it did
+            before the failure, so nothing marked it as the way back (004 / UX-5). */}
+        {loading ? "Thinking…" : error ? "Try again" : "Get suggestions"}
       </button>
 
       {error && (

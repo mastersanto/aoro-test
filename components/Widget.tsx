@@ -39,6 +39,7 @@ export function Widget() {
   const [recAt, setRecAt] = useState(0);
   const [now, setNow] = useState(0);
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
+  const [marketStale, setMarketStale] = useState(false);
   const narrow = useIsNarrow();
 
   // Keep the selected market's price current (003 / AR-1). The list is a
@@ -52,12 +53,22 @@ export function Widget() {
     const refresh = async () => {
       try {
         const res = await fetch(`/api/market/${encodeURIComponent(selectedId)}`);
-        if (!res.ok || cancelled) return; // an outage keeps the last good data
+        if (cancelled) return;
+        if (!res.ok) {
+          // Keep the last good data — but SAY SO. This price is what the
+          // confirmation renders as Article II's price, so a frozen figure
+          // presented as current is the most consequential silence in the app
+          // (004 / UX-5).
+          setMarketStale(true);
+          return;
+        }
         const body = (await res.json()) as { market?: Market };
         if (cancelled || !body.market || body.market.id !== selectedId) return;
         setMarket(body.market);
+        setMarketStale(false);
       } catch {
         // Keep what we have rather than blanking a selection the user made.
+        if (!cancelled) setMarketStale(true);
       }
     };
 
@@ -204,6 +215,7 @@ export function Widget() {
    */
   function selectMarket(next: Market | null, outcome: Outcome | null = null) {
     recRequest.current += 1;
+    setMarketStale(false);
     setRecommendation(null);
     setWithheldReason(null);
     setRecError(null);
@@ -377,6 +389,17 @@ export function Widget() {
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
           {betEntryActionable && betPanelSection}
+
+          {market && marketStale && (
+            <p
+              role="status"
+              data-testid="market-stale"
+              className="rounded-control border border-line-strong bg-white/5 px-3 py-2 text-xs text-muted"
+            >
+              This market&rsquo;s price could not be refreshed just now, so the figures
+              below may be a little behind. It keeps trying every 30 seconds.
+            </p>
+          )}
 
           {market && (
             <RecommendPanel

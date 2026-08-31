@@ -112,14 +112,14 @@ gates. Each story lands whole before the next begins.
 
 ## Phase 4 — Error recovery (UX-5)
 
-- [ ] T19. **RED** — failing tests: after a failure the assist and recommendation
+- [x] T19. **RED** — failing tests: after a failure the assist and recommendation
       actions relabel as a retry and re-send the same request with the typed input
       intact; a retry in flight is disabled and labelled in progress; the market
       list offers a retry and states that it also retries by itself; **a failed
       bet placement offers no retry** and **the geo refusal offers no retry**
       (Art. II and Art. V, plan UX-5).
       Verify: `npm test` fails on those assertions.
-- [ ] T20. **GREEN** — implement the retry affordances until T19 passes.
+- [x] T20. **GREEN** — implement the retry affordances until T19 passes.
       Verify: `npm test` passes; in the browser, with the network stopped, each
       recoverable failure offers a retry that works once it returns.
 
