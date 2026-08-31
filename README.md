@@ -11,7 +11,7 @@ Everything flows spec → plan → tasks → code, per feature:
 | Path | Purpose |
 |---|---|
 | `specs/constitution.md` | Fixed project principles (AI never places bets, user keeps custody, secrets server-side, compliance is a requirement) |
-| `specs/NNN-feature-name/` | One directory per feature, created by `/spec`: `spec.md`, `plan.md`, `tasks.md` (none exist yet) |
+| `specs/NNN-feature-name/` | One directory per feature, created by `/spec`: `spec.md`, `plan.md`, `tasks.md` |
 | `specs/templates/` | Templates for new feature specs, plans, and task lists |
 | `.claude/commands/` | Claude Code slash commands driving the workflow: `/spec`, `/plan-feature`, `/tasks`, `/implement`, plus `/sdd-status` for gate progress |
 | `.claude/agents/` | `constitution-check` — read-only reviewer agent run before every approval gate |
@@ -33,7 +33,7 @@ The commit history mirrors the same progression: harness → spec approval → p
 
 ## Next step
 
-Open the repo in Claude Code and run `/spec` to draft the first feature spec, resolve its `[NEEDS CLARIFICATION]` questions, then proceed `/plan-feature` → `/tasks` → `/implement`.
+Feature 001 (`specs/001-polymarket-widget/`) has a drafted spec awaiting approval. Once approved, proceed `/plan-feature` → `/tasks` → `/implement`. Run `/sdd-status` any time to see where things stand.
 
 ## Deployment target
 
