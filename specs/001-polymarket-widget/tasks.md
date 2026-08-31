@@ -24,7 +24,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
       Verify: `npm test` fails on those assertions (not on imports), against a recorded Gamma fixture.
 - [x] T5. **GREEN** — implement `lib/polymarket/gamma.ts` (keyset endpoints only; no offset endpoints) until T4 passes.
       Verify: `npm test` passes; a live call returns open markets ordered by 24h volume.
-- [ ] T6. **RED** — failing tests for `/api/markets` behavior: cache hit within the TTL, graceful degradation on 429, search and tag params passed through.
+- [x] T6. **RED** — failing tests for `/api/markets` behavior: cache hit within the TTL, graceful degradation on 429, search and tag params passed through.
       Verify: `npm test` fails on those assertions.
 - [ ] T7. **GREEN** — implement `GET /api/markets` until T6 passes.
       Verify: `npm test` passes; `curl localhost:3000/api/markets` returns normalized open markets; `?q=` narrows them.
