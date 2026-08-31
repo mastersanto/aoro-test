@@ -50,11 +50,23 @@ export async function stubApi(
 ) {
   const { bettingAllowed = false, country = "US" } = opts;
 
-  await page.route("**/api/markets*", (route) =>
+  // A cursor, so "Load more" actually renders (004 / UX-1). With nextCursor
+  // null the control never mounts and every appearance check on it would pass
+  // without it existing.
+  await page.route("**/api/markets*", (route) => {
+    const url = new URL(route.request().url());
+    const cursor = url.searchParams.get("cursor");
+    const rows = normalized();
     route.fulfill({
-      json: { markets: normalized(), nextCursor: null, stale: false },
-    }),
-  );
+      json: cursor
+        ? {
+            markets: rows.map((m, i) => ({ ...m, id: `${cursor}-${i}`, question: `Page 2 — ${m.question}` })),
+            nextCursor: null,
+            stale: false,
+          }
+        : { markets: rows, nextCursor: "PAGE2", stale: false },
+    });
+  });
 
   // Feature 003 re-hydrates the selected market from its own endpoint. Without
   // a stub this suite reached the live API, which returns a different price than
@@ -63,6 +75,10 @@ export async function stubApi(
   await page.route("**/api/market/*", (route) =>
     route.fulfill({ json: { market: normalized()[0] } }),
   );
+
+  // 004 / UX-4 quotes demo positions. Unrouted, this reached the live exchange —
+  // the same omission 003 made with /api/market/*.
+  await page.route("**/api/quotes*", (route) => route.fulfill({ json: { quotes: {} } }));
 
   await page.route("**/api/geo*", (route) =>
     route.fulfill({
@@ -111,7 +127,7 @@ export async function stubApi(
   );
 }
 
-function normalized() {
+export function normalized() {
   return markets.map((m) => ({
     id: m.id,
     question: m.question,

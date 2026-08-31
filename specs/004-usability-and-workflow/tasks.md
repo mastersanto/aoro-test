@@ -126,7 +126,7 @@ gates. Each story lands whole before the next begins.
 
 ## Phase 5 — Article V regression and gates
 
-- [ ] T21. **(regression assertions — not a RED/GREEN pair, and relabelled as such
+- [x] T21. **(regression assertions — not a RED/GREEN pair, and relabelled as such
       after audit: these are pre-existing invariants, and an assertion that a
       shipped invariant still holds cannot be red first)** The Article V surfaces
       004 crosses, asserted with 004's new states present: the geo explanation and
@@ -138,7 +138,7 @@ gates. Each story lands whole before the next begins.
       error state clears the suggestions, so asserting co-visibility during one
       asserts nothing.
       Verify: `npm test` passes; each assertion is mutation-checked in T24.
-- [ ] T22. **(exempt — styling and layout)** Appearance checks for everything new:
+- [x] T22. **(exempt — styling and layout)** Appearance checks for everything new:
       the sort control, "Load more", the retry labels and the position values —
       genuinely visible, 44px targets, AA contrast including the DEMO tint, not
       clipped, at both viewports; the focus ring visible on the new controls.
