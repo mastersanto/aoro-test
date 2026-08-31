@@ -17,6 +17,36 @@ export type GroundedSuggestion = {
   reasoning: string;
 };
 
-export function groundSuggestions(_candidates: Market[], _raw: unknown): GroundedSuggestion[] {
-  return undefined as unknown as GroundedSuggestion[];
+type RawSuggestion = { marketId?: unknown; tokenId?: unknown; reasoning?: unknown };
+
+export function groundSuggestions(candidates: Market[], raw: unknown): GroundedSuggestion[] {
+  if (!raw || typeof raw !== "object") return [];
+  const list = (raw as { suggestions?: unknown }).suggestions;
+  if (!Array.isArray(list) || candidates.length === 0) return [];
+
+  const byId = new Map(candidates.map((m) => [m.id, m]));
+  const out: GroundedSuggestion[] = [];
+
+  for (const entry of list) {
+    if (out.length >= MAX_SUGGESTIONS) break;
+    if (!entry || typeof entry !== "object") continue;
+
+    const { marketId, tokenId, reasoning } = entry as RawSuggestion;
+    const market = byId.get(String(marketId));
+    if (!market) continue; // market was never supplied to the model
+
+    const outcome: Outcome | undefined = market.outcomes.find(
+      (o) => o.tokenId === String(tokenId),
+    );
+    if (!outcome) continue; // token does not belong to this market
+
+    // market and outcome are the objects we fetched — not anything the model wrote.
+    out.push({
+      market,
+      outcome,
+      reasoning: typeof reasoning === "string" ? reasoning : "",
+    });
+  }
+
+  return out;
 }

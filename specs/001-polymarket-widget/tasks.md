@@ -50,7 +50,7 @@ Sequencing follows spec.md's Context note: search (US-1) → demo bets (US-3) �
 
 - [x] T15. **RED** — failing tests for the grounding invariant (Art. II): every suggestion id returned by the assist route exists in the candidate set supplied to the model, and a model response naming an unknown id is rejected rather than surfaced.
       Verify: `npm test` fails on those assertions, including the unknown-id case.
-- [ ] T16. **GREEN** — implement `POST /api/assist` (server-side Claude call, streaming, structured output constrained to supplied ids) until T15 passes.
+- [x] T16. **GREEN** — implement `POST /api/assist` (server-side Claude call, streaming, structured output constrained to supplied ids) until T15 passes.
       Verify: `npm test` passes; `grep -r ANTHROPIC_API_KEY .next/static` finds nothing (Art. IV).
 - [ ] T17. **RED** — failing tests for the assist UI invariants: selecting a suggestion only pre-fills the Phase 3 bet form and reaches no submission path (Art. II); the "not financial advice" disclaimer renders whenever suggestions render (Art. V).
       Verify: `npm test` fails on those assertions.
