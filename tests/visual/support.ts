@@ -56,6 +56,14 @@ export async function stubApi(
     }),
   );
 
+  // Feature 003 re-hydrates the selected market from its own endpoint. Without
+  // a stub this suite reached the live API, which returns a different price than
+  // the fixture — the dialog then correctly reported the price as moved and the
+  // run hung waiting for a "Place bet" button that had become "Review again".
+  await page.route("**/api/market/*", (route) =>
+    route.fulfill({ json: { market: normalized()[0] } }),
+  );
+
   await page.route("**/api/geo*", (route) =>
     route.fulfill({
       json: bettingAllowed
@@ -66,6 +74,21 @@ export async function stubApi(
             reason:
               "New bets are not available in your region — Polymarket's main exchange is close-only here. You can still browse markets, use AI assistance, and practise in demo mode.",
           },
+    }),
+  );
+
+  await page.route("**/api/recommend*", (route) =>
+    route.fulfill({
+      json: {
+        recommendation: {
+          resolvesOn: "Resolves on the published result for this fixture.",
+          priceImplies: "The price shows how the outcomes are trading against each other.",
+          caseFor: "It requires the match to complete with the named player recorded as winner.",
+          caseAgainst: "It fails if the other player wins or the match is abandoned.",
+          favouredTokenId: normalized()[0].outcomes[0].tokenId,
+          arguedAtPrice: normalized()[0].outcomes[0].price,
+        },
+      },
     }),
   );
 

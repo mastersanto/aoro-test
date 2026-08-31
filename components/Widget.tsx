@@ -36,7 +36,7 @@ export function Widget() {
   const [withheldReason, setWithheldReason] = useState<string | null>(null);
   const recRequest = useRef(0);
   const [recAt, setRecAt] = useState(0);
-  const [, setClockTick] = useState(0);
+  const [now, setNow] = useState(0);
   const narrow = useIsNarrow();
 
   // Keep the selected market's price current (003 / AR-1). The list is a
@@ -72,7 +72,7 @@ export function Widget() {
   // expiry cannot depend on an incidental re-render.
   useEffect(() => {
     if (!recommendation) return;
-    const t = setInterval(() => setClockTick((n) => n + 1), 15_000);
+    const t = setInterval(() => setNow(Date.now()), 15_000);
     return () => clearInterval(t);
   }, [recommendation]);
 
@@ -114,6 +114,13 @@ export function Widget() {
   const geoBlocked = geo !== null && !geo.bettingAllowed;
   const marketClosed = Boolean(market?.closed);
 
+  // AR-7: the bet entry leads only when it can actually be acted on. Every
+  // reason counts — region, market restriction, an unbuilt wallet — not just
+  // the regional one, since the shipped default is blocked on the wallet in
+  // every permitted region.
+  const betEntryActionable =
+    market !== null && !marketClosed && (mode === "demo" || availability.allowed);
+
   // An argument is bound to the price it was made from (003 / AR-1). Decided
   // here against the live market, so the panel cannot render a stale case.
   const recState =
@@ -122,7 +129,7 @@ export function Widget() {
           arguedAtPrice: recommendation.arguedAtPrice,
           currentPrice: market.outcomes.find((o) => o.tokenId === recommendation.favouredTokenId)?.price,
           createdAt: recAt,
-          now: Date.now(),
+          now,
           marketClosed,
         })
       : "fresh";
@@ -176,8 +183,10 @@ export function Widget() {
       if (!res.ok) setRecError(body.error ?? "AI assistance is briefly unavailable.");
       else if (body.withheld) setWithheldReason(body.reason ?? "No view to offer.");
       else {
+        const at = Date.now();
         setRecommendation(body.recommendation ?? null);
-        setRecAt(Date.now());
+        setRecAt(at);
+        setNow(at);
       }
     } catch {
       if (id === recRequest.current) setRecError("Could not reach the server. Please try again.");
@@ -230,14 +239,43 @@ export function Widget() {
       mode={mode}
       onPlace={handlePlace}
       bettingDisabled={mode === "real" && !availability.allowed}
-      disabledReason={mode === "real" ? availability.reason : undefined}
+      disabledReason={
+        mode === "real"
+          ? geoBlocked
+            ? "Real betting is unavailable in your region — the reason is shown above. Demo mode still works."
+            : availability.reason
+          : undefined
+      }
       balanceUsd={mode === "demo" ? demo.balanceUsd : undefined}
       marketClosed={marketClosed}
     />
   );
 
+  // Rendered in exactly one position, chosen by actionability — never twice.
+  const betPanelSection = narrow ? null : betPanel;
+
   return (
     <div className="flex flex-col gap-6">
+      {(notice || error) && (
+        <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-4">
+          {notice && (
+            <p
+              role="status"
+              className="pointer-events-auto max-w-md rounded-control border border-demo/40 bg-panel px-3 py-2 text-xs text-demo shadow-lg"
+            >
+              {notice}
+            </p>
+          )}
+          {error && (
+            <p
+              role="alert"
+              className="pointer-events-auto max-w-md rounded-control border border-down/40 bg-panel px-3 py-2 text-xs text-down shadow-lg"
+            >
+              {error}
+            </p>
+          )}
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex rounded-control border border-line-strong p-0.5" role="group" aria-label="Betting mode">
           {(["demo", "real"] as const).map((m) => (
@@ -264,23 +302,17 @@ export function Widget() {
         )}
 
         {geoBlocked && (
-          <p role="status" className="text-xs text-muted">
-            Real betting unavailable{geo?.country ? ` in ${geo.country}` : ""} — browsing, AI
-            assistance and demo mode remain available.
+          // Carried here, beside the control that chooses real money, rather
+          // than only inside the bet panel: AR-7 can demote that panel, and
+          // AR-5 requires this explanation not to move with it (001 US-5,
+          // 002 VR-3).
+          <p role="status" className="max-w-prose text-xs text-muted">
+            Real betting unavailable{geo?.country ? ` in ${geo.country}` : ""} — {geo?.reason}{" "}
+            Browsing, AI assistance and demo mode remain available.
           </p>
         )}
       </div>
 
-      {notice && (
-        <p role="status" className="rounded-control border border-demo/30 bg-demo/10 px-3 py-2 text-xs text-demo">
-          {notice}
-        </p>
-      )}
-      {error && (
-        <p role="alert" className="rounded-control bg-down/10 px-3 py-2 text-xs text-down">
-          {error}
-        </p>
-      )}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <MarketList
@@ -289,6 +321,8 @@ export function Widget() {
         />
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
+          {betEntryActionable && betPanelSection}
+
           {market && (
             <RecommendPanel
               market={market}
@@ -318,7 +352,8 @@ export function Widget() {
             onSuggestions={setSuggestions}
           />
 
-          {!narrow && betPanel}
+          {!betEntryActionable && betPanelSection}
+
           <DemoPositions positions={demo.positions} />
         </div>
       </div>
